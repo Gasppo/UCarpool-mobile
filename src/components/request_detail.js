@@ -93,7 +93,7 @@ export default function RequestDetail(props)  {
     return (
         <>
             <View style={styles.card}>
-                <TouchableOpacity  onPress={() =>setModalVisibility(true)} style={[styles.button, {backgroundColor: backgroundColor(state.status)}]}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() =>setModalVisibility(true)} style={[styles.button, {backgroundColor: backgroundColor(state.status)}]}>
                     <View id='iconContainer' style={styles.iconContainer}>
                         <Icon name={state.pickupType == 'driverPicksMe' ? 'car' : 'user'} size={26} color={UCA_BLUE} style={styles.optionIcon}/>
                     </View>
@@ -131,7 +131,7 @@ export default function RequestDetail(props)  {
                 <SafeAreaView id='modalContainer' style={{flex: 1, width: '100%', height: '100%', justifyContent: 'center'}}>
                 <View style={{width: '90%', height: '90%', borderRadius: 15, alignSelf: 'center', margin: '1%', backgroundColor: 'white', elevation: 12, borderRadius: 15, padding: 10}}>
                     <View style={{alignSelf: 'flex-end', right: 10, top: 10, position: 'absolute', zIndex: 10}}>
-                        <TouchableOpacity onPress={() => setModalVisibility(false)}>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => setModalVisibility(false)}>
                             <Icon name='close' type='material-community' size={40} color='grey'/>
                         </TouchableOpacity>
                     </View>

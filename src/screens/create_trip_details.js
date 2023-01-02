@@ -153,7 +153,7 @@ export default function CreateTripDetails(props){
         />
         <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'white', elevation: 5, borderRadius: 10, padding: 10}}>
             <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center'}}>
-                <TouchableOpacity style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
+                <TouchableOpacity activeOpacity={0.5} style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
                     <Icon name='arrow-left' color={'rgb(0,53,108)'} size={20}  />
                 </TouchableOpacity>
                 <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Datos de Viaje</Text>

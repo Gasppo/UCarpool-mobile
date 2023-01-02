@@ -127,7 +127,7 @@ export default function PassengerTripRequestLocation(props){
             
             <View style={{width: '95%', alignSelf: 'center' ,flex:1}}>
                 <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center'}}>
-                    <TouchableOpacity hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} onPress={() => props.navigation.goBack()} style={{marginRight: 10}}>
+                    <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} onPress={() => props.navigation.goBack()} style={{marginRight: 10}}>
                         <Icon name='arrow-left' color={'rgb(0,53,108)'} size={26}  />
                     </TouchableOpacity>
                     <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>{createRequestData.pickupType == 'driverPicksMe' ? createRequestData.dropoffType == 'myOwn' ? 'Subida y bajada' : 'Subida' : createRequestData.dropoffType == 'myOwn' ? 'Bajada' : ''}</Text>

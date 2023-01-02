@@ -48,7 +48,7 @@ export default function DriverProfileVehicle(props)  {
     }
     return (
         <>
-            <TouchableOpacity delayPressIn={40} onPress={() => { setModalDisplay(true) }} style={{width: '90%', borderRadius: 10, backgroundColor: 'white', flexDirection: 'row', marginVertical: 5, paddingVertical: 10, justifyContent: 'center', elevation: 5, alignSelf: 'center', alignItems: 'center'}}>
+            <TouchableOpacity activeOpacity={0.5} delayPressIn={40} onPress={() => { setModalDisplay(true) }} style={{width: '90%', borderRadius: 10, backgroundColor: 'white', flexDirection: 'row', marginVertical: 5, paddingVertical: 10, justifyContent: 'center', elevation: 5, alignSelf: 'center', alignItems: 'center'}}>
                 <Icon name={'car'} size={30} style={styles.carIcon}/>
                 <View style={{ flex: 1, alignContent: 'flex-start'}}>
                     <Text style={styles.titleText} numberOfLines={1}>Modelo: {props.carData.VehicleModel.model}</Text>

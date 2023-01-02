@@ -2,7 +2,7 @@ import React from 'react';
 import { View, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from '../components/default_text';
 import { Avatar, Title } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useNavigation } from '@react-navigation/native';
 import { UCA_BLUE } from '../constants';
@@ -46,40 +46,45 @@ export default function UserProfile(props)  {
                         </View>
                     </View>
                 </View>
-                <ScrollView style={{flex: 1}} contentContainerStyle={styles.buttonsContainer}>
-                        <TouchableOpacity 
+                <ScrollView style={{ backgroundColor: 'rgb(245,245,248)', paddingTop: 10}}>
+                        <View style={styles.buttonsContainer}>
+                        <TouchableOpacity
+                            activeOpacity={0.5}
                             style={styles.profileButton}
                             onPress={() => props.navigation.navigate('user_stats')}
                         >
                             <View style={styles.iconContainer}>
-                                <Icon name={'bar-chart'} size={20} style={styles.optionIcon}/>
+                                <Icon name={'chart-bar'} size={20} style={styles.optionIcon}/>
                             </View>
                             <Text style={styles.defaultText}>Estadísticas de { props.authentication.userType == 'driver'? 'conductor' : 'pasajero' }</Text>
                         </TouchableOpacity>
                         { userData.isDriver?
                         <TouchableOpacity
+                            activeOpacity={0.5}
                             style={styles.profileButton}
                             onPress={() => props.navigation.navigate('driver_vehicles')}
                         >
                             <View style={styles.iconContainer}>
-                                <Icon name={'car'} size={20} style={styles.optionIcon}/>
+                                <Icon name={'car-multiple'} size={20} style={styles.optionIcon}/>
                             </View>
                             <Text style={styles.defaultText}>Vehículos</Text>
                         </TouchableOpacity>
                         : <></>
                         }
                         <TouchableOpacity
+                            activeOpacity={0.5}
                             style={styles.profileButton}
                             onPress={() => console.log('driver history screen')}
                         >
                             <View style={styles.iconContainer}>
-                                <Icon name={'road'} size={20} style={styles.optionIcon}/>
+                                <Icon name={'history'} size={20} style={styles.optionIcon}/>
                             </View>
                             <Text style={styles.defaultText}>Historial de viajes como { props.authentication.userType == 'driver'? 'conductor' : 'pasajero' }</Text>
                         </TouchableOpacity>
                         {
                             !(userData.isDriver)?
                             <TouchableOpacity
+                                activeOpacity={0.5}
                                 style={styles.profileButton}
                                 onPress={() => props.navigation.navigate('about_app')}
                             >
@@ -91,11 +96,12 @@ export default function UserProfile(props)  {
                             : <></>
                         }
                         <TouchableOpacity
+                            activeOpacity={0.5}
                             style={styles.profileButton}
                             onPress={() => props.navigation.navigate('about_app')}
                         >
                             <View style={styles.iconContainer}>
-                                <Icon name={'info-circle'} size={20} style={styles.optionIcon}/>
+                                <Icon name={'information-outline'} size={20} style={styles.optionIcon}/>
                             </View>
                             
                             <Text style={styles.defaultText}>Acerca de la aplicación</Text>
@@ -103,11 +109,12 @@ export default function UserProfile(props)  {
                         {
                             userData.isDriver && props.authentication.userType == 'passenger'? 
                             <TouchableOpacity
+                                activeOpacity={0.5}
                                 style={[styles.profileButton, {backgroundColor: UCA_BLUE}]}
                                 onPress={() => {props.switchToDriver(userData)}}
                             >
                                 <View style={styles.iconContainer}>
-                                    <Icon name={'key'} size={20} style={styles.optionIcon}/>
+                                    <Icon name={'account-key'} size={20} style={[styles.optionIcon, {color: 'white'}]}/>
                                 </View>
                                 <Text style={{margin: 5, color: 'white'}}>Cambiar a Modo Conductor</Text>
                             </TouchableOpacity>
@@ -117,11 +124,12 @@ export default function UserProfile(props)  {
                         {
                             userData.isDriver && props.authentication.userType == 'driver'? 
                             <TouchableOpacity
-                            style={[styles.profileButton, {backgroundColor: UCA_BLUE}]}
-                            onPress={() => props.switchToPassenger()}
+                                activeOpacity={0.5}
+                                style={[styles.profileButton, {backgroundColor: UCA_BLUE}]}
+                                onPress={() => props.switchToPassenger()}
                             >
                                 <View style={styles.iconContainer}>
-                                    <Icon name={'key'} size={20} style={styles.optionIcon}/>
+                                    <Icon name={'seat-passenger'} size={20} style={[styles.optionIcon, {color: 'white'}]}/>
                                 </View>
                                 <Text style={styles.passengerModeSwitchText}>Cambiar a Modo Pasajero</Text>
                             </TouchableOpacity>
@@ -129,15 +137,19 @@ export default function UserProfile(props)  {
                             <></>
                         }
                         <TouchableOpacity
-                            style={[styles.profileButton, {backgroundColor: 'white'}]}
+                            activeOpacity={0.5}
+                            style={[styles.profileButton, {borderBottomWidth:0}]}
                             onPress={() => props.logOutUser()}
                             >
                             <View style={styles.iconContainer}>
-                                <Icon name={'user-times'} size={20} style={[styles.optionIcon, {color: 'red'}]}/>
+                                <Icon name={'account-remove'} size={20} style={[styles.optionIcon, {color: 'red'}]}/>
                             </View>
                             <Text style={{margin: 5, color: 'red'}}>Cerrar Sesión</Text>
-                        </TouchableOpacity>             
+                        </TouchableOpacity>       
+                        </View>
+                        <View id='test' style={{width: '100%', height: 20}}/>     
                 </ScrollView>
+
             </SafeAreaView>
         </>
 
@@ -152,17 +164,17 @@ const styles = StyleSheet.create({
     },
     defaultText: {
         margin: 5,
-        color: 'rgb(80,80,80)'
+        color: 'rgb(70,70,70)'
     },
     titleText: { textAlign: 'center', fontFamily: 'Nunito-Bold', color: 'rgb(80,80,80)'},
     topBar: {flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE},
-    myProfileText: {fontSize: 26, margin: 15, color: 'white'},
+    myProfileText: {fontSize: 24, margin: 15, color: 'white'},
     containerBox: {alignSelf: 'center', alignItems: 'center', padding: 10, backgroundColor: 'white', width: '100%'},
     nameMailContainer: {flexDirection: 'row', alignItems: 'center', width: '100%'},
     nameContainer: {flexDirection: 'column', flex: 1},
     userModesContainer: { width: '100%', paddingTop: 10, alignItems: 'center'},
     innerUserModesContainer: {flexDirection: 'row', justifyContent: 'space-evenly', marginBottom: 5, width: '80%', alignSelf: 'center'},
-    buttonsContainer: {paddingHorizontal: 5, paddingVertical: 10},
+    buttonsContainer: { borderRadius: 20, backgroundColor: 'rgb(250,250,250)', overflow:'hidden', borderWidth: 1, borderColor: 'rgb(245,245,248)', elevation: 1, marginHorizontal: 10},
     passengerModeSwitchText: {margin: 5, color: 'white'},
 
 
@@ -177,16 +189,19 @@ const styles = StyleSheet.create({
         width: 40,
     },
     profileButton: {
-        marginTop: 10,
-        minHeight: 50,
+        //marginTop: 10,
+        minHeight: 65,
         alignContent: 'center',
         justifyContent: 'flex-start',
         flexDirection: 'row',
         alignItems: 'center',
-        borderRadius: 10,
+        //borderRadius: 10,
         padding: 5,
-        elevation: 5,
-        backgroundColor: 'white'
+        //elevation: 5,
+        backgroundColor: 'white',
+        borderBottomWidth: 1,
+        borderColor: 'rgb(235,235,238)'
+
     },
     userModeRectangles: {
         elevation: 5,

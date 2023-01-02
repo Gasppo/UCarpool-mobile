@@ -13,10 +13,10 @@ export default function PassengerActiveTrips(props)  {
     const [refreshing, setRefreshing] = React.useState(false);
     const [extraData, setExtraData] = React.useState(false)
     const isFocused = useIsFocused();
-    const getDriverTrips = async () => {
+    const getDriverTrips = async (signal) => {
         try{
             setRefreshing(true)
-            const response = await axios.get(`${API_URL}/trips?driverId=${props.authentication.user.id}&status=available`);
+            const response = await axios.get(`${API_URL}/trips?driverId=${props.authentication.user.id}&status=available`, {signal: signal});
 
             setRefreshing(false)
             if(response.status == 200){
@@ -28,14 +28,19 @@ export default function PassengerActiveTrips(props)  {
         }
         catch(e){
             setRefreshing(false)
-            console.log(JSON.stringify(e.response))
-            Alert.alert('Error', e.message)
+            console.log(JSON.stringify(e))
+            if(e.code && e.code == 'ERR_CANCELED'){
+
+            }
+            else{
+                Alert.alert('Error', e.message)
+            }
         }
     }
-    const getPassengerTrips = async () => {
+    const getPassengerTrips = async (signal) => {
         try{
             setRefreshing(true)
-            const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${props.authentication.user.id}`);
+            const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${props.authentication.user.id}`, {signal: signal});
             setRefreshing(false)
             if(response.status == 200){
                 console.log(response.data)
@@ -58,15 +63,24 @@ export default function PassengerActiveTrips(props)  {
         }
         catch(e){
             setRefreshing(false)
-            console.log(JSON.stringify(e.response))
-            Alert.alert('Error', e.message)
+            console.log(JSON.stringify(e))
+            if(e.code && e.code == 'ERR_CANCELED'){
+
+            }
+            else{
+                Alert.alert('Error', e.message)
+            }
         }
     }
 
     React.useEffect(() => {
+        const controller = new AbortController();
+        const signal = controller.signal;
         if(isFocused){
-            props.authentication.userType == 'driver' ? getDriverTrips() : getPassengerTrips()
+            props.authentication.userType == 'driver' ? getDriverTrips(signal) : getPassengerTrips(signal)
         }
+        // Cleanup
+        return () => {controller.abort()}
     }, [isFocused])
     React.useEffect(() => {
         setExtraData(!extraData)
@@ -81,9 +95,9 @@ export default function PassengerActiveTrips(props)  {
             hidden={false}
         />
         <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE}}>
-            <Text style={{fontSize: 26, margin: 15, color: 'white'}}>Viajes Programados</Text>
+            <Text style={{fontSize: 24, margin: 15, color: 'white'}}>Viajes Programados</Text>
             { props.authentication.userType == 'driver'?
-            <TouchableOpacity hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{position: 'absolute', right: 20}} onPress={() => props.navigation.navigate('create_trip_navigator')}>
+            <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{position: 'absolute', right: 20}} onPress={() => props.navigation.navigate('create_trip_navigator')}>
                 <Icon name='plus' color={'white'} size={20}  />
             </TouchableOpacity>
             :

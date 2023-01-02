@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 //Importar screens
 import UserActiveTripsScreen from '../screens/user_assigned_trips';
-import UserNotificationsScreen from '../screens/passenger_notifications';
+import UserNotificationsScreen from '../screens/Main/UserNotifications';
 import ProfileNavigator from './profile_navigator';
 import UserSearchTripsMapScreen from '../screens/passenger_search_trips_map';
 

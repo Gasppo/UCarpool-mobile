@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import UserProfileScreen from '../screens/user_profile';
 import DriverVehiclesScreen from '../screens/driver_vehicles';
 import UserStatsScreen from '../screens/user_stats';
-import AboutAppScreen from '../screens/about_app';
+import AboutAppScreen from '../screens/Profile/AboutApp';
 
 
 //Redux config

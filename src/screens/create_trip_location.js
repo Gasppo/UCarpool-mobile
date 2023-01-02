@@ -113,7 +113,7 @@ export default function CreateTripLocation(props){
             <View style={{width: '95%', alignSelf: 'center' ,flex:1}}>
                 <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
                     <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Nuevo viaje</Text>
-                    <TouchableOpacity hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} onPress={() => props.navigation.goBack()}>
+                    <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} onPress={() => props.navigation.goBack()}>
                         <Icon name='times' color={'rgb(0,53,108)'} size={26}  />
                     </TouchableOpacity>
                 </View>

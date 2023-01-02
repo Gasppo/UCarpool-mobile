@@ -15,6 +15,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
 import MapView, { Circle } from 'react-native-maps';
 import { useIsFocused } from '@react-navigation/native';
+import SoftInputMode from 'react-native-set-soft-input-mode';
 
 export default function PassengerSearchTripsMap(props)  {
     const USABLE_HEIGHT = useSafeAreaFrame().height;
@@ -50,9 +51,15 @@ export default function PassengerSearchTripsMap(props)  {
     const isFocused = useIsFocused();
 
     React.useEffect(() => {
-        if(isFocused && selectedStartAddress.address && selectedEndAddress.address && selectedStartRadius && selectedStartTime){
-            getSearchResults()
-            setForceRefresh(Math.floor(Math.random() * 100))
+        if(isFocused){
+            SoftInputMode.set(SoftInputMode.ADJUST_PAN)
+            if(isFocused && selectedStartAddress.address && selectedEndAddress.address && selectedStartRadius && selectedStartTime){
+                getSearchResults()
+                setForceRefresh(Math.floor(Math.random() * 100))
+            }
+        }
+        else{
+            SoftInputMode.set(SoftInputMode.ADJUST_RESIZE)
         }
     }, [isFocused])
     function handleDateShown(yourDate){
@@ -236,11 +243,10 @@ export default function PassengerSearchTripsMap(props)  {
         <View style={{width: '100%', height: '100%', position: 'absolute', zIndex: 15, alignContent: 'center', justifyContent: 'center', display: refreshing? 'flex' : 'none'}}>
             <ActivityIndicator color="#0000ff" size="large" animating={refreshing} />
         </View>
-        
         <SafeAreaView style={{width:'100%', height:'100%'}} onLayout={(event) => onLayout(event, 'safeView')}>
             <FocusAwareStatusBar
                 animated={false}
-                backgroundColor={Platform.OS === 'android' && Platform.Version >=23 ? 'white' : 'black'}
+                backgroundColor={Platform.OS === 'android' && Platform.Version >=23 ? 'rgb(245,245,248)' : 'black'}
                 barStyle={ 'dark-content' }
             />
             <View style={styles.topBar} onLayout={(event) => onLayout(event, 'topBar')}>
@@ -341,10 +347,9 @@ export default function PassengerSearchTripsMap(props)  {
                                     <FlatList
                                         extraData={refreshing}
                                         data= {availableTripList}
-                                        style={{height: height-topBarHeight-bottomTabHeight-55}}
-                                        contentContainerStyle={{borderRadius: 6, padding: 5}}
+                                        style={{height: height-topBarHeight-bottomTabHeight-90}}
+                                        contentContainerStyle={{borderRadius: 6, padding: 5, backgroundColor: 'rgb(245,245,248)'}}
                                         refreshing={refreshing}
-                                        
                                         bounces={false}
                                         overScrollMode={'never'}
                                         keyExtractor={(item, index) => {return index.toString()}}
@@ -379,7 +384,7 @@ const styles = StyleSheet.create({
         width: '100%',
         alignSelf:'center',
         paddingTop: 5,
-        backgroundColor: 'white',
+        backgroundColor: 'rgb(245,245,248)',
         elevation: 20,
         paddingBottom: 5,
         flexDirection: 'row',
@@ -408,7 +413,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     searchResultsHome: {
-        backgroundColor: 'white',
+        backgroundColor: 'rgb(245,245,248)',
         position: 'absolute',
         flex: 1,
         width: '100%',
@@ -431,7 +436,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     searchBarContainer: {
-        backgroundColor: 'rgba(200, 200, 200, 0.5)',
+        backgroundColor: 'rgba(245,245,248, 0.5)',
         borderBottomColor: 'transparent',
         borderTopColor: 'transparent'
     },

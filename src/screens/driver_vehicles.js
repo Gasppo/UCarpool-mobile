@@ -13,18 +13,25 @@ export default function DriverVehicles(props)  {
   const [addVehicleModalVisible, setAddVehicleModalVisible] = React.useState(false);
   const [userVehicleList, setUserVehicleList] = React.useState([]);
 
-  const loadVehicles = () => {
-    getVehiclesFromApi(props.authentication.user.id)
-    .then(vehicles => {setUserVehicleList(vehicles)});
+  const loadVehicles = (signal) => {
+    getVehiclesFromApi(props.authentication.user.id, signal)
+    .then(vehicles => {setUserVehicleList(vehicles)})
+    .catch(e=>{console.log(e)});
   }
   React.useEffect( () => {
-      loadVehicles()
+      const controller = new AbortController();
+      const signal = controller.signal;
+      loadVehicles(signal)
+      return () => {controller.abort()}
   }, []);
 
   
   React.useEffect( () => {
     if(!addVehicleModalVisible){ // Add vehicle modal was closed
-      loadVehicles()
+      const controller = new AbortController();
+      const signal = controller.signal;
+      loadVehicles(signal)
+      return () => {controller.abort()};
     }
 }, [addVehicleModalVisible]);
 
@@ -39,11 +46,11 @@ export default function DriverVehicles(props)  {
       <View style={{flex:1, backgroundColor: UCA_BLUE}}>
       <SafeAreaView style={{marginTop: 10, width: '100%', flex:1,borderRadius: 10, paddingVertical: 5, elevation: 5, backgroundColor: 'white'}}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-          <TouchableOpacity hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{marginHorizontal: 20}} onPress={() => props.navigation.goBack()}>
+          <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{marginHorizontal: 20}} onPress={() => props.navigation.goBack()}>
             <Icon name='arrow-left' color={'rgb(0,53,108)'} size={20}  />
           </TouchableOpacity>
           <Text style={{fontSize: 30, margin: 10, color: 'rgb(0,53,108)'}}>Mis Vehículos</Text>
-          <TouchableOpacity  style={{position: 'absolute', right: 20}} onPress = {() => setAddVehicleModalVisible(true)}>
+          <TouchableOpacity activeOpacity={0.5} style={{position: 'absolute', right: 20}} onPress = {() => setAddVehicleModalVisible(true)}>
             <Icon name='plus' size={22} color={'rgb(0,53,108)'}/>
           </TouchableOpacity>
         </View>

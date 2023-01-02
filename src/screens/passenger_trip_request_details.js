@@ -24,7 +24,7 @@ export default function PassengerTripRequestDetails(props)  {
       <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'white', elevation: 5, borderRadius: 10, padding: 10}}>
         <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>  
             <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Pedido de viaje</Text>
-            <TouchableOpacity style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
+            <TouchableOpacity activeOpacity={0.5} style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
                 <Icon name='times' color={'rgb(0,53,108)'} size={26}  />
             </TouchableOpacity>
         </View>
@@ -47,7 +47,7 @@ export default function PassengerTripRequestDetails(props)  {
           <Text style={{ fontSize: 12, color: 'rgb(0,53,108)'}}>El conductor se reserva el derecho a aceptar el lugar de subida del pasajero</Text>
           <View style={{width: '100%', flexDirection: 'row'}}>
             <View style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
-                <TouchableOpacity id="driverBox" onPress={() => setCreateRequestData({...createRequestData, pickupType: 'goToDrivers', pickupAddress: tripData.startAddress})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
+                <TouchableOpacity activeOpacity={0.5} id="driverBox" onPress={() => setCreateRequestData({...createRequestData, pickupType: 'goToDrivers', pickupAddress: tripData.startAddress})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
                     <View style={{flexDirection: 'column', padding: 5, width: '100%', alignItems: 'center'}}>
                         <Icon name={'flag-o'} size={48} color={createRequestData.pickupType == 'goToDrivers' ? 'rgb(0,53,108)' : 'rgb(200,200,200)'} style={{margin: 2}}/>
                         <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: 'rgb(0,53,108)'}}>Donde indica el conductor</Text>
@@ -55,7 +55,7 @@ export default function PassengerTripRequestDetails(props)  {
                 </TouchableOpacity>
             </View>
             <View style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
-                <TouchableOpacity id="driverBox" onPress={() => setCreateRequestData({...createRequestData, pickupType: 'driverPicksMe'})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
+                <TouchableOpacity activeOpacity={0.5} id="driverBox" onPress={() => setCreateRequestData({...createRequestData, pickupType: 'driverPicksMe'})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
                     <View style={{flexDirection: 'column', padding: 5, width: '100%', alignItems: 'center'}}>
                         <Icon name={'home'} size={48} color={createRequestData.pickupType == 'driverPicksMe' ? 'rgb(0,53,108)' : 'rgb(200,200,200)'} style={{margin: 2}}/>
                         <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: 'rgb(0,53,108)'}}>Pedir que pase donde yo indique</Text>
@@ -67,7 +67,7 @@ export default function PassengerTripRequestDetails(props)  {
           <Text style={{ fontSize: 12, color: 'rgb(0,53,108)'}}>El conductor se reserva el derecho a aceptar el lugar de bajada del pasajero</Text>
           <View style={{width: '100%', flexDirection: 'row'}}>
             <View style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
-                <TouchableOpacity id="driverBox" onPress={() => setCreateRequestData({...createRequestData, dropoffType: 'goToDrivers', dropoffAddress: tripData.endAddress})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
+                <TouchableOpacity activeOpacity={0.5} id="driverBox" onPress={() => setCreateRequestData({...createRequestData, dropoffType: 'goToDrivers', dropoffAddress: tripData.endAddress})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
                     <View style={{flexDirection: 'column', padding: 5, width: '100%', alignItems: 'center'}}>
                         <Icon name={'flag-checkered'} size={48} color={createRequestData.dropoffType == 'goToDrivers' ? 'rgb(0,53,108)' : 'rgb(200,200,200)'} style={{margin: 2}}/>
                         <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: 'rgb(0,53,108)'}}>Donde indica el conductor</Text>
@@ -75,7 +75,7 @@ export default function PassengerTripRequestDetails(props)  {
                 </TouchableOpacity>
             </View>
             <View style={{width: '50%', paddingTop: 5, paddingHorizontal: 5, marginBottom: 20}}>
-                <TouchableOpacity id="driverBox" onPress={() => setCreateRequestData({...createRequestData, dropoffType: 'myOwn'})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
+                <TouchableOpacity activeOpacity={0.5} id="driverBox" onPress={() => setCreateRequestData({...createRequestData, dropoffType: 'myOwn'})} style={{ width: '100%', backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-start', elevation: 5, padding: 10}}>
                     <View style={{flexDirection: 'column', padding: 5, width: '100%', alignItems: 'center'}}>
                         <Icon name={'home'} size={48} color={createRequestData.dropoffType == 'myOwn' ? 'rgb(0,53,108)' : 'rgb(200,200,200)'} style={{margin: 2}}/>
                         <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: 'rgb(0,53,108)'}}>Pedir que pase donde yo indique</Text>

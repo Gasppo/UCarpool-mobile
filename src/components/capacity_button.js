@@ -15,7 +15,7 @@ class CapacityButton extends React.Component{
     }
     render(){
         return (
-            <TouchableOpacity style={[styles.button, {alignItems: 'center', justifyContent: 'center'}, {backgroundColor: this.props.stateValue >= this.state.number ? 'rgb(39,174,96)' : 'rgb(220,220,220)'}]} onPress={() => this.props.handler(this.state.number)} >
+            <TouchableOpacity activeOpacity={0.5} style={[styles.button, {alignItems: 'center', justifyContent: 'center'}, {backgroundColor: this.props.stateValue >= this.state.number ? 'rgb(39,174,96)' : 'rgb(220,220,220)'}]} onPress={() => this.props.handler(this.state.number)} >
                 <Icon name={'user'} size={30}/>
             </TouchableOpacity>
         )

@@ -10,7 +10,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 //Importar screens
 import PreTripCheckScreen from '../screens/StartTrip/PreTripCheck';
-import TripInProgressScreen from '../screens/StartTrip/TripInProgress';
 import TripDoneScreen from '../screens/StartTrip/TripDone';
 import PassengerQRCodeCheckScreen from '../screens/StartTrip/PassengerQRCheck';
 
@@ -24,7 +23,6 @@ const Stack = createNativeStackNavigator();
 
 //Configuración de Screens para Navigators y su conexión con los props de Redux
 const PreTripCheck = connect(mapStateToProps, mapDispatchToProps)(PreTripCheckScreen);
-const TripInProgress = connect(mapStateToProps, mapDispatchToProps)(TripInProgressScreen);
 const TripDone = connect(mapStateToProps, mapDispatchToProps)(TripDoneScreen);
 const PassengerQRCodeCheck = connect(mapStateToProps, mapDispatchToProps)(PassengerQRCodeCheckScreen);
 
@@ -33,7 +31,6 @@ export default function StartTripNavigator(props){
         <Stack.Navigator initialRouteName='PreTripCheck'>
           <Stack.Screen name= "PreTripCheck" component={PreTripCheck} options={{headerShown: false}} />
           <Stack.Screen name= "PassengerQRCodeCheck" component={PassengerQRCodeCheck} options={{headerShown: false, animation: 'slide_from_bottom'}} />
-          <Stack.Screen name= "TripInProgress" component={TripInProgress} options={{headerShown: false, animation: 'slide_from_right'}} />
           <Stack.Screen name= "TripDone" component={TripDone} options={{headerShown: false}} />
         </Stack.Navigator>
   )

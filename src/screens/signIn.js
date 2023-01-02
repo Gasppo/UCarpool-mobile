@@ -92,18 +92,18 @@ export default function SignInScreen(props) {
                 value={inputPassword}
                 onChangeText={setInputPassword}
               />
-              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center'}}>
+              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
                 Iniciar Sesión
               </PaperButton>
-              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center'}}>
+              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
                 Iniciar Sesión con UCA
               </PaperButton>
               <View>
                 <Text>No tiene una cuenta todavía? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('register')}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register')}>
                   <Text style={styles.bottomText}>Registrarse(register.js)</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => props.navigation.navigate('geolocation_test')}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('geolocation_test')}>
                   <Text style={styles.bottomText}>geolocation_test.js</Text>
                 </TouchableOpacity>
               </View>

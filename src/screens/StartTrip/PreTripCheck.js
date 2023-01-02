@@ -22,7 +22,7 @@ import appConfig from '../../../app.json';
 import inside from 'point-in-polygon-hao';
 import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
-import MapView from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { Polygon, Polyline } from 'react-native-maps';
 
 const testPolygon = [[
@@ -279,11 +279,11 @@ export default function PreTripCheck(props)  {
 }
     const handleLocationUpdate = (location) => {
       setLocation(location);
-      console.log(aois[1])
+      console.log('allAois:', aois)
       let locationCoords = [location.coords.longitude, location.coords.latitude]
       let found = aois.find( aoi => inside(locationCoords, [aoi]));
       console.log('found: ', found)
-        if(inside(locationCoords, [aois])){
+        if(found){
           sendLocationUpdate(location);
           setTestValue(testValue + 1);
           setTripLocations(tripLocations => [...tripLocations, location])
@@ -641,12 +641,13 @@ export default function PreTripCheck(props)  {
           { aois.map((aoi, index) => {
             return <Polygon key={index} coordinates={coordArrayToObject(aoi)}/>
           }) }
+          { location? <Marker key={Math.random()} coordinate={{latitude: location.coords.latitude, longitude: location.coords.longitude}}/> : <></> }
           {tripLocationsCoordinates.length ? <Polyline coordinates={tripLocationsCoordinates}/> : <></>}
           <Polyline coordinates={[{latitude: 0, longitude: 0},{latitude: -1.0, longitude: -1.0},{latitude: -2.45, longitude: -2.45},]}/>
           </MapView>
         <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>  
             <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Panel de Ubicación</Text>
-            <TouchableOpacity style={{marginHorizontal: 10}} onPress={() => setDetailsModalVisible(false)}>
+            <TouchableOpacity activeOpacity={0.5} style={{marginHorizontal: 10}} onPress={() => setDetailsModalVisible(false)}>
                 <Icon name='times' color={'rgb(0,53,108)'} size={26}  />
             </TouchableOpacity>
         </View>

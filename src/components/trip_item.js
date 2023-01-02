@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Button as PaperButton } from 'react-native-paper';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
-import { API_URL, DEFAULT_COORDINATE, UCA_BLUE, UCA_GREEN } from '../constants';
+import { API_URL, UCA_BLUE, UCA_GREEN } from '../constants';
 import RequestDetail from './request_detail';
 import axios from 'axios';
 import QRCode from 'react-native-qrcode-svg';
@@ -79,7 +79,7 @@ function getRegionForCoordinates(points) {
 
 function TripItem(props)  {
     const [item, setItem] = React.useState(props.item)
-    const [modalVisible, setModalVisibility] = React.useState(false);
+    const [modalVisible, setModalVisibility] = React.useState(props.hiddenCard? true : false);
     const [seatAssignments, setSeatAssignments] = React.useState([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const [mapRegion, setMapRegion] = React.useState(getRegionForCoordinates([props.item.startAddress.coords, props.item.endAddress.coords]))
@@ -267,7 +267,8 @@ function TripItem(props)  {
     }
     return (
         <>
-        <View style={{flex: 1, padding: 10}}>
+        {!props.hiddenCard ?
+        <View style={{flex: 1, paddingHorizontal: 10, paddingVertical: 2}}>
             <Card style={styles.card} onPress={() => {setModalVisibility(true)}}>
                 <Card.Content style={{flexDirection: 'row'}}>
                     <View style={styles.cardDirectionContainer}>
@@ -297,17 +298,21 @@ function TripItem(props)  {
                 </Card.Content>
             </Card>
         </View>
+        :
+        <></>
+        }
+        
             <Modal visible={modalVisible} animationType="slide" style={styles.modal} onRequestClose={()=> handleCloseModal()}>
                 
                 <View style={styles.modalTopBar}>
                     { props.authentication.userType == 'driver'?
-                        <TouchableOpacity onPress={() => handleEditTrip() }>
+                        <TouchableOpacity activeOpacity={0.5} onPress={() => handleEditTrip() }>
                             <Icon name='application-edit-outline' size={40} style={styles.editButton}/>
                         </TouchableOpacity>
                         :
                         <></>
                     }
-                    <TouchableOpacity onPress={() => handleCloseModal()}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => handleCloseModal()}>
                         <Icon name='close' size={40}/>
                     </TouchableOpacity>
                 </View>
@@ -490,7 +495,6 @@ const styles = StyleSheet.create({
 
     },
     card: {
-        marginVertical: 2,
         borderRadius: 20,
         elevation: 5
     },

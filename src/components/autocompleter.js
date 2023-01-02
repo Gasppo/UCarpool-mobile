@@ -355,7 +355,7 @@ import axios from 'axios';
                   data={suggestions}
                   ListEmptyComponent={<View style={{alignSelf: 'center', width: '50%', flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop:85}}><Text style={{textAlign: 'center'}}>{input?.length? "No hay coincidencias!" : "Escriba una dirección. Sólo direcciones de la zona AMBA están habilitadas"}</Text></View>}
                   renderItem={({item}) =>
-                      <TouchableOpacity style={styles.resultsItem} onPress={() => updateCoords(item)}>
+                      <TouchableOpacity activeOpacity={0.5} style={styles.resultsItem} onPress={() => updateCoords(item)}>
                           <Text style={styles.resultLabel}>{item.data.nombre}</Text>
                           <Text>{item.subTitle}</Text>
                           <Text>{item.type.charAt(0).toUpperCase() + item.type.slice(1).toLowerCase()}</Text>
@@ -386,13 +386,13 @@ import axios from 'axios';
     height: "95%",
     flex: 1,
     borderRadius: 10,
-    elevation: 5,
+    elevation: 1,
   },
   modal: {alignItems: 'center', width: '100%'},
   modalContainer: {backgroundColor: 'white', flex: 1},
   topBar: {width: '100%', flexDirection: 'row', justifyContent: 'center'},
   closeIcon: {width:50, height: 50},
-  inputButton: {flex: 1, flexDirection: 'row', backgroundColor: 'white', alignSelf: 'center', borderRadius: 10, elevation: 5,},
+  inputButton: {flex: 1, flexDirection: 'row', backgroundColor: 'white', alignSelf: 'center', borderRadius: 10, elevation: 2,},
   locationButton: {alignSelf: 'center', width:50, height: 50},
   resultsContainer: {height: '100%'},
   resultsItem: { padding: 5},

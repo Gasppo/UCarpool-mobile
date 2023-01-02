@@ -63,7 +63,7 @@ export default function PassengerQRCodeCheck(props)  {
     <SafeAreaView style={styles.defaultView}>
       <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%'}}>  
           <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Escanear QR de Pasajero</Text>
-          <TouchableOpacity style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
+          <TouchableOpacity activeOpacity={0.5} style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
               <Icon name='times' color={'rgb(0,53,108)'} size={26}  />
           </TouchableOpacity>
       </View>
