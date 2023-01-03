@@ -1,37 +1,76 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import Text from './default_text';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-
+import axios from 'axios';
 import { connect } from 'react-redux';
+import { API_URL } from '../constants';
 import { IconButton } from 'react-native-paper';
 
-const buildNotificationStyle = (notificationTypeId, driverName, passengerName) => {
+const buildNotificationStyle = (notificationTypeId, issuerName) => {
     switch( notificationTypeId ){
-        case 'CHANGED_TRIP_DATE':
-            return {icon: 'car-clock', label: `${driverName} modificó el horario de su viaje`}
+        case 'CHANGED_TRIP_DETAILS':
+            return {icon: 'car-clock', label: `${issuerName} modificó detalles de su viaje`}
         case 'ACCEPTED_SEAT_BOOKING':
-            return {icon: 'notebook-check', label: `${driverName} aceptó tu solicitud de viaje`}
+            return {icon: 'notebook-check', label: `${issuerName} aceptó tu solicitud de viaje`}
         case 'COMPLETED_TRIP':
-            return {icon: 'check-decagram', label: `${driverName} declaró que te dejó en destino`}
+            return {icon: 'check-decagram', label: `${issuerName} declaró que te dejó en destino`}
         case 'CANCELED_TRIP':
-            return {icon: 'car-off', label: `${driverName} canceló su viaje`}
+            return {icon: 'car-off', label: `${issuerName} canceló su viaje`}
         case 'STARTED_TRIP':
-            return {icon: 'car-info', label: `${driverName} comenzó su viaje`}
+            return {icon: 'car-info', label: `${issuerName} comenzó su viaje`}
         case 'DECLINED_SEAT_BOOKING':
-            return {icon: 'notebook-remove', label: `${driverName} rechazó tu solicitud de viaje`}
+            return {icon: 'notebook-remove', label: `${issuerName} rechazó tu solicitud de viaje`}
+        case 'NEW_SEAT_REQUEST':
+            return {icon: 'notebook-remove', label: `${issuerName} solicitó unirse a tu viaje`}
+        case 'WITHDRAWN_SEAT_BOOKING':
+            return {icon: 'notebook-remove', label: `${issuerName} quitó su solicitud de viaje`}
+        case 'PICKED_UP_TRIP':
+            return {icon: 'notebook-remove', label: `${issuerName} declaró que subiste al viaje`}
+        case 'DECLINED_SEAT_BOOKING':
+            return {icon: 'notebook-remove', label: `${issuerName} rechazó tu solicitud de viaje`}
+        default:
+            return {icon: 'file-question-outline', label: `Notificación indefinida`}
+
     }
 }
+
+const deleteNotification = async (notifId) => {
+    try{
+        const response = await axios.delete(`${API_URL}/notifications?id=${notifId}`);
+        if(response.status == 200){
+            return response.data
+        }
+        else{
+            throw new Error('Error occurred')
+        }
+    }
+    catch(e){
+        console.log(JSON.stringify(e))
+        if(e.code && e.code == 'ERR_CANCELED'){
+        }
+        else{
+            Alert.alert('Error', e.message)
+        }
+    }
+}
+
 function NotificationItem(props)  {
     const [state, setState] = React.useState(
         {
-            notificationId: props.notificationId,
-            notificationStyle: props.authentication.userType == 'driver'? buildNotificationStyle(props.notificationTypeId, null, props.name) : buildNotificationStyle(props.notificationTypeId, props.name, null),
+            id: props.id,
+            notificationStyle: buildNotificationStyle(props.notificationTypeId, props.issuerName),
             tripId: props.tripId,
             date: props.date,
         }
     )
-    console.log(state)
+
+    const handleDelete = async () => {
+        await deleteNotification(state.id);
+        if(props.refreshFn){
+            props.refreshFn()
+        }
+    }
 
     return (
         state.notificationStyle ?
@@ -39,14 +78,12 @@ function NotificationItem(props)  {
             <TouchableOpacity style={[styles.card, {flexDirection: 'row', alignItems: 'center'}]} onPress={() => props.action()} activeOpacity={0.5}>
                 <Icon name={state.notificationStyle.icon} size={30} color={'grey'} style={{paddingRight: 10}}/>
                 <View style={{ flex: 1}}>
-                    <Text style={{ color: 'black', fontStyle: 'italic', fontSize: 11}}>22/12 - 13:58</Text>
+                    <Text style={{ color: 'black', fontStyle: 'italic', fontSize: 11}}>{(new Date(state.date).getDate()+1<10? '0':'') + new Date(state.date).getDate() + '/' + (new Date(state.date).getMonth()+1<10? '0':'') + (new Date(state.date).getMonth()+1)} - {new Date(state.date).getHours()}:{new Date(state.date).getMinutes()<10?'0':''}{new Date(state.date).getMinutes()}</Text>
                     <Text style={{ color: 'black', flexShrink: 1, flex: 1}}>{state.notificationStyle.label}</Text>
                 </View>
             </TouchableOpacity>
-            <IconButton icon="trash-can-outline" mode='contained' style={{alignSelf: 'center'}} color="grey" onPress={() => console.log('delete')}/>
+            <IconButton icon="trash-can-outline" mode='contained' style={{alignSelf: 'center'}} color="grey" onPress={() => handleDelete()}/>
         </View>
-            
-
         :
         <></>
   ); 

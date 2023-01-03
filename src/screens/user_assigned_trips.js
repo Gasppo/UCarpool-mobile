@@ -13,6 +13,7 @@ export default function PassengerActiveTrips(props)  {
     const [refreshing, setRefreshing] = React.useState(false);
     const [extraData, setExtraData] = React.useState(false)
     const isFocused = useIsFocused();
+    
     const getDriverTrips = async (signal) => {
         try{
             setRefreshing(true)

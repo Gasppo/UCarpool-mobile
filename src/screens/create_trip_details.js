@@ -42,7 +42,7 @@ export default function CreateTripDetails(props){
     }
     const editTrip = async (tripData) => {
         try{
-            const response = await axios.put(API_URL + '/trips?id=' + tripData.id, tripData);
+            const response = await axios.put(API_URL + `/trips?id=${tripData.id}`, tripData);
         
             if(response.status == 200){
                 console.log(JSON.stringify(response.data))

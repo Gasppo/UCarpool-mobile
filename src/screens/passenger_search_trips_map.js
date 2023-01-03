@@ -7,7 +7,7 @@ import { Button as PaperButton } from 'react-native-paper';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import AMBACompleter from '../components/autocompleter';
 import { getMarkerForAddress } from '../auxiliaryFunctions';
-import { DEFAULT_COORDINATE, API_URL } from '../constants';
+import { DEFAULT_COORDINATE, API_URL, UCA_BLUE } from '../constants';
 import axios from 'axios';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import TripItem from '../components/trip_item';
@@ -261,7 +261,7 @@ export default function PassengerSearchTripsMap(props)  {
                         </View>
                     </View>
                     <View style={styles.addressFlipper}>
-                        <IconButton icon="arrow-up-down" mode='contained' onPress={() => flipAddresses()} />
+                        <IconButton icon="arrow-up-down" mode='contained' color={UCA_BLUE} onPress={() => flipAddresses()} />
                     </View>
                 </View>
             </View>
@@ -297,8 +297,8 @@ export default function PassengerSearchTripsMap(props)  {
                         <Animated.View style={{transform:[{rotate: spin}], margin: 5}}>
                             <IconButton icon={'arrow-down'} disabled={showFilters && !availableTripList} size={22} color='rgb(0,53,108)' onPress={() => {setShowBottomBox(!showBottomBox)}}/>
                         </Animated.View>
-                        <View style={{backgroundColor: showFilters && showBottomBox? 'rgb(200,200,200)' : 'white', borderRadius: 50, margin: 5}}>
-                            <IconButton icon={'filter'} size={22} color='grey' onPress={() => {setShowFilters(!showFilters); if(!showBottomBox){setShowBottomBox(true)}  }}/>
+                        <View style={{margin: 5}}>
+                            <IconButton icon={'filter'} size={22} color={UCA_BLUE} mode='contained' onPress={() => {setShowFilters(!showFilters); if(!showBottomBox){setShowBottomBox(true)}  }}/>
                         </View>
                     </View>
                     <View>

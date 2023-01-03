@@ -49,3 +49,5 @@ export const MARKER_RED = 'https://raw.githubusercontent.com/pointhi/leaflet-col
 export const MARKER_GREEN = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png'
 export const MARKER_GOLD = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png'
 
+export const driverNotificationList = ['NEW_SEAT_REQUEST', 'WITHDRAWN_SEAT_BOOKING']
+export const passengerNotificationList = ['CHANGED_TRIP_DETAILS', 'ACCEPTED_SEAT_BOOKING', 'COMPLETED_TRIP', 'CANCELED_TRIP', 'STARTED_TRIP', 'PICKED_UP_TRIP', 'DECLINED_SEAT_BOOKING']

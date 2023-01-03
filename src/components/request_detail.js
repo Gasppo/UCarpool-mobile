@@ -140,7 +140,6 @@ export default function RequestDetail(props)  {
                             contentContainerStyle={{alignItems: 'center', justifyContent: 'center', width: '95%', alignSelf: 'center', paddingVertical: 10}}
                             //nestedScrollEnabled={true}
                         >
-                            
                             <View id='passengerProfileContainer' style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
                                 <View id="profileBox" style={{ width: '100%', backgroundColor: 'white', borderRadius: 15, alignSelf: 'flex-start', elevation: 5, padding: 15, alignItems: 'center', flexDirection: 'column'}}>
                                         <Icon name={'user'} size={64} color={UCA_BLUE} style={{margin: 2}}/>

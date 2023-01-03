@@ -3,9 +3,9 @@ import { Alert } from "react-native";
 import { API_URL } from "../constants";
 
 export async function getVehiclesFromApi(driverId, signal){
-  console.log(driverId, signal)
+  console.log('getting vehicles for',driverId)
   try {
-      if( isNaN(driverId) ){
+      if(!driverId){
           throw new Error('Not a valid driverId')
       }
       let response = await axios.get( API_URL +'/vehicles?driverId=' + driverId, {signal: signal});
@@ -24,7 +24,7 @@ export async function getVehiclesFromApi(driverId, signal){
 
 export async function deleteVehicle(driverId, vehicleId){
   try {
-      if( isNaN(driverId) ){
+      if( !driverId){
           throw new Error('Not a valid driverId')
       }
       return axios.delete( API_URL + '/vehicles?driverId=' + driverId + '&id=' + vehicleId)
@@ -41,9 +41,9 @@ export async function deleteVehicle(driverId, vehicleId){
 
 export async function createTrip(tripData){
   try {
-      if( isNaN(driverId) ){
+      /* if( isNaN(driverId) ){
           throw new Error('Not a valid driverId')
-      }
+      } */
       return (fetch(API_URL + '/users/login', {
         method: 'POST',
         headers: {

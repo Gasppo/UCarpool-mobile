@@ -182,7 +182,6 @@ function TripItem(props)  {
             }
         }
         catch(e){
-            
             Alert.alert('Error', e.message)
         }
     }
@@ -190,8 +189,7 @@ function TripItem(props)  {
         try{
             
             const response = await axios.get(API_URL + `/seatBookings?tripId=${tripId}`);
-            
-
+            console.log('we got dis:',response)
             if(response.status == 200){
                 setSeatAssignments(response.data)
             }
@@ -201,8 +199,8 @@ function TripItem(props)  {
             }
         }
         catch(e){
+            console.log(e)
             setSeatAssignments([])
-            
             Alert.alert('Error', e.message)
         }
     }
