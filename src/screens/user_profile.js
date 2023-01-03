@@ -7,7 +7,6 @@ import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useNavigation } from '@react-navigation/native';
 import { UCA_BLUE } from '../constants';
 
-
 export default function UserProfile(props)  {
 
     const userData = props.authentication.user

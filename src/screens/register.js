@@ -8,6 +8,17 @@ import { validateMail, validatePhone, validateName, validateDate, validateGender
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
+import axios from 'axios';
+
+const signUpUser = async (signUpData) => {
+    const response = await axios.post(`${API_URL}/users/register`, signUpData);
+    if(response.status == 200 || response.status == 201){
+        return response;
+    }
+    else{
+        throw new Error('Error cargando usuario nuevo.')
+    }
+}
 
 export default function RegisterData(props) {
     //Local State
@@ -39,31 +50,6 @@ export default function RegisterData(props) {
             legajoUCA: ''
         }
     );
-    const signUpUser = async (signUpData) => {
-        response = ''
-        let fetchRequest = API_URL + '/users/register';
-        let response = await fetch( fetchRequest, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(signUpData)
-        } );
-        json = await response.json()
-       
-        if(json.errors){
-            errors = []
-            json.errors.forEach(error => {
-                errors.push(error.msg + ': ' + error.param)
-            })
-            Alert.alert('Error', toString(errors))
-        }
-            console.log(json)
-            return json
-        }
-        
-
     ;
     //Cambiar estado de validación cuando se modifique uno de los campos
     React.useEffect(() => {
@@ -99,6 +85,16 @@ export default function RegisterData(props) {
         yourDate = new Date(yourDate.getTime() - (offset*60*1000));
         return(<Text style={{color: 'rgb(0,53,108)'}}>{yourDate.toISOString().split('T')[0]}</Text>);
       }
+      const handleSignUpUser = async () => {
+        signUpUser(signUpData)
+        .then(r => {
+            props.navigation.navigate('signUp')
+        })
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'Error creando nuevo usuario')
+        })
+    }
 
       function validateAll(){ //Si todos los campos son válidos, ingreso los datos en signUpData
         if( fieldValidation.inputGender && fieldValidation.inputBirthday && fieldValidation.inputEmail && fieldValidation.inputName && fieldValidation.inputPhone && fieldValidation.inputSurname && fieldValidation.inputPassword && fieldValidation.inputLegajoUCA){
@@ -259,7 +255,7 @@ export default function RegisterData(props) {
                     //checkUserExists();
                     // sign up
                     try{
-                        signUpUser(signUpData)
+                        handleSignUpUser()
                         //.then( () => props.navigation.navigate('register_passenger_complete'))
                     }catch(e){
                         console.log(e)

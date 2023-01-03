@@ -14,36 +14,33 @@ function generatePassengersIcons(capacity){
     return icons
 }
 
+async function deleteVehicle(driverId, vehicleId){
+
+    let deleteRequest = await axios.delete(`${API_URL}/vehicles?driverId=${driverId}&id=${vehicleId}`);
+    if(deleteRequest.status == 200){
+        return deleteRequest.data
+    }
+    else{
+        throw new Error(deleteRequest.status)
+    }
+};
+
 export default function DriverProfileVehicle(props)  {
     const [modalDisplay, setModalDisplay] = React.useState(false)
 
-    const handleDelete = () => {
-        deleteVehicle(props.carData.driverId, props.carData.id).then(reply => console.log(reply));
-        setModalDisplay(false);
-        if(props.reloadFn){
-            props.reloadFn()
-        }
-    }
-
-    const deleteVehicle = async (driverId, vehicleId) => { // Solo usado si uso las direcciones del conductor, sino, se hace upload en la pagina siguiente
+    const handleDeleteVehicle = () => {
         try{
-            const response = await axios.delete(`${API_URL}/vehicles?driverId=${driverId}&id=${vehicleId}`);
-        
-            if(response.status == 200){
+            deleteVehicle(props.carData.driverId, props.carData.id).then(() => {
                 Alert.alert('Aviso', 'Se eliminó el vehículo de la base de datos')
-                console.log(JSON.stringify(response.data))
-                setModalDisplay(false)
+                setModalDisplay(false);
                 if(props.reloadFn){
                     props.reloadFn()
                 }
-            }
-            else{
-                throw new Error('Error occurred')
-            }
+            })
         }
         catch(e){
-            console.log(JSON.stringify(e.response.data.errors[0].msg))
-            Alert.alert(e.message, e.response.data.errors[0].msg)
+            console.log(e)
+            Alert.alert('Error','Ocurrió un error eliminando el vehículo del sistema.')
         }
     }
     return (
@@ -76,7 +73,7 @@ export default function DriverProfileVehicle(props)  {
                             <Text style={styles.label}>Capacidad máxima:</Text>
                             <Text style={styles.values}>{props.carData.maxPassengers} pasajeros</Text>
                         </View>
-                        <Button mode='contained' style={{backgroundColor: UCA_BLUE}} onPress={()=> {handleDelete()}}>Eliminar</Button>
+                        <Button mode='contained' style={{backgroundColor: UCA_BLUE}} onPress={()=> {handleDeleteVehicle()}}>Eliminar</Button>
                     </View>
                 </View>
             </Modal>

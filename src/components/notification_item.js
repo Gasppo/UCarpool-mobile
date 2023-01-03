@@ -36,22 +36,12 @@ const buildNotificationStyle = (notificationTypeId, issuerName) => {
 }
 
 const deleteNotification = async (notifId) => {
-    try{
-        const response = await axios.delete(`${API_URL}/notifications?id=${notifId}`);
-        if(response.status == 200){
-            return response.data
-        }
-        else{
-            throw new Error('Error occurred')
-        }
+    const response = await axios.delete(`${API_URL}/notifications?id=${notifId}`);
+    if(response.status == 200){
+        return response.data
     }
-    catch(e){
-        console.log(JSON.stringify(e))
-        if(e.code && e.code == 'ERR_CANCELED'){
-        }
-        else{
-            Alert.alert('Error', e.message)
-        }
+    else{
+        throw new Error('Error occurred')
     }
 }
 
@@ -65,11 +55,17 @@ function NotificationItem(props)  {
         }
     )
 
-    const handleDelete = async () => {
-        await deleteNotification(state.id);
-        if(props.refreshFn){
-            props.refreshFn()
-        }
+    const handleDeleteNotification = async () => {
+        deleteNotification(state.id)
+        .then(res => {
+            if(props.refreshFn){
+                props.refreshFn()
+            }
+        })
+        .catch(e => {
+            console.log(e)
+            Alert.alert('Error', 'Ocurrió un error eliminando la notificación')
+        })
     }
 
     return (
@@ -82,7 +78,7 @@ function NotificationItem(props)  {
                     <Text style={{ color: 'black', flexShrink: 1, flex: 1}}>{state.notificationStyle.label}</Text>
                 </View>
             </TouchableOpacity>
-            <IconButton icon="trash-can-outline" mode='contained' style={{alignSelf: 'center'}} color="grey" onPress={() => handleDelete()}/>
+            <IconButton icon="trash-can-outline" mode='contained' style={{alignSelf: 'center'}} color="grey" onPress={() => handleDeleteNotification()}/>
         </View>
         :
         <></>

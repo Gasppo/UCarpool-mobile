@@ -12,6 +12,25 @@ import { API_URL } from '../constants';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar'
 
+const uploadNewTrip = async (tripData) => {
+        const response = await axios.post(API_URL + '/trips', tripData);
+        if(response.status == 200){
+            return response.data
+        }
+        else{
+            throw new Error('Error creando trip')
+        }
+}
+
+const editTrip = async (tripData) => {
+    const response = await axios.put(API_URL + `/trips?id=${tripData.id}`, tripData);
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw new Error('Error creando trip')
+    }
+}
 
 
 
@@ -23,40 +42,28 @@ export default function CreateTripDetails(props){
 
     const myLocale = NativeModules.I18nManager.localeIdentifier;
 
-    const uploadNewTrip = async (tripData) => {
-        try{
-            const response = await axios.post(API_URL + '/trips', tripData);
-        
-            if(response.status == 200){
-            console.log(JSON.stringify(response.data))
+    const handleUploadNewTrip = async () => {
+        uploadNewTrip(createTripData)
+        .then(r => {
+            console.log(r);
             props.navigation.navigate('create_trip_confirmation')
-            }
-            else{
-                throw new Error('Error occurred')
-            }
+        })
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'No pudo crearse el viaje.')
+        })
         }
-        catch(e){
-            console.log(JSON.stringify(e.response.data))
-            Alert.alert('Error', e.message)
-        }
+
+    const handleEditTrip = async () => {
+        editTrip(createTripData)
+        .then(r =>{
+            props.navigation.navigate('create_trip_confirmation')
+        })
+        .catch(e => {
+            console.log(e)
+            Alert.alert('Error', 'No pudo editarse el viaje.')
+        })
     }
-    const editTrip = async (tripData) => {
-        try{
-            const response = await axios.put(API_URL + `/trips?id=${tripData.id}`, tripData);
-        
-            if(response.status == 200){
-                console.log(JSON.stringify(response.data))
-                props.navigation.navigate('create_trip_confirmation')
-            }
-            else{
-                throw new Error('Error occurred')
-            }
-        }
-        catch(e){
-            console.log(JSON.stringify(e.response.data))
-            Alert.alert('Error', e.message)
-        }
-    } 
 
     function setEstimatedStartTime(newTime){
         setcreateTripData( tripData => ({
@@ -222,7 +229,7 @@ export default function CreateTripDetails(props){
             <View style= {{width: '100%', alignItems:'center'}}>
                 <PaperButton icon="note-outline"
                     mode="contained"
-                    onPress = {()=> props.route.params.isEdit? editTrip(createTripData) : uploadNewTrip(createTripData)}
+                    onPress = {()=> props.route.params.isEdit? handleEditTrip() : handleUploadNewTrip()}
                     style={{margin: 20, height: 60, justifyContent: 'center', width: '40%', backgroundColor: 'rgb(0,53,108)'}}
                     disabled={!submitAvailable}>
                 PUBLICAR

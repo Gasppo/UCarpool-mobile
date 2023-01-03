@@ -8,80 +8,75 @@ import { API_URL, UCA_BLUE } from '../constants';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useIsFocused } from '@react-navigation/native';
 
+const getDriverTrips = async (userId, status) => {
+    const response = await axios.get(`${API_URL}/trips?driverId=${userId}&status=${status}`);
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw new Error('Error obteniendo viajes')
+    }
+}
+
+const getPassengerTrips = async (userId) => {
+    const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${userId}`);
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw new Error('Error obteniendo viajes')
+    }
+}
+   
 export default function PassengerActiveTrips(props)  {
     const [activeTripList, setActiveTripList] = React.useState( [] );
     const [refreshing, setRefreshing] = React.useState(false);
     const [extraData, setExtraData] = React.useState(false)
     const isFocused = useIsFocused();
     
-    const getDriverTrips = async (signal) => {
-        try{
-            setRefreshing(true)
-            const response = await axios.get(`${API_URL}/trips?driverId=${props.authentication.user.id}&status=available`, {signal: signal});
 
-            setRefreshing(false)
-            if(response.status == 200){
-                setActiveTripList(response.data)
-            }
-            else{
-                throw new Error('Error occurred')
-            }
+    const handleGetDriverTrips = async () => {
+        setRefreshing(true)
+        getDriverTrips(props.authentication.user.id, 'available')
+        .then( r => {
+            setActiveTripList(r);
         }
-        catch(e){
-            setRefreshing(false)
-            console.log(JSON.stringify(e))
-            if(e.code && e.code == 'ERR_CANCELED'){
-
-            }
-            else{
-                Alert.alert('Error', e.message)
-            }
-        }
+        )
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'Error obteniendo viajes de conductor')
+        })
+        .finally(r => setRefreshing(false))
     }
-    const getPassengerTrips = async (signal) => {
-        try{
-            setRefreshing(true)
-            const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${props.authentication.user.id}`, {signal: signal});
-            setRefreshing(false)
-            if(response.status == 200){
-                console.log(response.data)
-                // Necesitamos cambiar el formato de la respuesta para que me aparezcan bien los Trip
-                activeTrips = []
-                response.data.forEach(seatAssignment => {
-                    // ponemos los Trip primero
-                    trip = seatAssignment.Trip;
-                    delete seatAssignment['Trip'];
-                    trip.userSeatAssignment = seatAssignment;
-                    trip.hasBeenRequested = true;
-                    activeTrips.push(trip)
-                    //console.log('seatAss:', seatAssignment)
-                })
-                setActiveTripList(activeTrips)
-            }
-            else{
-                throw new Error('Error occurred')
-            }
+    const handleGetPassengerTrips = async () => {
+        setRefreshing(true)
+        getPassengerTrips(props.authentication.user.id, 'available')
+        .then( r => {
+            console.log(r)
+            activeTrips = []
+            r.forEach(seatAssignment => {
+                // ponemos los Trip primero
+                trip = seatAssignment.Trip;
+                delete seatAssignment['Trip'];
+                trip.userSeatAssignment = seatAssignment;
+                trip.hasBeenRequested = true;
+                activeTrips.push(trip);
+            })
+            setActiveTripList(activeTrips)
         }
-        catch(e){
-            setRefreshing(false)
-            console.log(JSON.stringify(e))
-            if(e.code && e.code == 'ERR_CANCELED'){
-
-            }
-            else{
-                Alert.alert('Error', e.message)
-            }
-        }
+        )
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'Error obteniendo viajes de pasajero')
+        })
+        .finally(r => setRefreshing(false))
     }
 
     React.useEffect(() => {
-        const controller = new AbortController();
-        const signal = controller.signal;
         if(isFocused){
-            props.authentication.userType == 'driver' ? getDriverTrips(signal) : getPassengerTrips(signal)
+            props.authentication.userType == 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips()
         }
         // Cleanup
-        return () => {controller.abort()}
     }, [isFocused])
     React.useEffect(() => {
         setExtraData(!extraData)
@@ -111,7 +106,7 @@ export default function PassengerActiveTrips(props)  {
             data= {activeTripList}
             keyExtractor={(item, index) => index+'_'+Math.random()}
             refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={()=>{props.authentication.userType == 'driver' ? getDriverTrips() : getPassengerTrips()}} />
+                <RefreshControl refreshing={refreshing} onRefresh={()=>{props.authentication.userType == 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips()}} />
             }
             ListEmptyComponent={
                 <View style={{flex:1, width: '100%', height:'100%', justifyContent: 'center', alignItems: 'center', paddingTop: 30}}><Text>{props.authentication.userType == 'driver' ? 'No programaste ningún viaje' : 'No estás anotado para ningún viaje próximo'}</Text></View>
@@ -119,7 +114,7 @@ export default function PassengerActiveTrips(props)  {
             renderItem={
                 ({item, index}) =>
                 <>
-                    <TripItem item={item} refreshFn={props.authentication.userType == 'driver' ? getDriverTrips : getPassengerTrips} key={index+'_'}/>
+                    <TripItem item={item} refreshFn={props.authentication.userType == 'driver' ? handleGetDriverTrips : handleGetPassengerTrips} key={index+'_'}/>
                 </>
             }
         />

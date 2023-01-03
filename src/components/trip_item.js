@@ -152,7 +152,17 @@ function TripItem(props)  {
                     onPress: () => console.log('Cancel Pressed'),  
                     style: 'cancel',  
                 },  
-                {text: 'OK', onPress: () => updateTripStatus(tripId, 'canceled')},  
+                {text: 'OK', onPress: () =>{ 
+                    updateTripStatus(tripId, 'canceled')
+                    .then(r => {
+                        Alert.alert('Aviso', 'Se eliminó el aviso de viaje')
+                        handleCloseModal()
+                    })
+                    .catch(e => {
+                        console.log(e)
+                        Alert.alert('Error', 'No pudo eliminarse el viaje')
+                    })
+            }},  
             ]  
         );  
     }
@@ -165,25 +175,21 @@ function TripItem(props)  {
                     text: 'Volver',  
                     style: 'cancel',
                 },  
-                {text: 'OK', onPress: () => props.startTrip(tripId)},
+                {text: 'OK', onPress: () =>{ 
+                    props.startTrip(tripId)
+                }},
             ]
         );  
     }
     const updateTripStatus = async (tripId, status) => {
-        try{
             const response = await axios.get(API_URL + `/trips/updateStatus?id=${tripId}&status=${status}`);
             
             if(response.status == 200){
-              Alert.alert('Aviso', 'Se realizó el cambio en el viaje')
-              handleCloseModal()
+              return response.data
             }
             else{
-                throw new Error('Error occurred')
+                throw new Error('Error actualizando estado de viaje')
             }
-        }
-        catch(e){
-            Alert.alert('Error', e.message)
-        }
     }
     const getSeatAssignmentsForTrip = async (tripId) => {
         try{

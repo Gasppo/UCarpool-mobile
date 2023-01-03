@@ -10,6 +10,17 @@ import MapView from 'react-native-maps';
 import axios from 'axios';
 
 
+const uploadNewRequest = async (tripData) => {
+
+    const response = await axios.post(API_URL + '/seatBookings', tripData);
+    if(response.status == 200){
+        return response
+    }
+    else{
+        throw new Error('Error cargando seatBooking')
+    }
+}
+
 export default function PassengerTripRequestLocation(props){
     const mapRef = React.useRef(null);
     const [nextButton, setNextButton] = React.useState(new Animated.Value(30));
@@ -19,28 +30,21 @@ export default function PassengerTripRequestLocation(props){
     const [zoomLevel, setZoomLevel] = React.useState(11);
     const [ createRequestData, setCreateRequestData ] = React.useState(props.route.params.createRequestData);
 
-    const uploadNewRequest = async (tripData) => {
-        try{
-            const response = await axios.post(API_URL + '/seatBookings', tripData);
-        
-            if(response.status == 200){
-                console.log(JSON.stringify(response.data))
-                props.navigation.navigate('passenger_trip_request_confirmation')
-            }
-            else{
-                throw new Error('Error occurred')
-            }
-        }
-        catch(e){
-            console.log(JSON.stringify(e.response))
-            Alert.alert('Error', e.message)
-        }
+    const handleUploadNewRequest = async () => {
+        uploadNewRequest(createRequestData)
+        .then(r => {
+            props.navigation.navigate('passenger_trip_request_confirmation')
+        })
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'Error cargando solicitud de viaje')
+        })
     }
 
     React.useEffect(()=> {
         // Si no se necesita elegir ubicaciones, publico directamente...
         if(props.route.params.createRequestData.pickupType == 'goToDrivers' && props.route.params.createRequestData.dropoffType == 'goToDrivers'){
-            uploadNewRequest(props.route.params.createRequestData)
+            handleUploadNewRequest(props.route.params.createRequestData)
         }
     },[])
 
@@ -134,20 +138,19 @@ export default function PassengerTripRequestLocation(props){
                     
                 </View>
                 { createRequestData.pickupType == 'driverPicksMe' ?
-                  <View style={{flexDirection: 'row', marginBottom: 10}}>
-                        <AMBACompleter addressSetter={ handleChangeOfPickupAddress } address={createRequestData.pickupAddress} placeholder={'Punto de subida'} />
-                </View>
-              :
-              <></>  
-              }
-              
-               { createRequestData.dropoffType == 'myOwn' ?
-                <View style={{flexDirection: 'row', marginBottom: 10}}>
-                        <AMBACompleter addressSetter={ handleChangeOfDropoffAddress } address={createRequestData.dropoffAddress} placeholder={'Punto de bajada'} />
-                </View>
-              :
-              <></>  
-              }
+                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                            <AMBACompleter addressSetter={ handleChangeOfPickupAddress } address={createRequestData.pickupAddress} placeholder={'Punto de subida'} />
+                    </View>
+                    :
+                    <></>  
+                }
+                { createRequestData.dropoffType == 'myOwn' ?
+                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                            <AMBACompleter addressSetter={ handleChangeOfDropoffAddress } address={createRequestData.dropoffAddress} placeholder={'Punto de bajada'} />
+                    </View>
+                    :
+                    <></>  
+                }
                 <MapView
                     ref={mapRef}
                     liteMode={true}
@@ -161,7 +164,7 @@ export default function PassengerTripRequestLocation(props){
             <Animated.View style={{position: 'absolute', bottom: nextButton, width: '50%', alignSelf: 'center'}}>
                 <PaperButton icon="note-outline"
                     mode="contained"
-                    disabled={!nextButtonAvailable} onPress={() => uploadNewRequest(createRequestData)}
+                    disabled={!nextButtonAvailable} onPress={() => handleUploadNewRequest(createRequestData)}
                     style={{margin: 20, height: 60, justifyContent: 'center', backgroundColor: 'rgb(0,53,108)'}}
                 >
                 SIGUIENTE

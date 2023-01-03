@@ -1,5 +1,5 @@
 import React from 'react';
-import {  View, StyleSheet, FlatList, SafeAreaView, TouchableOpacity } from 'react-native';
+import {  View, StyleSheet, FlatList, SafeAreaView, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import Text from '../components/default_text';
 import DriverAddVehicle from '../components/driver_add_vehicle';
 import DriverProfileVehicle from '../components/driver_profile_vehicle';
@@ -11,12 +11,20 @@ import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 
 export default function DriverVehicles(props)  {
   const [addVehicleModalVisible, setAddVehicleModalVisible] = React.useState(false);
+  const [refreshing, setRefreshing] = React.useState(false);
   const [userVehicleList, setUserVehicleList] = React.useState([]);
 
   const loadVehicles = (signal) => {
+    setRefreshing(true);
     getVehiclesFromApi(props.authentication.user.id, signal)
     .then(vehicles => {setUserVehicleList(vehicles)})
-    .catch(e=>{console.log(e)});
+    .catch(e=>{
+      console.log(e);
+      Alert.alert('Error', 'Error obteniendo vehículos del servidor')
+    })
+    .finally(() => {
+      setRefreshing(false)
+    })
   }
   React.useEffect( () => {
       const controller = new AbortController();
@@ -58,6 +66,8 @@ export default function DriverVehicles(props)  {
           <FlatList 
               data= {userVehicleList}
               keyExtractor={(item) => item.id+'_'}
+              refreshControl={<RefreshControl
+                refreshing={refreshing}/>}
               ListEmptyComponent={
                   <View style={{flex:1, width: '100%', height:'100%', justifyContent: 'center', alignItems: 'center', paddingTop: 30}}><Text>No tienes ningún vehículo cargado!</Text></View>
               }

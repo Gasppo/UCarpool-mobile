@@ -3,22 +3,13 @@ import { Alert } from "react-native";
 import { API_URL } from "../constants";
 
 export async function getVehiclesFromApi(driverId, signal){
-  console.log('getting vehicles for',driverId)
-  try {
-      if(!driverId){
-          throw new Error('Not a valid driverId')
-      }
-      let response = await axios.get( API_URL +'/vehicles?driverId=' + driverId, {signal: signal});
-      return response.data;
-      
-  } catch (e) {
-    if(e.code && e.code == 'ERR_CANCELED'){}
-    else{
-        Alert.alert('Error', e.message)
-    }
-    console.log(e)
-    console.error(e);
-    return []
+
+  let response = await axios.get( API_URL +'/vehicles?driverId=' + driverId, {signal: signal});
+  if(response.status == 200){
+    return response.data
+  }
+  else{
+    throw new Error('Error obteniendo vehículos')
   }
 };
 

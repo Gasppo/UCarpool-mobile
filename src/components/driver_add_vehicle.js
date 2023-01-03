@@ -7,6 +7,81 @@ import {Picker} from '@react-native-picker/picker';
 import { API_URL, UCA_BLUE } from '../constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CapacityButton from './capacity_button';
+import axios from 'axios';
+
+
+async function getVehicleModels(selectedVehicleMake, selectedVehicleType){
+    let vehicleModels = await axios.get( `${API_URL}/vehicles/models?makeId=${selectedVehicleMake}&typeId=${selectedVehicleType}`);
+    if(vehicleModels.status == 200){
+        return vehicleModels.data
+    }
+    else{
+        throw new Error(vehicleModels.status)
+    }
+};
+
+async function getVehicleTypes(){
+    let vehicleTypes = await axios.get( `${API_URL}/vehicles/types`);
+    if(vehicleTypes.status == 200){
+        return vehicleTypes.data
+    }
+    else{
+        throw new Error(vehicleTypes.status)
+    }
+};
+async function getVehicleMakes(){
+
+    let vehicleMakes = await axios.get( `${API_URL}/vehicles/makes`);
+    if(vehicleMakes.status == 200){
+        return vehicleMakes.data
+    }
+    else{
+        throw new Error(vehicleMakes.status)
+    }
+};
+
+async function oldpostNewVehicle(vehicleData){
+    try {
+      const response = await fetch( API_URL +'/vehicles', {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(vehicleData)
+    });
+    json = await response.json();
+    console.log(json)
+    if(json.errors){
+        json.errors.forEach(error => {
+            Alert.alert(
+                'Error',
+                error.msg,
+            )
+        })
+    }
+    else{
+        props.visibilitySetter(false)
+    }
+    
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        'Error posting vehicle to server',)
+      console.error(error);
+    }
+  };
+
+async function postNewVehicle(vehicleData){
+    const response = await axios.post( `${API_URL}/vehicles`, vehicleData);
+    console.log(response)
+    if(response.status == 201){
+        return response.data
+    }
+    else{
+       throw new Error('Error posteando vehiculo a servidor')
+    }
+  };
 
 
 function isAlpha(c) {
@@ -83,50 +158,46 @@ export default function DriverAddVehicle(props)  {
         setNewVehicleData({...newVehicleData, modelId: 0})
     }
 
-    async function getModelsFromApi(selectedVehicleMake, selectedVehicleType){
-        try {
-          const response = await fetch( API_URL +'/vehicles/models?makeId=' + selectedVehicleMake + '&typeId=' + selectedVehicleType);
-          json = await response.json()
-          console.log(json)
-          setVehicleModelList(json)
-        } catch (error) {
-          Alert.alert(
-            'Error',
-            'Cannot contact server',)
-          console.error(error);
-        }
-      };
-    async function postNewVehicle(vehicleData){
-        try {
-          const response = await fetch( API_URL +'/vehicles', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(vehicleData)
-        });
-        json = await response.json();
-        console.log(json)
-        if(json.errors){
-            json.errors.forEach(error => {
-                Alert.alert(
-                    'Error',
-                    error.msg,
-                )
-            })
-        }
-        else{
+    async function handleGetVehicleModels(selectedVehicleMake, selectedVehicleType){
+        getVehicleModels(selectedVehicleMake, selectedVehicleType)
+        .then((models) => setVehicleModelList(models))
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error',
+            'Ocurrió un error de servidor')
+        })
+    }
+    async function handleGetVehicleTypes(){
+        getVehicleTypes()
+        .then(types => setVehicleTypeList(types))
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error',
+            'Ocurrió un error de servidor')
+        })
+    }
+    async function handleGetVehicleMakes(){
+        getVehicleMakes()
+        .then(makes => setVehicleMakeList(makes))
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error',
+            'Ocurrió un error de servidor')
+        })
+    }
+    async function handlePostNewVehicle(){
+        postNewVehicle(newVehicleData)
+        .then((response) => {
             props.visibilitySetter(false)
-        }
-        
-        } catch (error) {
-          Alert.alert(
-            'Error',
-            'Error posting vehicle to server',)
-          console.error(error);
-        }
-      };
+        })
+        .catch(e => {
+            console.log(e)
+            Alert.alert('Error', 'Error enviando el vehículo a servidor')
+        })
+    }
+    
+    
+    
     const [newVehicleData, setNewVehicleData] = React.useState(
         {
             licensePlate: '',
@@ -142,45 +213,13 @@ export default function DriverAddVehicle(props)  {
 
       React.useEffect( () => {
         if(selectedVehicleMake && selectedVehicleType){
-            getModelsFromApi(selectedVehicleMake, selectedVehicleType)
+            handleGetVehicleModels(selectedVehicleMake, selectedVehicleType)
         }
       }, [selectedVehicleMake, selectedVehicleType]);
 
-    React.useEffect(  () => {
-        async function getTypesFromApi(){
-            try {
-                const response = await fetch( API_URL +'/vehicles/types');
-                json = await response.json()
-                
-                setVehicleTypeList(json)
-              
-            } catch (error) {
-              Alert.alert(
-                'Error',
-                'Cannot contact server',)
-              console.error(error);
-            }
-          };
-        getTypesFromApi()
-        async function getMakesFromApi() {
-            try {
-              const response = await fetch( API_URL +'/vehicles/makes' );
-              json = await response.json()
-              console.log(json);
-              setVehicleMakeList(json)
-              
-              
-            } catch (error) {
-              Alert.alert(
-                'Error',
-                'Cannot contact server',)
-              console.error(error);
-            }
-          };
-        getMakesFromApi()
-
-        
-       
+    React.useEffect(  () => {    
+        handleGetVehicleTypes()
+        handleGetVehicleMakes()
     }, []);
   
     React.useEffect( () => {
@@ -189,7 +228,6 @@ export default function DriverAddVehicle(props)  {
     }, [selectedVehicleModel]);
   
     React.useEffect( () => {
-        console.log('valid?:',isValidLicensePlate(newVehicleData.licensePlate))
         console.log(newVehicleData)
         if(newVehicleData.driverId && newVehicleData.maxPassengers && newVehicleData.modelId && isValidLicensePlate(newVehicleData.licensePlate)){
             setSubmitAvailable(true)
@@ -282,7 +320,7 @@ export default function DriverAddVehicle(props)  {
                         </View>
                         
                     </View>
-                    <Button mode='contained' color={UCA_BLUE} style={{width: '60%', alignSelf: 'center', marginVertical: 20}} disabled={!submitAvailable} onPress={() => postNewVehicle(newVehicleData)}>Agregar Vehículo</Button>
+                    <Button mode='contained' color={UCA_BLUE} style={{width: '60%', alignSelf: 'center', marginVertical: 20}} disabled={!submitAvailable} onPress={() => handlePostNewVehicle(newVehicleData)}>Agregar Vehículo</Button>
                 </KeyboardAwareScrollView>
             </Modal>
 

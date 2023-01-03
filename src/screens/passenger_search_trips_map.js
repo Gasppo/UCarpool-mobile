@@ -17,10 +17,20 @@ import MapView, { Circle } from 'react-native-maps';
 import { useIsFocused } from '@react-navigation/native';
 import SoftInputMode from 'react-native-set-soft-input-mode';
 
+const getSearchResults = async (startLat, startLng, endLat, endLng, radius, startDate) => {
+
+    const response = await axios.get(API_URL + `/trips/searchTrips?startLat=${startLat}&startLng=${startLng}&endLat=${endLat}&endLng=${endLng}&radius=${radius}&date=${startDate}`);
+    if(response.status == 200){
+        return response.data
+    }
+    else{
+        throw new Error('Error occurred')
+    }
+}
+
 export default function PassengerSearchTripsMap(props)  {
     const USABLE_HEIGHT = useSafeAreaFrame().height;
     const [forceRefresh, setForceRefresh] = React.useState(Math.floor(Math.random() * 100))
-    
     const { height, width } = Dimensions.get('screen');
     const mapRef = React.useRef(null);
     const bottomTabHeight = useBottomTabBarHeight();
@@ -54,7 +64,7 @@ export default function PassengerSearchTripsMap(props)  {
         if(isFocused){
             SoftInputMode.set(SoftInputMode.ADJUST_PAN)
             if(isFocused && selectedStartAddress.address && selectedEndAddress.address && selectedStartRadius && selectedStartTime){
-                getSearchResults()
+                handleGetSearchResults()
                 setForceRefresh(Math.floor(Math.random() * 100))
             }
         }
@@ -65,43 +75,32 @@ export default function PassengerSearchTripsMap(props)  {
     function handleDateShown(yourDate){
         return new Date(yourDate).toLocaleDateString(myLocale.replace('_', '-'),{ weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' });
     }
-    
-    const getSearchResults = async () => {
-        try{
-            setRefreshing(true)
-            const response = await axios.get(API_URL + `/trips/searchTrips?startLat=${selectedStartAddress.coords.lat}&startLng=${selectedStartAddress.coords.lng}&endLat=${selectedEndAddress.coords.lat}&endLng=${selectedEndAddress.coords.lng}&radius=${selectedStartRadius}&date=${selectedStartTime}`);
-            if(response.status == 200){
-                json = response.data
-                // Format response
-                console.log('getting trips')
-                console.log(json)
-                // check if the trips have been requested by the user
-                json.forEach(trip => {
-                    let hasBeenRequested = false;
-                    let userSeatAssignment = null;
-                    trip.SeatAssignments.forEach( seatAssignment => {
-                        if(seatAssignment.passengerId == props.authentication.user.id){
-                            hasBeenRequested = true;
-                            userSeatAssignment = seatAssignment
-                        }
-                    } )
-                    trip.hasBeenRequested = hasBeenRequested;
-                    trip.userSeatAssignment = userSeatAssignment;
-                })
-                setAvailableTripList(json)
-                setRefreshing(false)
-            }
-            else{
-                setRefreshing(false)
-                throw new Error('Error occurred')
-            }
-        }
-        catch(e){
-            setAvailableTripList([])
-            console.log(e)
-            //console.log(JSON.stringify(e.response.data))
-            Alert.alert('Error', e.message)
-        }
+    const handleGetSearchResults = async () => {
+        setRefreshing(true)
+        getSearchResults(selectedStartAddress.coords.lat, selectedStartAddress.coords.lng, selectedEndAddress.coords.lat, selectedEndAddress.coords.lng, selectedStartRadius, selectedStartTime)
+        .then( r => {
+            r.forEach(trip => {
+                let hasBeenRequested = false;
+                let userSeatAssignment = null;
+                trip.SeatAssignments.forEach( seatAssignment => {
+                    if(seatAssignment.passengerId == props.authentication.user.id){
+                        hasBeenRequested = true;
+                        userSeatAssignment = seatAssignment
+                    }
+                } )
+                trip.hasBeenRequested = hasBeenRequested;
+                trip.userSeatAssignment = userSeatAssignment;
+            })
+            setAvailableTripList(r)
+            setRefreshing(false)
+        })
+        .catch( e => {
+            console.log(e);
+            Alert.alert('Error', 'No pueden obtenerse resultados.')
+        } )
+        .finally( r => {
+            setRefreshing(false)
+        })
     }
     React.useEffect(()=> {
         auxMarkers = []
@@ -192,7 +191,7 @@ export default function PassengerSearchTripsMap(props)  {
             // centrar al medio de los dos circulos
             coordinates = [{latitude: selectedStartAddress.coords.lat, longitude: selectedStartAddress.coords.lng}, {latitude: selectedEndAddress.coords.lat, longitude: selectedEndAddress.coords.lng}]
             mapRef.current.fitToCoordinates(coordinates, {edgePadding: styles.defaultEdgePadding})
-            getSearchResults()
+            handleGetSearchResults()
         }
         else if (selectedStartAddress.coords.lat && selectedStartAddress.coords.lng){
             myCoordinate = {latitude: selectedStartAddress.coords.lat, longitude: selectedStartAddress.coords.lng, latitudeDelta: selectedStartRadius / 11104.5, longitudeDelta: selectedStartRadius / 11104.5}
@@ -284,7 +283,7 @@ export default function PassengerSearchTripsMap(props)  {
             <View id='paddingForBottomBar' style={{width: '100%', height: 55}}/>
                 <Animated.View style={[styles.selectedTripAnimatedView, {bottom: selectedTripPosition}]}>
                     { selectedTrip ? 
-                        <TripItem item={selectedTrip} key={selectedTrip.id+'_'} refreshFn={getSearchResults}/>
+                        <TripItem item={selectedTrip} key={selectedTrip.id+'_'} refreshFn={handleGetSearchResults}/>
                         :
                         <></>
                     }
@@ -363,8 +362,8 @@ export default function PassengerSearchTripsMap(props)  {
                                             </View>
                                         }
                                         renderItem={({item, index}) =>
-                                                        <TripItem item={item} key={index+'_'+Math.random()} refreshFn={getSearchResults}/>
-                                    }
+                                            <TripItem item={item} key={index+'_'+Math.random()} refreshFn={handleGetSearchResults}/>
+                                        }
                                     />
                                 </>
                             }
