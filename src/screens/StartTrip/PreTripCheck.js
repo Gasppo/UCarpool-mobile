@@ -24,60 +24,7 @@ import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
 import { Polygon, Polyline } from 'react-native-maps';
-
-const testPolygon = [[
-    [-58.55924762120434,-34.49711945528657],
-    [-58.51867394608755,-34.51779068077002],
-    [-58.51094484992538,-34.52704752492391],
-    [-58.49661144935197,-34.5461040364797],
-    [-58.49227471860328,-34.54400367852772],
-    [-58.5121016852624,-34.51867210218435],
-    [-58.52175158052049,-34.51037317479219],
-    [-58.55262075154931,-34.49510053507863],
-    [-58.55924762120434,-34.49711945528657]
-]]
-const myPolygon = [
-  [
-      -60.61652618372456,
-      -33.14603906291634
-  ],
-  [
-      -59.99347629746973,
-      -33.70073699940573
-  ],
-  [
-      -59.66704186164554,
-      -33.84199647997212
-  ],
-  [
-      -58.43636452669008,
-      -34.72295113110111
-  ],
-  [
-      -58.28402402389559,
-      -34.5934963269782
-  ],
-  [
-      -59.17126125548242,
-      -33.9468790141324
-  ],
-  [
-      -60.18873342863191,
-      -33.27561484643203
-  ],
-  [
-      -60.61966020569331,
-      -32.81245025349239
-  ],
-  [
-      -60.86113037909813,
-      -32.85221667116414
-  ],
-  [
-      -60.61652618372456,
-      -33.14603906291634
-  ]
-]
+import { NIL } from 'uuid';
 
 const groupSeatAssignmentsByStatus = (seatAssignments) => {
   accepted = []
@@ -117,7 +64,6 @@ const groupSeatAssignmentsByStatus = (seatAssignments) => {
 export default function PreTripCheck(props)  {
     const isFocused = useIsFocused();
     const [bookedPassengersList, setBookedPassengersList] = React.useState([]);
-    const [refreshValue, setRefreshValue] = React.useState(false);
     const navigation = useNavigation();
     const [location, setLocation] = React.useState(null);
     const [tripLocations, setTripLocations] = React.useState([])
@@ -138,34 +84,19 @@ export default function PreTripCheck(props)  {
         foregroundService: true,
         useLocationManager: false,
     });
-    const [mapMarkers, setMapMarkers] = useState([{
-        position:{
-            lng: -58.44806,
-            lat: -34.6
-        },
-        icon: '🏁',
-        size: [24,24]
-    }])
-    
     
     const [detailsModalVisible, setDetailsModalVisible] = React.useState(false);
 
     const uploadNewRequest = async (tripData) => {
-      try{
           const response = await axios.post(API_URL + '/seatBookings', tripData);
-      
           if(response.status == 200){
-              console.log(JSON.stringify(response.data))
+              return response.data
           }
           else{
               throw new Error('Error occurred')
           }
-      }
-      catch(e){
-          console.log(JSON.stringify(e.response))
-          Alert.alert('Error', e.message)
-      }
     }
+
     const getAOIs = async () => {
       try{
           const response = await axios.get(API_URL + '/aois');
@@ -220,21 +151,18 @@ export default function PreTripCheck(props)  {
   const sendLocationUpdate = async (location) => {
     try{
         setRefreshing(true)
-        console.log('hey')
         const response = await axios.put(`${API_URL}/tripStats?tripId=${props.authentication.currentTrip}`, {realTimeData: location});
         setRefreshing(false)
         if(response.status == 200){
-          console.log('vsauce')
             console.log(response.data)
         }
         else{
-          console.log('michael')
             console.log(response.data)
+            // agregar a queue y hacer retry
         }
     }
     catch(e){
         setRefreshing(false)
-        console.log('been an error')
         console.log(JSON.stringify(e.response))
         Alert.alert('Error', e.message)
     }
@@ -278,21 +206,27 @@ export default function PreTripCheck(props)  {
     }
 }
     const handleLocationUpdate = (location) => {
+      location = {...location, seats: passengersList[1].data.length + 1}
       setLocation(location);
-      console.log('allAois:', aois)
+      setRefreshing(true)
       let locationCoords = [location.coords.longitude, location.coords.latitude]
       let found = aois.find( aoi => inside(locationCoords, [aoi]));
-      console.log('found: ', found)
-        if(found){
-          sendLocationUpdate(location);
+      if(found){
+        sendLocationUpdate(location)
+        .then(r => {
           setTestValue(testValue + 1);
-          setTripLocations(tripLocations => [...tripLocations, location])
+          //setTripLocations(tripLocations => [...tripLocations, location])
           setTripLocationsCoordinates(tripLocationsCoordinates => [...tripLocationsCoordinates, {latitude: location.coords.latitude, longitude: location.coords.longitude}])
-        }
-        else{
-          console.log('outside')
-        }
-      
+        })
+        .catch(e => {
+          console.log(e)
+          // send to queue
+        })
+        .finally( r => {
+          setRefreshing(false)
+        });
+       
+      }    
     }
 
     const handleGetFromMMKV = () => {
@@ -301,7 +235,7 @@ export default function PreTripCheck(props)  {
     }
     const handleAddUncheckedPassenger = () => {
         // check if pickedUp passengers list is larger than max passenger capacity for the trip
-        if(passengersList[1].data.length >= tripPlaceholder.maxPassengers){
+        if(passengersList[1].data.length >=activeTrip.maxPassengers){
             Alert.alert(
                 'Capacidad máxima alcanzada',
                 'Si desea agregar un usuario extra, asegúrese de tener un asiento libre.',)
@@ -321,10 +255,9 @@ export default function PreTripCheck(props)  {
         );  
     }
     const addUncheckedPassenger = () => {
-
         aux = passengersList
         uncheckedPassenger = {
-            passengerId: 0,
+            passengerId: NIL,
             tripId: activeTrip.id,
             pickupType: "goToDrivers",
             pickupAddress: activeTrip.startAddress,
@@ -335,8 +268,13 @@ export default function PreTripCheck(props)  {
         };
         // CAMBIAR para que se convierta en un SeatAssignment por parte del usuario fantasma 0, soportado por backend.
         uploadNewRequest(uncheckedPassenger)
-
-        getSeatBookings()
+        .then(r => {
+          getSeatBookings()
+        })
+        .catch(e => {
+          console.log(e.response);
+          Alert.alert('Error', 'Error agregando usuario extra')
+        })
         //setRefreshValue(!refreshValue)
     }
     const handleQRCheck = () => {
@@ -371,24 +309,55 @@ export default function PreTripCheck(props)  {
         getActiveTrip()
       }
     }, [isFocused]);
+
       React.useEffect(() => {
         console.log(location?.timestamp
           ? new Date(location.timestamp).toLocaleString()
           : '')
-        locationCoords = [
-          location?.coords?.longitude,
-          location?.coords?.latitude
-        ]
       }, [location]);
+
+      React.useEffect(() => {
+        console.log('refreshed passengers')
+      }, [passengersList]);
 
       React.useEffect(() => {
         getActiveTrip()
         getAOIs()
-        //getLocationUpdates()
+        getLocationUpdates()
       }, [])
+
       React.useEffect(() => {
         console.log('all locations:',tripLocations)
       }, [tripLocations])
+
+
+
+      const renderPassengers = React.useMemo(() => 
+      {
+        return <SectionList
+        extraData={true}
+        sections= {passengersList}
+        style={{borderWidth: 2, borderRadius: 15, borderColor: 'rgb(200,200,200)', overflow: 'hidden'}}
+        contentContainerStyle={{ borderRadius: 15, padding: 5, backgroundColor: 'white'}}
+        bounces={false}
+        overScrollMode={'never'}
+        keyExtractor={(item, index) => index}
+        ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+                <Text>
+                    No hay solicitudes para este viaje
+                </Text>
+            </View>
+        }
+        renderSectionHeader={({section}) => <Text style={{ fontSize: 20, color: 'rgb(0,53,108)', marginTop: 10, marginBottom: 5}}>{section.title}</Text>}
+        renderItem={({item, index}) => 
+          <RequestDetail key={index} details={item} tripStartAddress={activeTrip.startAddress} tripEndAddress={activeTrip.endAddress} refreshFn={getActiveTrip} tripView={true}/>
+        }
+    />
+      }
+      
+      )
+
 
       const hasPermissionIOS = async () => {
         const openSetting = () => {
@@ -416,7 +385,6 @@ export default function PreTripCheck(props)  {
             ],
           );
         }
-    
         return false;
       };
     
@@ -483,7 +451,6 @@ export default function PreTripCheck(props)  {
         Geolocation.getCurrentPosition(
           (position) => {
             handleLocationUpdate(position)
-            // storage.set('tripLocations', JSON.stringify([...tripLocations, position]))
           },
           (error) => {
             Alert.alert(`Code ${error.code}`, error.message);
@@ -497,7 +464,6 @@ export default function PreTripCheck(props)  {
             },
             enableHighAccuracy: locationSettings.highAccuracy,
             timeout: 15000,
-            //maximumAge: 10000,
             distanceFilter: 0,
             forceRequestLocation: locationSettings.forceLocation,
             forceLocationManager: locationSettings.useLocationManager,
@@ -581,27 +547,7 @@ export default function PreTripCheck(props)  {
         <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>  
             <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Viaje</Text>
         </View>
-        <SectionList
-            extraData={true}
-            sections= {passengersList}
-            style={{borderWidth: 2, borderRadius: 15, borderColor: 'rgb(200,200,200)'}}
-            contentContainerStyle={{ borderRadius: 15, padding: 5, backgroundColor: 'white'}}
-            bounces={false}
-            overScrollMode={'never'}
-            keyExtractor={(item, index) => index+'_'+Math.random()}
-            ListEmptyComponent={
-
-                <View style={styles.emptyContainer}>
-                    <Text>
-                        No hay solicitudes para este viaje
-                    </Text>
-                </View>
-            }
-            renderSectionHeader={({section}) => <Text style={{ fontSize: 20, color: 'rgb(0,53,108)', marginTop: 10, marginBottom: 5}}>{section.title}</Text>}
-            renderItem={({item, index}) => 
-              <RequestDetail key={index + '_' + Math.random()} details={item} tripStartAddress={activeTrip.startAddress} tripEndAddress={activeTrip.endAddress} refreshFn={getActiveTrip} tripView={true}/>
-            }
-        />
+        {renderPassengers}
         <View id='buttonsContainer' style={{alignItems: 'center'}}>
             <IconButton
                 icon='qrcode-scan'
@@ -612,19 +558,17 @@ export default function PreTripCheck(props)  {
                 onPress={() => handleQRCheck()}
             />
             <View style={{flexDirection: 'row'}}>
-                <PaperButton color='rgb(0,53,108)'  mode="contained" icon='calendar-text' onPress = {() => setDetailsModalVisible(true)} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
-                    Detalles de Viaje
+                <PaperButton color='rgb(0,53,108)'  mode="contained" icon='calendar-text' onPress = {() => setDetailsModalVisible(true)} style={{margin: 5, height: 50, justifyContent: 'center', borderRadius: 10, width: '50%'}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
+                    Detalles
                 </PaperButton>
-                <PaperButton color='green'  mode="contained" icon='chart-box' onPress = {() => getAOIs()} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
-                    Estadísticas
+                <PaperButton color='rgb(0,53,108)'  mode="contained" icon='account-plus' onPress = {() => handleAddUncheckedPassenger()} style={{margin: 5, height: 50, justifyContent: 'center', borderRadius: 10, width: '50%'}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
+                    Usuario extra
                 </PaperButton>
             </View>
             <View style={{flexDirection: 'row'}}>
-                <PaperButton color='rgb(0,53,108)'  mode="contained" icon='account-plus' onPress = {() => handleAddUncheckedPassenger()} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
-                    Usuario extra
-                </PaperButton>
-                <PaperButton color='rgb(120,0,0)'  mode="contained" icon='flag-checkered' onPress = {() => props.endTrip(props.authentication.currentTrip)} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
-                    Terminar viaje
+                
+                <PaperButton color='rgb(120,0,0)'  mode="contained" onPress = {() => props.endTrip(props.authentication.currentTrip)} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
+                    Finalizar
                 </PaperButton>
             </View>
         </View>

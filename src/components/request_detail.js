@@ -11,9 +11,7 @@ import MapView from 'react-native-maps';
 
 export default function RequestDetail(props)  {
     const mapRef = React.useRef(null);
-    const [state, setState] = React.useState(props.details);
     const [modalVisible, setModalVisibility] = React.useState(false)
-    
     const backgroundColor = (requestState) => {
         switch(requestState){
             case 'accepted':
@@ -78,7 +76,7 @@ export default function RequestDetail(props)  {
             const response = await axios.get(`${API_URL}/seatBookings/updateStatus?id=${seatAssignmentId}&status=${status}`);
             if(response.status == 200){
                 if(props.refreshFn){ // Refrescar todas las solicitudes
-                    props.refreshFn(state.tripId)
+                    props.refreshFn(props.details.tripId)
                 }
             }
             else{
@@ -93,13 +91,13 @@ export default function RequestDetail(props)  {
     return (
         <>
             <View style={styles.card}>
-                <TouchableOpacity activeOpacity={0.5} onPress={() =>setModalVisibility(true)} style={[styles.button, {backgroundColor: backgroundColor(state.status)}]}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() =>setModalVisibility(true)} style={[styles.button, {backgroundColor: backgroundColor(props.details.status)}]}>
                     <View id='iconContainer' style={styles.iconContainer}>
-                        <Icon name={state.pickupType == 'driverPicksMe' ? 'car' : 'user'} size={26} color={UCA_BLUE} style={styles.optionIcon}/>
+                        <Icon name={props.details.pickupType == 'driverPicksMe' ? 'car' : 'user'} size={26} color={UCA_BLUE} style={styles.optionIcon}/>
                     </View>
-                    <Text style={{paddingHorizontal: 10, color: 'black', flexShrink: 1}} numberOfLines={1}>{state.User.name} {state.User.surname}</Text>
+                    <Text style={{paddingHorizontal: 10, color: 'black', flexShrink: 1}} numberOfLines={1}>{props.details.User.name} {props.details.User.surname}</Text>
                 </TouchableOpacity>
-                {state.status == 'pickedUp' ?
+                {props.details.status == 'pickedUp' ?
                     <IconButton 
                         icon={'car-arrow-right'} 
                         mode="contained"
@@ -107,10 +105,10 @@ export default function RequestDetail(props)  {
                         color={UCA_BLUE}
                         
                         style={{width:50, height: 50, padding: 0, margin: 0}}
-                        onPress= { () => {  handleExitSeatAssignment(state.id) }}
+                        onPress= { () => {  handleExitSeatAssignment(props.details.id) }}
                     />
                     :
-                    state.status != 'arrived'?
+                    props.details.status != 'arrived'?
                     <IconButton 
                         icon={"close"} 
                         mode="contained"
@@ -118,7 +116,7 @@ export default function RequestDetail(props)  {
                         color={UCA_BLUE}
                         
                         style={{width:50, height: 50, padding: 0, margin: 0}}
-                        onPress= { () => {  handleDeclineSeatAssignment(state.id) }}
+                        onPress= { () => {  handleDeclineSeatAssignment(props.details.id) }}
                     />
                     :
                     <View style={{width: 50, height: 50}}/>
@@ -126,98 +124,95 @@ export default function RequestDetail(props)  {
                 
                 
             </View>
+            {modalVisible && 
             <Modal visible={modalVisible} animationType="slide" transparent={true} onRequestClose={() => setModalVisibility(false)}>
-                {modalVisible ? 
-                <SafeAreaView id='modalContainer' style={{flex: 1, width: '100%', height: '100%', justifyContent: 'center'}}>
-                <View style={{width: '90%', height: '90%', borderRadius: 15, alignSelf: 'center', margin: '1%', backgroundColor: 'white', elevation: 12, borderRadius: 15, padding: 10}}>
-                    <View style={{alignSelf: 'flex-end', right: 10, top: 10, position: 'absolute', zIndex: 10}}>
-                        <TouchableOpacity activeOpacity={0.5} onPress={() => setModalVisibility(false)}>
-                            <Icon name='close' type='material-community' size={40} color='grey'/>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{alignSelf: 'center', height: '50%', borderBottomColor: UCA_BLUE, borderBottomWidth: 2, marginBottom: 5}} >
-                        <ScrollView
-                            contentContainerStyle={{alignItems: 'center', justifyContent: 'center', width: '95%', alignSelf: 'center', paddingVertical: 10}}
-                            //nestedScrollEnabled={true}
-                        >
-                            <View id='passengerProfileContainer' style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
-                                <View id="profileBox" style={{ width: '100%', backgroundColor: 'white', borderRadius: 15, alignSelf: 'flex-start', elevation: 5, padding: 15, alignItems: 'center', flexDirection: 'column'}}>
-                                        <Icon name={'user'} size={64} color={UCA_BLUE} style={{margin: 2}}/>
-                                        <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE}}>{state.User.name} {state.User.surname}</Text>
-                                </View>
-                            </View>
-                            <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE, paddingTop: 5}}>{state.User.email}</Text>
-                            <View id='carContainer' style={{width: '100%', paddingHorizontal: 5, paddingBottom: 10}}>
-                                <Text style={styles.boxLabel}>Mensaje:</Text>
-                                <View id="descriptionBox" style={{flex: 1, backgroundColor: 'white', borderRadius: 15, elevation: 5, alignSelf: 'flex-start', justifyContent: 'center'}}>
-                                    <View style={{flexDirection: 'row', padding: 15, width: '100%'}}>
-                                        <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE}}>{state.message}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View id='pickupDetails' style={{width: '100%', padding: 5}}>
-                                <Text style={styles.boxLabel}>Indicaciones de salida:</Text>
-                                {
-                                    state.pickupType == 'driverPicksMe' ?
-                                        <Text style={{ alignSelf: 'center', width: '100%'}}>Indicó que lo pases a buscar en <Text style={{fontWeight: 'bold'}}>{state.pickupAddress.address}</Text></Text>
-                                    :
-                                        <Text style={{alignSelf: 'center', width: '100%'}}>Se comprometió a estar en la dirección de salida que indicaste.</Text>
-                                }
-                            </View>
-                            <View id='dropoffDetails' style={{width: '100%', padding: 5}}>
-                                <Text style={styles.boxLabel}>Indicaciones de llegada:</Text>
-                                {
-                                    state.dropoffType == 'myOwn' ?
-                                        <Text style={{alignSelf: 'center', width: '100%'}}>Indicó que lo dejes en <Text style={{fontWeight: 'bold'}}>{state.dropoffAddress.address}</Text></Text>
-                                    :
-                                        <Text >El pasajero termina el viaje en la ubicación que vos indicaste.</Text>
-                                }
-                            </View>
-                        </ScrollView>
-                    </View>
-                    <MapView
-                        toolbarEnabled={false}
-                        showsBuildings={false}
-                        ref={mapRef}
-                        liteMode={false}
-                        style={{minHeight: 100, minWidth: 100, flex: 1, borderWidth: 4, borderColor: 'black', paddingTop: 10}}
-                        initialRegion={DEFAULT_COORDINATE}
-                        onMapReady={() => mapRef.current.fitToCoordinates([{latitude: props.tripStartAddress.coords.lat, longitude: props.tripStartAddress.coords.lng}, {latitude: props.tripEndAddress.coords.lat, longitude: props.tripEndAddress.coords.lng}], {edgePadding: {top: 50, bottom: 50, left: 50, right: 50}})}
-                    >
-                        {getMarkerForAddress(state.pickupAddress, 'passengerStart')}
-                        {getMarkerForAddress(state.dropoffAddress, 'passengerEnd') }
-                        {getMarkerForAddress(props.tripStartAddress, 'start')}
-                        {getMarkerForAddress(props.tripEndAddress, 'end')}
-                    </MapView>
-                    {
-                        !(props.tripView)?
-                        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'center'}}>
-                            {
-                                state.status == 'accepted' ?
-                                        <></>
-                                    :
-                                        <PaperButton color={UCA_BLUE}  mode="contained" onPress = {() => handleAcceptSeatAssignment(state.id)} style={{margin: 20, height: 50, justifyContent: 'center', borderRadius: 15}}>
-                                            Aceptar
-                                        </PaperButton>
-                            }
-                            <PaperButton color={UCA_BLUE}  mode="contained" onPress = {() => handleDeclineSeatAssignment(state.id)} style={{margin: 20, height: 50, justifyContent: 'center', borderRadius: 15 }}>
-                                Declinar
-                            </PaperButton>
-                        </View>
-                        :
-                        <></>
-                    }
-                    
+
+            <SafeAreaView id='modalContainer' style={{flex: 1, width: '100%', height: '100%', justifyContent: 'center'}}>
+            <View style={{width: '90%', height: '90%', borderRadius: 15, alignSelf: 'center', margin: '1%', backgroundColor: 'white', elevation: 12, borderRadius: 15, padding: 10}}>
+                <View style={{alignSelf: 'flex-end', right: 10, top: 10, position: 'absolute', zIndex: 10}}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => setModalVisibility(false)}>
+                        <Icon name='close' type='material-community' size={40} color='grey'/>
+                    </TouchableOpacity>
                 </View>
-            </SafeAreaView>
-            :
-            <></>
-            
-            
+                <View style={{alignSelf: 'center', height: '50%', borderBottomColor: UCA_BLUE, borderBottomWidth: 2, marginBottom: 5}} >
+                    <ScrollView
+                        contentContainerStyle={{alignItems: 'center', justifyContent: 'center', width: '95%', alignSelf: 'center', paddingVertical: 10}}
+                        //nestedScrollEnabled={true}
+                    >
+                        <View id='passengerProfileContainer' style={{width: '50%', paddingTop: 5, paddingHorizontal: 5}}>
+                            <View id="profileBox" style={{ width: '100%', backgroundColor: 'white', borderRadius: 15, alignSelf: 'flex-start', elevation: 5, padding: 15, alignItems: 'center', flexDirection: 'column'}}>
+                                    <Icon name={'user'} size={64} color={UCA_BLUE} style={{margin: 2}}/>
+                                    <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE}}>{props.details.User.name} {props.details.User.surname}</Text>
+                            </View>
+                        </View>
+                        <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE, paddingTop: 5}}>{props.details.User.email}</Text>
+                        <View id='carContainer' style={{width: '100%', paddingHorizontal: 5, paddingBottom: 10}}>
+                            <Text style={styles.boxLabel}>Mensaje:</Text>
+                            <View id="descriptionBox" style={{flex: 1, backgroundColor: 'white', borderRadius: 15, elevation: 5, alignSelf: 'flex-start', justifyContent: 'center'}}>
+                                <View style={{flexDirection: 'row', padding: 15, width: '100%'}}>
+                                    <Text style={{textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE}}>{props.details.message}</Text>
+                                </View>
+                            </View>
+                        </View>
+                        <View id='pickupDetails' style={{width: '100%', padding: 5}}>
+                            <Text style={styles.boxLabel}>Indicaciones de salida:</Text>
+                            {
+                                props.details.pickupType == 'driverPicksMe' ?
+                                    <Text style={{ alignSelf: 'center', width: '100%'}}>Indicó que lo pases a buscar en <Text style={{fontWeight: 'bold'}}>{props.details.pickupAddress.address}</Text></Text>
+                                :
+                                    <Text style={{alignSelf: 'center', width: '100%'}}>Se comprometió a estar en la dirección de salida que indicaste.</Text>
+                            }
+                        </View>
+                        <View id='dropoffDetails' style={{width: '100%', padding: 5}}>
+                            <Text style={styles.boxLabel}>Indicaciones de llegada:</Text>
+                            {
+                                props.details.dropoffType == 'myOwn' ?
+                                    <Text style={{alignSelf: 'center', width: '100%'}}>Indicó que lo dejes en <Text style={{fontWeight: 'bold'}}>{props.details.dropoffAddress.address}</Text></Text>
+                                :
+                                    <Text >El pasajero termina el viaje en la ubicación que vos indicaste.</Text>
+                            }
+                        </View>
+                    </ScrollView>
+                </View>
+                <MapView
+                    toolbarEnabled={false}
+                    showsBuildings={false}
+                    ref={mapRef}
+                    liteMode={false}
+                    style={{minHeight: 100, minWidth: 100, flex: 1, borderWidth: 4, borderColor: 'black', paddingTop: 10}}
+                    initialRegion={DEFAULT_COORDINATE}
+                    onMapReady={() => mapRef.current.fitToCoordinates([{latitude: props.tripStartAddress.coords.lat, longitude: props.tripStartAddress.coords.lng}, {latitude: props.tripEndAddress.coords.lat, longitude: props.tripEndAddress.coords.lng}], {edgePadding: {top: 50, bottom: 50, left: 50, right: 50}})}
+                >
+                    {getMarkerForAddress(props.details.pickupAddress, 'passengerStart')}
+                    {getMarkerForAddress(props.details.dropoffAddress, 'passengerEnd') }
+                    {getMarkerForAddress(props.tripStartAddress, 'start')}
+                    {getMarkerForAddress(props.tripEndAddress, 'end')}
+                </MapView>
+                {
+                    !(props.tripView)?
+                    <View style={{flexDirection: 'row', width: '100%', justifyContent: 'center'}}>
+                        {
+                            props.details.status == 'accepted' ?
+                                    <></>
+                                :
+                                    <PaperButton color={UCA_BLUE}  mode="contained" onPress = {() => handleAcceptSeatAssignment(props.details.id)} style={{margin: 20, height: 50, justifyContent: 'center', borderRadius: 15}}>
+                                        Aceptar
+                                    </PaperButton>
+                        }
+                        <PaperButton color={UCA_BLUE}  mode="contained" onPress = {() => handleDeclineSeatAssignment(props.details.id)} style={{margin: 20, height: 50, justifyContent: 'center', borderRadius: 15 }}>
+                            Declinar
+                        </PaperButton>
+                    </View>
+                    :
+                    <></>
+                }
+                
+            </View>
+        </SafeAreaView>
+        </Modal>
             
             }
-                
-            </Modal>
+            
         </>
 
   ); 

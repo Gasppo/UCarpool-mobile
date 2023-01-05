@@ -47,6 +47,7 @@
     "redux": "^4.1.2",
     "redux-thunk": "^2.4.1",
     "rn-android-keyboard-adjust": "^2.0.0",
+    "uuid": "^8.3.2",
     "vision-camera-code-scanner": "^0.2.0",
     "xtypejs": "^0.7.1"
   },

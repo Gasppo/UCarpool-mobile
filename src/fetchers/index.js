@@ -32,9 +32,6 @@ export async function deleteVehicle(driverId, vehicleId){
 
 export async function createTrip(tripData){
   try {
-      /* if( isNaN(driverId) ){
-          throw new Error('Not a valid driverId')
-      } */
       return (fetch(API_URL + '/users/login', {
         method: 'POST',
         headers: {

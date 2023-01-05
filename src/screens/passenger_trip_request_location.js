@@ -26,8 +26,6 @@ export default function PassengerTripRequestLocation(props){
     const [nextButton, setNextButton] = React.useState(new Animated.Value(30));
     const [mapMarkers, setMapMarkers] = React.useState([]);
     const [nextButtonAvailable, setNextButtonAvailable] = React.useState(false);
-    const [mapCenter, setMapCenter] = React.useState();
-    const [zoomLevel, setZoomLevel] = React.useState(11);
     const [ createRequestData, setCreateRequestData ] = React.useState(props.route.params.createRequestData);
 
     const handleUploadNewRequest = async () => {
