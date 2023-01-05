@@ -451,7 +451,7 @@ function TripItem(props)  {
                             <View style={styles.row}>
                                 <View style={styles.qrContainer}>
                                     <Text style={styles.boxLabel}>Código QR:</Text>
-                                        <View style={styles.qrCodeContainer}>
+                                        <View style={styles.qrCodeContainer} onLayout={() => console.log(item.userSeatAssignment)}>
                                             <QRCode
                                                 value={item.userSeatAssignment.qrCode}
                                                 size={120}
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
     modal: {alignItems: 'center', justifyContent: 'center'},
     modalTopBar: {position: 'absolute', top: 10, right: 10, zIndex: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'},
     editButton: {marginTop: 4, marginRight: 5},
-    modalCanvas: {width: '99%', height: '99%', borderRadius: 15, alignSelf: 'center', margin: '1%'},
+    modalCanvas: {width: '99%', height: '99%', borderRadius: 15, alignSelf: 'center', margin: '1%', backgroundColor: 'rgb(245,245,248)'},
     map: {width: '100%', height: 350, borderRadius: 15, minHeight: 200},
     zeroRow: { flexDirection: 'row', width: '95%', justifyContent: 'space-between', paddingBottom: 10},
     row: {flexDirection: 'row', width: '95%', justifyContent: 'space-between'},

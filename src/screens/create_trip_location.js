@@ -108,7 +108,7 @@ export default function CreateTripLocation(props){
             barStyle={'light-content'}
         />
         <KeyboardAvoidingView enabled={false} style={{flex: 1, backgroundColor: 'rgb(0,53,108)'}}>
-        <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'white', elevation: 5, borderRadius: 10, padding: 10}}>
+        <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'rgb(245,245,248)', elevation: 5, borderRadius: 10, padding: 10}}>
             
             <View style={{width: '95%', alignSelf: 'center' ,flex:1}}>
                 <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
