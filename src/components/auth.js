@@ -9,10 +9,10 @@ import UserNavigatorScreen from './user_navigator';
 import SignInScreen from 'screens/signIn';
 import RegisterDataScreen from 'screens/register';
 import RegisterPassengerCompleteScreen from 'screens/register_passenger_complete';
-import GeolocationScreen from 'screens/geolocation';
 import CreateTripNavigatorScreen from './create_trip_navigator';
 import PassengerTripRequestNavigatorScreen from './passenger_trip_request_navigator';
 import StartTripNavigatorScreen from './StartTripNavigator';
+import LandingPollScreen from '../screens/LandingPoll';
 
 //Redux config
 import { connect } from 'react-redux';
@@ -28,7 +28,7 @@ const RegisterPassengerComplete = connect(mapStateToProps, mapDispatchToProps)(R
 const UserNavigator = connect(mapStateToProps, mapDispatchToProps)(UserNavigatorScreen);
 const CreateTripNavigator = connect(mapStateToProps, mapDispatchToProps)(CreateTripNavigatorScreen);
 const PassengerTripRequestNavigator = connect(mapStateToProps, mapDispatchToProps)(PassengerTripRequestNavigatorScreen);
-const GeolocationTest = connect(mapStateToProps, mapDispatchToProps)(GeolocationScreen);
+const LandingPoll = connect(mapStateToProps, mapDispatchToProps)(LandingPollScreen);
 const StartTripNavigator = connect(mapStateToProps, mapDispatchToProps)(StartTripNavigatorScreen);
 
 export default function Auth(props){
@@ -49,7 +49,7 @@ export default function Auth(props){
             <Stack.Screen name= "signIn" component={SignIn} options={{headerShown: false}} />
             <Stack.Screen name= "register" component={RegisterData} options={{headerShown: false}} />
             <Stack.Screen name= "register_passenger_complete" component={RegisterPassengerComplete} options={{headerShown: false}} />
-            <Stack.Screen name= "geolocation_test" component={GeolocationTest} options={{headerShown: false}} />
+            <Stack.Screen name= "landing_poll" component={LandingPoll} options={{headerShown: false}} />
           </>
           }
         </Stack.Navigator>

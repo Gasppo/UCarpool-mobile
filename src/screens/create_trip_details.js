@@ -145,7 +145,7 @@ export default function CreateTripDetails(props){
                 for(i=1; i<=vehicle.maxPassengers; i++){
                     icons.push(
                         <CapacityButton number={i} handler={ setMaxPassengers } stateValue={createTripData.maxPassengers} key={i+'_'}/>
-                        )
+                    )
                 }
             }
         })

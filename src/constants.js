@@ -20,6 +20,7 @@ export const START_TRIP_FAILURE = 'START_TRIP_FAILURE'
 export const API_URL = 'http://172.23.215.114:3000';
 
 export const USIG_REVERSE_GEOCODER_URL = 'http://ws.usig.buenosaires.gob.ar/geocoder/2.2/reversegeocoding';
+export const FORM_URI = 'https://docs.google.com/forms/d/e/1FAIpQLSejldURqjusUzSzqxv6XOVyN4i217ZAdx2hmbJb9fMv8SAeZw/viewform?usp=sf_link';
 
 //Map constants
 export const DEFAULT_COORDINATE = 

@@ -103,8 +103,8 @@ export default function SignInScreen(props) {
                 <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register')}>
                   <Text style={styles.bottomText}>Registrarse(register.js)</Text>
                 </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('geolocation_test')}>
-                  <Text style={styles.bottomText}>geolocation_test.js</Text>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('landing_poll')}>
+                  <Text style={styles.bottomText}>LandingPoll</Text>
                 </TouchableOpacity>
               </View>
             </View>
