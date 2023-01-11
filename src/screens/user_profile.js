@@ -73,7 +73,7 @@ export default function UserProfile(props)  {
                         <TouchableOpacity
                             activeOpacity={0.5}
                             style={styles.profileButton}
-                            onPress={() => console.log('driver history screen')}
+                            onPress={() => props.navigation.navigate('user_trip_history')}
                         >
                             <View style={styles.iconContainer}>
                                 <Icon name={'history'} size={20} style={styles.optionIcon}/>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, Modal, Alert, TouchableOpacity, RefreshControl, ActivityIndicator} from 'react-native';
+import { View, StyleSheet, ScrollView, SafeAreaView, Modal, Alert, TouchableOpacity, Image, ActivityIndicator, ImageBackground, Pressable} from 'react-native';
 import Text from '../components/default_text';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Card } from 'react-native-paper';
@@ -15,6 +15,8 @@ import QRCode from 'react-native-qrcode-svg';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { startTrip } from '../actions/actions';
+import { MARKER_RED, MARKER_RED_ENCODED } from '../images';
+import { getMarkerForAddress } from '../auxiliaryFunctions';
 
 const handleRequestStatusText = (status) => {
     switch (status){
@@ -24,6 +26,12 @@ const handleRequestStatusText = (status) => {
             return 'El conductor declinó tu pedido de viaje'
         case 'requested':
             return 'El conductor todavía no aceptó tu pedido de viaje'
+        case 'pickedUp':
+            return 'Estás arriba del vehículo'
+        case 'arrived':
+            return 'El conductor te dejó en el destino que le indicaste en la solicitud'
+        default:
+            return 'UNHANDLED_REQUEST_TEXT'
     }
 }
 
@@ -42,6 +50,22 @@ const handleRequestDetailsText = (item) => {
         texts = texts + `Pediste al conductor que te deje en ${item.userSeatAssignment.dropoffAddress.address}\n`
     }
     return texts.slice(0,-1)
+}
+
+function handleBackgroundColor(status){
+    switch(status){
+        //conductor
+        case 'available':
+            return UCA_GREEN;
+        case 'canceled':
+            return 'red';
+        case 'started':
+            return 'yellow'
+        case 'completed':
+            return 'green'
+        default:
+            return 'grey'
+    }
 }
 
 function getRegionForCoordinates(points) {
@@ -193,9 +217,7 @@ function TripItem(props)  {
     }
     const getSeatAssignmentsForTrip = async (tripId) => {
         try{
-            
             const response = await axios.get(API_URL + `/seatBookings?tripId=${tripId}`);
-            console.log('we got dis:',response)
             if(response.status == 200){
                 setSeatAssignments(response.data)
             }
@@ -253,6 +275,8 @@ function TripItem(props)  {
                 return 'Denegado'
             case 'requested':
                 return 'Pedido'
+            case 'pickedUp':
+                return 'Subido'
             case 'arrived':
                 return 'Llegado'
             default:
@@ -273,7 +297,7 @@ function TripItem(props)  {
         <>
         {!props.hiddenCard ?
         <View style={{flex: 1, paddingHorizontal: 10, paddingVertical: 2}}>
-            <Card style={styles.card} onPress={() => {setModalVisibility(true)}}>
+            <Pressable style={styles.card} onPress={() => {setModalVisibility(true)}}>
                 <Card.Content style={{flexDirection: 'row'}}>
                     <View style={styles.cardDirectionContainer}>
                         <View style={styles.cardTripDirection}>
@@ -287,8 +311,8 @@ function TripItem(props)  {
                         </View>
                     </View>
                     <View style={styles.cardTripDetails}>
-                        <View style={styles.cardTripStatus}>
-                            <Text style={styles.cardTripDateText}>{new Date(item.estimatedStartTime).getDate() + '/' + (new Date(item.estimatedStartTime).getMonth()+1<10? '0':'') + (new Date(item.estimatedStartTime).getMonth()+1)}</Text>
+                        <View style={[styles.cardTripStatus, {backgroundColor: handleBackgroundColor(item.status)}]}>
+                            <Text style={styles.cardTripDateText}>{(new Date(item.estimatedStartTime).getDate()<10? '0':'') + new Date(item.estimatedStartTime).getDate() + '/' + (new Date(item.estimatedStartTime).getMonth()+1<10? '0':'') + (new Date(item.estimatedStartTime).getMonth()+1)}</Text>
                                 <Text style={styles.cardTripStatusText}>
                                     { props.authentication.userType == 'passenger' && item.hasBeenRequested ?
                                         handlePassengerRequestStatusTextShown(item.userSeatAssignment.status)
@@ -300,7 +324,7 @@ function TripItem(props)  {
                         </View>
                     </View>
                 </Card.Content>
-            </Card>
+            </Pressable>
         </View>
         :
         <></>
@@ -336,10 +360,9 @@ function TripItem(props)  {
                             region={mapRegion}
                             initialRegion={mapRegion}
                         >
-                            <Marker identifier='start' coordinate={{latitude: item.startAddress.coords.lat, longitude: item.startAddress.coords.lng}}/>
-                            <Marker identifier='end' coordinate={{latitude: item.endAddress.coords.lat, longitude: item.endAddress.coords.lng}}/> 
+                            {getMarkerForAddress(item.startAddress, 'start')}
+                            {getMarkerForAddress(item.endAddress, 'end')}
                         </MapView>
-                        <Text style={[styles.boxLabel,{marginTop: 5}]}>Viaje #{item.id}</Text>
                         { item.hasBeenRequested ?
                             <>
                                 <View style={styles.row}>
@@ -419,11 +442,14 @@ function TripItem(props)  {
                             </View>
                         </View>
                         <View style={styles.row}>
+                            {
+
+                            }
                             <View style={styles.carContainer}>
                                 <Text style={styles.boxLabel}>{props.authentication.userType == 'driver' ? 'Vehículo:' : 'Vas en:'}</Text>
                                 <View style={styles.vehicleBox}>
                                     <Icon name={'car'} size={40} color={UCA_GREEN} style={styles.carIcon}/>
-                                    <Text style={styles.carLabel}>{item.Vehicle.VehicleModel.VehicleMake.make} {item.Vehicle.VehicleModel.model}</Text>
+                                    <Text style={styles.carLabel}>{item.Vehicle?.VehicleModel?.VehicleMake?.make} {item.Vehicle?.VehicleModel?.model}</Text>
                                 </View>
                             </View>
                             { props.authentication.userType == 'driver' ? 
@@ -465,7 +491,8 @@ function TripItem(props)  {
                         
                         {props.authentication.userType == 'passenger' ?
                                 item.hasBeenRequested ?
-                                    <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>
+                                    (item.status != 'started' &&
+                                    <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
                                 :
                                     <PaperButton mode='contained' icon='human-greeting-variant' color={UCA_BLUE} style={styles.actionButton} onPress={() => {handleNewRequest()}}>Solicitar asiento</PaperButton>
                             :
@@ -500,31 +527,32 @@ const styles = StyleSheet.create({
     },
     card: {
         borderRadius: 20,
-        elevation: 5
+        elevation: 5,
+        backgroundColor: 'white',
+        marginVertical: 2,
+        borderRadius: 20,
+        paddingVertical: 15,
+        opacity: 0.99
     },
     cardDirectionContainer: {
         height: '100%',
         width: '60%'
     },
-    addressText: {paddingHorizontal: 5, fontFamily: 'Nunito-Bold', color: 'white'},
+    addressText: {paddingHorizontal: 5, fontFamily: 'Nunito-Bold', color: 'white', flex:1, flexWrap: 'wrap'},
     cardAddressText: {paddingHorizontal: 5, fontFamily: 'Nunito-Bold', color: UCA_BLUE},
     cardTripDetails: {flex: 1, alignItems: 'flex-end', justifyContent: 'center'},
     notificationButtons: {
         width: 120
 
     },
-    cardTripDirection: {flexDirection: 'row', alignItems: 'center'},
+    cardTripDirection: {flexDirection: 'row', alignItems: 'center', flex: 1},
     defaultText: {
         color: 'rgb(0,53,108)'
     },
-    cardTripStatus: {backgroundColor: 'rgb(39,174,96)', maxWidth: 120, minWidth: 80, height: 60,justifyContent: 'center', alignItems: 'center', borderRadius: 20},
+    cardTripStatus: { maxWidth: 120, minWidth: 80, height: 60,justifyContent: 'center', alignItems: 'center', borderRadius: 20},
     cardTripTimeText: {position: 'absolute', top: -20},
     cardTripDateText: {position: 'absolute', bottom: -20},
     cardTripStatusText: {fontFamily: 'Nunito-Bold', fontSize: 20, color: 'white', marginHorizontal: 5},
-    card: {
-        marginVertical: 2,
-        borderRadius: 20,
-    },
     modal: {alignItems: 'center', justifyContent: 'center'},
     modalTopBar: {position: 'absolute', top: 10, right: 10, zIndex: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'},
     editButton: {marginTop: 4, marginRight: 5},

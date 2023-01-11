@@ -3,6 +3,7 @@ import { View, Image, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } f
 import Text from '../components/default_text';
 import {Button as PaperButton, TextInput as PaperInput} from 'react-native-paper';
 import {MAINLOGO} from '../images';
+import { UCA_BLUE } from '../constants';
 
 
 export default function SignInScreen(props) {
@@ -16,6 +17,8 @@ export default function SignInScreen(props) {
     const parseLoginError = (error) => {
       try{
         switch(error.response.status){
+          case 0:
+            return 'No hay respuesta del servidor'
           case 200:
             return 'OK'
           case 400:
@@ -24,6 +27,8 @@ export default function SignInScreen(props) {
             return 'No hay un usuario que coincida con las credenciales'
           case 500:
             return 'Error de servidor'
+          default:
+            return 'Error genérico'
         }
       }
       catch(e){
@@ -48,9 +53,7 @@ export default function SignInScreen(props) {
 
     React.useEffect(()=> {
       if(loginError){
-        console.log()
-        console.log(loginError.response.status)
-
+        console.log(loginError)
         Alert.alert("Error al iniciar sesión", parseLoginError(loginError))
       }
     }, [loginError])
@@ -82,6 +85,7 @@ export default function SignInScreen(props) {
               <PaperInput
                 label='Email'
                 mode="outlined"
+                activeOutlineColor={ UCA_BLUE }
                 value={inputEmail}
                 onChangeText={setInputEmail}
               />
@@ -89,22 +93,20 @@ export default function SignInScreen(props) {
                 label='Password'
                 secureTextEntry={true}
                 mode="outlined"
+                activeOutlineColor={ UCA_BLUE }
                 value={inputPassword}
                 onChangeText={setInputPassword}
               />
               <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
                 Iniciar Sesión
               </PaperButton>
-              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
+              {/* <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
                 Iniciar Sesión con UCA
-              </PaperButton>
+              </PaperButton> */}
               <View>
                 <Text>No tiene una cuenta todavía? </Text>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register')}>
-                  <Text style={styles.bottomText}>Registrarse(register.js)</Text>
-                </TouchableOpacity>
-                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('landing_poll')}>
-                  <Text style={styles.bottomText}>LandingPoll</Text>
+                  <Text style={styles.bottomText}>Registrarse</Text>
                 </TouchableOpacity>
               </View>
             </View>

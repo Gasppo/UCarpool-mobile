@@ -1,7 +1,8 @@
 import React from 'react';
-import { Alert } from 'react-native';
+import { Alert, ImageBackground, Text } from 'react-native';
 import { Marker } from 'react-native-maps';
-import { DEFAULT_COORDINATE, MARKER_BLUE, MARKER_RED, MARKER_GREEN, } from './constants';
+import { DEFAULT_COORDINATE, MARKER_BLUE, MARKER_GREEN, } from './constants';
+import { MARKER_RED } from './images';
 
 var xtype = require('xtypejs')
 
@@ -72,22 +73,26 @@ export function getMarkerForAddress(address, type, tripId){
     size = [24, 24]
     iconAnchor = [0,30]
     pinColor = 'red'
+    let label = ''
     switch(type){
         case 'start':
             pinColor='red'
+            label='A'
             break
         case 'end':
             pinColor='white'
+            label='B'
             break
         case 'passengerStart':
             pinColor='green'
+            label='A'
             break
         case 'passengerEnd':
             pinColor='blue'
+            label='B'
             break
         default:
-            pinColor='yellow'
-            break
+            label='X'
     }   
     marker = {
         id: tripId? `${tripId.toString()}_${type}` : '0',
@@ -99,7 +104,12 @@ export function getMarkerForAddress(address, type, tripId){
         size: size,
         iconAnchor: iconAnchor
     }
-    return <Marker key={Math.random()} identifier={tripId? `${tripId.toString()}_${type}` : '0'} coordinate={{latitude: address.coords.lat, longitude: address.coords.lng}} pinColor={pinColor}/>
+    return (<Marker key={Math.random()} identifier={tripId? `${tripId.toString()}_${type}` : '0'} coordinate={{latitude: address.coords.lat, longitude: address.coords.lng}}>
+                <ImageBackground style={{ height: 40, width: 30}} source={MARKER_RED} resizeMode='contain'>
+                    <Text style={{borderRadius: 20, backgroundColor: 'white', alignSelf: 'center', width: 20, textAlign: 'center', top: 3}}>{label}</Text>
+                </ImageBackground>
+            </Marker>)
+    // return <Marker key={Math.random()} identifier={tripId? `${tripId.toString()}_${type}` : '0'} coordinate={{latitude: address.coords.lat, longitude: address.coords.lng}} pinColor={pinColor}/>
 }
 export function getMarkersForAddress(startAddress, endAddress){
     

@@ -50,11 +50,11 @@ export default function PassengerTripRequestLocation(props){
         auxMarkers = []
         if(createRequestData.pickupAddress.address!=''){
             console.log('start address:', createRequestData.pickupAddress)
-            auxMarkers.push(getMarkerForAddress(createRequestData.pickupAddress))
+            auxMarkers.push(getMarkerForAddress(createRequestData.pickupAddress, 'start'))
 
         }
         if(createRequestData.dropoffAddress.address!=''){
-            auxMarkers.push(getMarkerForAddress(createRequestData.dropoffAddress))
+            auxMarkers.push(getMarkerForAddress(createRequestData.dropoffAddress, 'end'))
 
         }
         if(auxMarkers.length == 2){

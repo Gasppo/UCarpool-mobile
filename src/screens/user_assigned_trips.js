@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, RefreshControl, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
+import { View, FlatList, RefreshControl, StyleSheet, SafeAreaView, TouchableOpacity, Alert, Image } from 'react-native';
 import Text from '../components/default_text';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import TripItem from '../components/trip_item';
@@ -7,6 +7,7 @@ import axios from 'axios';
 import { API_URL, UCA_BLUE } from '../constants';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useIsFocused } from '@react-navigation/native';
+import { UCA_LOGO } from '../images';
 
 const getDriverTrips = async (userId, status) => {
     const response = await axios.get(`${API_URL}/trips?driverId=${userId}&status=${status}`);
@@ -39,7 +40,8 @@ export default function PassengerActiveTrips(props)  {
         setRefreshing(true)
         getDriverTrips(props.authentication.user.id, 'available')
         .then( r => {
-            setActiveTripList(r);
+            tripList = r.filter(trip => new Date(trip.estimatedStartTime) >= new Date(new Date().setHours(0,0,0,0))) // No mostrar avisos del usuario ni viejos
+            setActiveTripList(tripList);
         }
         )
         .catch(e => {
@@ -52,7 +54,7 @@ export default function PassengerActiveTrips(props)  {
         setRefreshing(true)
         getPassengerTrips(props.authentication.user.id, 'available')
         .then( r => {
-            console.log(r)
+            r = r.filter(seatAssignment => (['canceled', 'completed'].indexOf(seatAssignment.Trip.status) == -1) && (['declined', 'arrived'].indexOf(seatAssignment.status) == -1) && new Date(seatAssignment.Trip.estimatedStartTime) > new Date(new Date().setHours(0,0,0,0))) // No mostrar avisos del usuario ni viejos
             activeTrips = []
             r.forEach(seatAssignment => {
                 // ponemos los Trip primero
@@ -118,6 +120,9 @@ export default function PassengerActiveTrips(props)  {
                 </>
             }
         />
+        <View style={{width: '100%', height: '100%', position: 'absolute', alignItems: 'center', justifyContent: 'center', zIndex: -1}}>
+            <Image source={UCA_LOGO} style={{height: '15%'}} resizeMode="contain"/>
+        </View>
    </SafeAreaView>
 
   ); 

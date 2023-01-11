@@ -1,6 +1,6 @@
 
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, FlatList, Alert,
+import { View, StyleSheet, TouchableOpacity, Alert,
     Button,
     Linking,
     Modal,
@@ -62,16 +62,18 @@ const groupSeatAssignmentsByStatus = (seatAssignments) => {
 }
 
 export default function PreTripCheck(props)  {
+    
     const isFocused = useIsFocused();
     const [bookedPassengersList, setBookedPassengersList] = React.useState([]);
     const navigation = useNavigation();
     const [location, setLocation] = React.useState(null);
-    const [tripLocations, setTripLocations] = React.useState([])
     const [testValue, setTestValue] = React.useState(0);
     const [observing, setObserving] = useState(false);
+    let thePassengersList = groupSeatAssignmentsByStatus([]);
     const [passengersList, setPassengersList] = React.useState(groupSeatAssignmentsByStatus([]))
     const [activeTrip, setActiveTrip] = React.useState({})
     const [refreshing, setRefreshing] = React.useState(false);
+    let theAois = [];
     const [aois, setAois] = React.useState([]);
     const [tripLocationsCoordinates, setTripLocationsCoordinates] = React.useState([])
     const mapRef = React.useRef(null);
@@ -106,6 +108,7 @@ export default function PreTripCheck(props)  {
               response.data.forEach(aoi => {
                 aux.push(aoi.coordinates)
               })
+              theAois = aux
               setAois(aux)
           }
           else{
@@ -149,44 +152,25 @@ export default function PreTripCheck(props)  {
       }
   }
   const sendLocationUpdate = async (location) => {
-    try{
-        setRefreshing(true)
         const response = await axios.put(`${API_URL}/tripStats?tripId=${props.authentication.currentTrip}`, {realTimeData: location});
-        setRefreshing(false)
         if(response.status == 200){
-            console.log(response.data)
+            return response.data
         }
-        else{
-            console.log(response.data)
-            // agregar a queue y hacer retry
-        }
-    }
-    catch(e){
-        setRefreshing(false)
-        console.log(JSON.stringify(e.response))
-        Alert.alert('Error', e.message)
-    }
-}
+        throw new Error('Error enviando coordenadas a servidor')
+  }
 
 
   const getSeatBookings = async () => {
-    try{
-      setRefreshing(true)
-      const response = await axios.get(`${API_URL}/seatBookings?tripId=${props.authentication.currentTrip}`);
 
-      setRefreshing(false)
+      const response = await axios.get(`${API_URL}/seatBookings?tripId=${props.authentication.currentTrip}`);
       if(response.status == 200){
-          setPassengersList(groupSeatAssignmentsByStatus(response.data))
+
+          thePassengersList = groupSeatAssignmentsByStatus(response.data)
+          setPassengersList(thePassengersList)
       }
       else{
           throw new Error('Error occurred')
       }
-  }
-  catch(e){
-      setRefreshing(false)
-      console.log(JSON.stringify(e.response))
-      Alert.alert('Error', e.message)
-  }
   }
 
   const updateSeatAssignment = async (seatAssignmentId, status) => {
@@ -205,17 +189,16 @@ export default function PreTripCheck(props)  {
         Alert.alert('Error', e.message)
     }
 }
-    const handleLocationUpdate = (location) => {
+    const handleLocationUpdate = async (location) => {
       location = {...location, seats: passengersList[1].data.length + 1}
-      setLocation(location);
-      setRefreshing(true)
+      console.log(location)
       let locationCoords = [location.coords.longitude, location.coords.latitude]
-      let found = aois.find( aoi => inside(locationCoords, [aoi]));
+      let found = theAois.find( aoi => inside(locationCoords, [aoi]));
       if(found){
+        console.log('inside')
+        setRefreshing(true);
         sendLocationUpdate(location)
         .then(r => {
-          setTestValue(testValue + 1);
-          //setTripLocations(tripLocations => [...tripLocations, location])
           setTripLocationsCoordinates(tripLocationsCoordinates => [...tripLocationsCoordinates, {latitude: location.coords.latitude, longitude: location.coords.longitude}])
         })
         .catch(e => {
@@ -249,7 +232,7 @@ export default function PreTripCheck(props)  {
                     text: 'Cancelar',  
                     onPress: () => console.log('Cancel Pressed'),  
                     style: 'cancel',  
-                },  
+                },
                 {text: 'OK', onPress: () => addUncheckedPassenger()},  
             ]  
         );  
@@ -292,13 +275,11 @@ export default function PreTripCheck(props)  {
       }
         navigation.navigate('PassengerQRCodeCheck', {passengersList: passengersList})
     }
-
-    
-
     // LOCATION
     const watchId = React.useRef(null);
     
     React.useEffect(() => {
+      getAOIs().then(getActiveTrip()).then(getLocationUpdates())
         return () => {
           removeLocationUpdates();
         };
@@ -314,22 +295,15 @@ export default function PreTripCheck(props)  {
         console.log(location?.timestamp
           ? new Date(location.timestamp).toLocaleString()
           : '')
+          console.log('passengers:', passengersList[1].data.length)
+          if(location){
+            handleLocationUpdate(location)
+          }
       }, [location]);
 
       React.useEffect(() => {
         console.log('refreshed passengers')
       }, [passengersList]);
-
-      React.useEffect(() => {
-        getActiveTrip()
-        getAOIs()
-        getLocationUpdates()
-      }, [])
-
-      React.useEffect(() => {
-        console.log('all locations:',tripLocations)
-      }, [tripLocations])
-
 
 
       const renderPassengers = React.useMemo(() => 
@@ -450,7 +424,7 @@ export default function PreTripCheck(props)  {
     
         Geolocation.getCurrentPosition(
           (position) => {
-            handleLocationUpdate(position)
+            setLocation(position)
           },
           (error) => {
             Alert.alert(`Code ${error.code}`, error.message);
@@ -484,7 +458,7 @@ export default function PreTripCheck(props)  {
     
         watchId.current = Geolocation.watchPosition(
           (position) => {
-            handleLocationUpdate(position)
+            setLocation(position)
           },
           (error) => {
             setLocation(null);

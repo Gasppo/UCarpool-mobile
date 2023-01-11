@@ -18,6 +18,7 @@ import LandingPollScreen from '../screens/LandingPoll';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as reduxActionCreators from 'actions/actions';
+import { storage } from '../constants';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,24 +33,38 @@ const LandingPoll = connect(mapStateToProps, mapDispatchToProps)(LandingPollScre
 const StartTripNavigator = connect(mapStateToProps, mapDispatchToProps)(StartTripNavigatorScreen);
 
 export default function Auth(props){
-    console.log('currentTrip:',props.authentication.currentTrip)
+  React.useEffect(() => {
+    try{
+      let savedData = JSON.parse(storage.getString('loggedUserData'));
+      if(savedData){
+        props.loginUser(savedData.email, savedData.password)
+      }
+    }
+    // Loggear usuario si tiene credenciales
+    catch(e){ console.log(e)}
+    
+  }, [])
   return (
         <Stack.Navigator>
           {props.authentication.isLoggedIn ?
-            (props.authentication.currentTrip != 0 ?
-              <Stack.Screen name= "start_trip_navigator" component={StartTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
+            (props.authentication.user.completedSurvey ?
+
+              (props.authentication.currentTrip != 0 ? // Usuario tiene un trip en progreso?
+                <Stack.Screen name= "start_trip_navigator" component={StartTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
+                :
+                <>
+                  <Stack.Screen name= "user_navigator" component={UserNavigator} options={{headerShown: false}} />
+                  <Stack.Screen name= "create_trip_navigator" component={CreateTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
+                  <Stack.Screen name= "passenger_trip_request_navigator" component={PassengerTripRequestNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
+                </>)
               :
-              <>
-                <Stack.Screen name= "user_navigator" component={UserNavigator} options={{headerShown: false}} />
-                <Stack.Screen name= "create_trip_navigator" component={CreateTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
-                <Stack.Screen name= "passenger_trip_request_navigator" component={PassengerTripRequestNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
-              </>)
+              <Stack.Screen name= "landing_poll" component={LandingPoll} options={{headerShown: false, gestureEnabled: false}} />
+              )
           :
           <>
             <Stack.Screen name= "signIn" component={SignIn} options={{headerShown: false}} />
             <Stack.Screen name= "register" component={RegisterData} options={{headerShown: false}} />
             <Stack.Screen name= "register_passenger_complete" component={RegisterPassengerComplete} options={{headerShown: false}} />
-            <Stack.Screen name= "landing_poll" component={LandingPoll} options={{headerShown: false}} />
           </>
           }
         </Stack.Navigator>

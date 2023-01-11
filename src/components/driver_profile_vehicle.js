@@ -1,15 +1,15 @@
 import React from 'react';
 import { View, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-paper';
 import Text from './default_text'
-import { API_URL, UCA_BLUE } from '../constants';
+import { API_URL, UCA_BLUE, UCA_GREEN } from '../constants';
 import axios from 'axios';
 
 function generatePassengersIcons(capacity){
     icons = []
     for (i=0; i<capacity; i++){
-        icons.push(<Icon name={'user'} size={16} style={{color: 'grey'}} key={i+'_'}/>)
+        icons.push(<Icon name={'account'} size={16} style={{color: 'grey'}} key={i+'_'}/>)
     }
     return icons
 }
@@ -17,6 +17,7 @@ function generatePassengersIcons(capacity){
 async function deleteVehicle(driverId, vehicleId){
 
     let deleteRequest = await axios.delete(`${API_URL}/vehicles?driverId=${driverId}&id=${vehicleId}`);
+    console.log(deleteRequest.data)
     if(deleteRequest.status == 200){
         return deleteRequest.data
     }
@@ -29,19 +30,29 @@ export default function DriverProfileVehicle(props)  {
     const [modalDisplay, setModalDisplay] = React.useState(false)
 
     const handleDeleteVehicle = () => {
-        try{
-            deleteVehicle(props.carData.driverId, props.carData.id).then(() => {
+            deleteVehicle(props.carData.driverId, props.carData.id)
+            .then(() => {
                 Alert.alert('Aviso', 'Se eliminó el vehículo de la base de datos')
                 setModalDisplay(false);
                 if(props.reloadFn){
                     props.reloadFn()
                 }
             })
-        }
-        catch(e){
-            console.log(e)
-            Alert.alert('Error','Ocurrió un error eliminando el vehículo del sistema.')
-        }
+            .catch(e => {
+                console.log(e)
+                if(e.response?.data?.errors){
+                    if(e.response.data.errors[0].msg == "Cannot delete. There are trips using this vehicle"){
+                        Alert.alert('Error','Existen viajes que utilizan este vehículo. Elimínelos primero e intente de nuevo.')
+                    }
+                    else{
+                        Alert.alert('Error','Ocurrió un error eliminando el vehículo del sistema.')
+                    }
+                }
+                else{
+                    Alert.alert('Error','Ocurrió un error eliminando el vehículo del sistema.')
+                }
+
+            })
     }
     return (
         <>
@@ -100,7 +111,7 @@ const styles = StyleSheet.create({
         padding:15,
         marginBottom: 5
     },
-    carIcon: {alignSelf: 'center', color: 'grey', marginHorizontal: 20},
+    carIcon: {alignSelf: 'center', color: UCA_GREEN, marginHorizontal: 20},
     modalContent: {flex: 1, alignItems: 'center', justifyContent: 'center'},
     carDetailsContainer: { width: '90%', backgroundColor: 'white', alignSelf: 'center', elevation: 10, borderRadius: 10, padding: 15},
 

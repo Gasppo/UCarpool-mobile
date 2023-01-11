@@ -7,6 +7,7 @@ import UserProfileScreen from '../screens/user_profile';
 import DriverVehiclesScreen from '../screens/driver_vehicles';
 import UserStatsScreen from '../screens/user_stats';
 import AboutAppScreen from '../screens/Profile/AboutApp';
+import UserTripHistoryScreen from '../screens/Profile/UserTripHistory';
 
 
 //Redux config
@@ -22,6 +23,7 @@ const UserProfile = connect(mapStateToProps, mapDispatchToProps)(UserProfileScre
 const DriverVehicles = connect(mapStateToProps, mapDispatchToProps)(DriverVehiclesScreen);
 const UserStats = connect(mapStateToProps, mapDispatchToProps)(UserStatsScreen);
 const AboutApp = connect(mapStateToProps, mapDispatchToProps)(AboutAppScreen);
+const UserTripHistory = connect(mapStateToProps, mapDispatchToProps)(UserTripHistoryScreen);
 
 export default function ProfileNavigator(props){
   return (
@@ -35,6 +37,7 @@ export default function ProfileNavigator(props){
       <Stack.Screen name= "driver_vehicles" component={DriverVehicles}/>
       <Stack.Screen name= "user_stats" component={UserStats}/>
       <Stack.Screen name= "about_app" component={AboutApp}/>
+      <Stack.Screen name= "user_trip_history" component={UserTripHistory}/>
     </Stack.Navigator>
   )
 }

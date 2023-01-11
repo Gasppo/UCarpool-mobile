@@ -113,8 +113,8 @@ import axios from 'axios';
       if(result.status == 200){
         // Quitar paréntesis de la respuesta
         result.data = result.data.slice(1,-1)
-        console.log(result.data)
-        if(result.data.puerta){
+        loc = JSON.parse(result.data);
+        if(loc.puerta){
           address = { address: JSON.parse(result.data).puerta, coords: {lat: parseFloat(latitude), lng: parseFloat(longitude)}}
           // Devolver resultados
           props.addressSetter(address)
@@ -286,7 +286,7 @@ import axios from 'axios';
  
    const errorCallback = error => {
      console.log('error: ', error);
-     Alert.alert('Error', e)
+     //Alert.alert('Error', error)
      setLoading(false)
    };
  

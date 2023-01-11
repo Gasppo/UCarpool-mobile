@@ -48,10 +48,10 @@ export default function CreateTripLocation(props){
       React.useEffect(()=> {
         auxMarkers = []
         if(createTripData.startAddress.address!=''){
-            auxMarkers.push(getMarkerForAddress(createTripData.startAddress))
+            auxMarkers.push(getMarkerForAddress(createTripData.startAddress, 'start'))
         }
         if(createTripData.endAddress.address!=''){
-            auxMarkers.push(getMarkerForAddress(createTripData.endAddress))
+            auxMarkers.push(getMarkerForAddress(createTripData.endAddress, 'end'))
         }
         if(auxMarkers.length == 2){
             coordinates = [{latitude: auxMarkers[0].props.coordinate.latitude, longitude: auxMarkers[0].props.coordinate.longitude}, {latitude: auxMarkers[1].props.coordinate.latitude, longitude: auxMarkers[1].props.coordinate.longitude}]
@@ -142,7 +142,7 @@ export default function CreateTripLocation(props){
                 </MapView>
                 
             </View>
-            <Animated.View style={{position: 'absolute', bottom: nextButton, width: '50%', alignSelf: 'center'}}>
+            <Animated.View style={{ width: '50%', alignSelf: 'center'}}>
                 <PaperButton icon="note-outline"
                     mode="contained"
                     disabled={!nextButtonAvailable} onPress={() => props.navigation.navigate('create_trip_details', {createTripData: createTripData, isEdit: false})}

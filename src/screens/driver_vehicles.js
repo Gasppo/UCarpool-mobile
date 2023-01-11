@@ -3,7 +3,7 @@ import {  View, StyleSheet, FlatList, SafeAreaView, TouchableOpacity, Alert, Ref
 import Text from '../components/default_text';
 import DriverAddVehicle from '../components/driver_add_vehicle';
 import DriverProfileVehicle from '../components/driver_profile_vehicle';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { getVehiclesFromApi } from '../fetchers';
 import { UCA_BLUE } from '../constants';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';

@@ -22,13 +22,11 @@ const buildNotificationStyle = (notificationTypeId, issuerName) => {
         case 'DECLINED_SEAT_BOOKING':
             return {icon: 'notebook-remove', label: `${issuerName} rechazó tu solicitud de viaje`}
         case 'NEW_SEAT_REQUEST':
-            return {icon: 'notebook-remove', label: `${issuerName} solicitó unirse a tu viaje`}
+            return {icon: 'notebook-plus', label: `${issuerName} solicitó unirse a tu viaje`}
         case 'WITHDRAWN_SEAT_BOOKING':
             return {icon: 'notebook-remove', label: `${issuerName} quitó su solicitud de viaje`}
         case 'PICKED_UP_TRIP':
-            return {icon: 'notebook-remove', label: `${issuerName} declaró que subiste al viaje`}
-        case 'DECLINED_SEAT_BOOKING':
-            return {icon: 'notebook-remove', label: `${issuerName} rechazó tu solicitud de viaje`}
+            return {icon: 'notebook-check', label: `${issuerName} declaró que subiste al viaje`}
         default:
             return {icon: 'file-question-outline', label: `Notificación indefinida`}
 

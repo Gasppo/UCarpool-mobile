@@ -95,7 +95,6 @@ export default function RegisterData(props) {
             Alert.alert('Error', 'Error creando nuevo usuario')
         })
     }
-
       function validateAll(){ //Si todos los campos son válidos, ingreso los datos en signUpData
         if( fieldValidation.inputGender && fieldValidation.inputBirthday && fieldValidation.inputEmail && fieldValidation.inputName && fieldValidation.inputPhone && fieldValidation.inputSurname && fieldValidation.inputPassword && fieldValidation.inputLegajoUCA){
             var auxSignUpData = signUpData;
@@ -108,7 +107,6 @@ export default function RegisterData(props) {
             auxSignUpData.gender = inputGender;
             auxSignUpData.birthday = inputBirthday;
             setSignUpData(auxSignUpData);
-            console.log(auxSignUpData)
             setSubmitAvailable(true);
         }
         else{
@@ -138,8 +136,12 @@ export default function RegisterData(props) {
                     onSubmitEditing={() => refSurnameInput.current.focus()}
                     blurOnSubmit={false}
 
-                    />
+                />
+                
                 </View>
+                {!fieldValidation.inputName &&
+                <Text>Introduzca un nombre</Text>
+                }
                 <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                     <Icon name='user-o' size={26} color='rgb(0,53,103)' />
                     <PaperInput
@@ -153,7 +155,11 @@ export default function RegisterData(props) {
                         onSubmitEditing={() => refLegajoInput.current.focus()}
                         blurOnSubmit={false}
                     />
+                    
                 </View>
+                {!fieldValidation.inputSurname &&
+                    <Text>Introduzca un apellido</Text>
+                    }
                 <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                     <Icon name='address-card' size={26} color='rgb(0,53,103)' />
                     <PaperInput
@@ -167,7 +173,11 @@ export default function RegisterData(props) {
                         onSubmitEditing={() => refMailInput.current.focus()}
                         blurOnSubmit={false}
                     />
+                    
                 </View>
+                {!fieldValidation.inputLegajoUCA &&
+                    <Text>Introduzca un legajo UCA (9 dígitos)</Text>
+                    }
                 <View style={{width: '100%', flexDirection: 'row', justifyContent: 'space-evenly'}}>
                     <View style={{alignItems: 'center', alignContent: 'center'}}>
                             <Text style={{alignSelf: 'flex-start', padding: 10, color: 'rgb(0,53,103)'}}>Sexo:</Text>
@@ -186,8 +196,12 @@ export default function RegisterData(props) {
                                     <Picker.Item label="NS" value="ns" />
                                 </Picker>
                             </View>
+                            {!fieldValidation.inputGender &&
+                            <Text>Elija género</Text>
+                            }
                             
                     </View>
+                    
                     <View style={{alignItems: 'center'}}>
                         <Text style={{alignSelf: 'flex-start', padding: 10, color: 'rgb(0,53,103)'}}>Fecha de nacimiento:</Text>
                         <PaperButton
@@ -197,6 +211,9 @@ export default function RegisterData(props) {
                         >
                             {handleDateShown(inputBirthday)}
                         </PaperButton>
+                        {!fieldValidation.inputBirthday &&
+                        <Text style={{flex: 1, flexWrap: 'wrap'}}>Debe tener más de 17 años</Text>
+                        }
                     </View>
                 </View>  
                 
@@ -207,14 +224,16 @@ export default function RegisterData(props) {
                     label='Correo Electrónico'
                     mode="flat"
                     value={inputEmail}
-                    onChangeText={setInputEmail}
+                    onChangeText={(val)=>setInputEmail(val.toLowerCase())}
                     style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
                     theme={inputTheme}
                     onSubmitEditing={() => refPassInput.current.focus()}
                     blurOnSubmit={false}
-
                 />
             </View>
+            {!fieldValidation.inputEmail &&
+                <Text>Introduzca una dirección válida</Text>
+                }
             <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                 <Icon name='asterisk' size={26} color='rgb(0,53,103)' />
                 <PaperInput
@@ -228,9 +247,12 @@ export default function RegisterData(props) {
                     theme={inputTheme}
                     onSubmitEditing={() => refPhoneInput.current.focus()}
                     blurOnSubmit={false}
-
                 />
+                
             </View>
+            {!fieldValidation.inputPassword &&
+                <Text>Introduzca una contraseña de 8 caracteres o más</Text>
+                }
             <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                 <Icon name='phone' size={30} color='rgb(0,53,103)' />
                 <PaperInput
@@ -242,9 +264,11 @@ export default function RegisterData(props) {
                     style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
                     theme={inputTheme}
                 />
+                
             </View>
-            
-            
+            {fieldValidation.inputPhone &&
+                <Text>Introduzca un número de teléfono válido</Text>
+                }
             </KeyboardAwareScrollView>
         <View style= {{width: '100%', alignItems:'center', }}>
             <PaperButton

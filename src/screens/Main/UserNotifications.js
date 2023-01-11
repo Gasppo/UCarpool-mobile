@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
+import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Alert, ActivityIndicator, Image} from 'react-native';
 import Text from '../../components/default_text';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NotificationItem from '../../components/notification_item';
 import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
 import axios from 'axios'
 import { API_URL, driverNotificationList, passengerNotificationList, UCA_BLUE } from '../../constants';
+import { UCA_LOGO } from '../../images';
 import TripItem from '../../components/trip_item';
 
 
@@ -191,6 +192,9 @@ export default function PassengerNotifications(props)  {
                         <NotificationItem id={item.id} notificationTypeId={item.notificationTypeId} tripId={item.tripId} date={item.createdAt} issuerName={item.issuer.name} action={() => handleGetTrip(item.tripId)} refreshFn={handleGetNotifs}/>
                 }
             />
+    </View>
+    <View style={{width: '100%', height: '100%', position: 'absolute', alignItems: 'center', justifyContent: 'center', zIndex: -1}}>
+        <Image source={UCA_LOGO} style={{height: '15%'}} resizeMode="contain"/>
     </View>
    </>
 

@@ -17,6 +17,41 @@ import MapView, { Circle } from 'react-native-maps';
 import { useIsFocused } from '@react-navigation/native';
 import SoftInputMode from 'react-native-set-soft-input-mode';
 
+
+function getRegionForCoordinates(points) {
+    // points should be an array of { latitude: X, longitude: Y }
+    let minX, maxX, minY, maxY;
+  
+    // init first point
+    ((point) => {
+      minX = point.lat;
+      maxX = point.lat;
+      minY = point.lng;
+      maxY = point.lng;
+    })(points[0]);
+  
+    // calculate rect
+    points.map((point) => {
+      minX = Math.min(minX, point.lat);
+      maxX = Math.max(maxX, point.lat);
+      minY = Math.min(minY, point.lng);
+      maxY = Math.max(maxY, point.lng);
+    });
+  
+    const midX = (minX + maxX) / 2;
+    const midY = (minY + maxY) / 2;
+    const deltaX = (maxX - minX) + (maxX - minX)/2;
+    const deltaY = (maxY - minY) + (maxY - minY)/2;
+  
+    return {
+      latitude: midX,
+      longitude: midY,
+      latitudeDelta: deltaX,
+      longitudeDelta: deltaY
+    };
+  }
+
+
 const getSearchResults = async (startLat, startLng, endLat, endLng, radius, startDate) => {
 
     const response = await axios.get(API_URL + `/trips/searchTrips?startLat=${startLat}&startLng=${startLng}&endLat=${endLat}&endLng=${endLng}&radius=${radius}&date=${startDate}`);
@@ -79,6 +114,7 @@ export default function PassengerSearchTripsMap(props)  {
         setRefreshing(true)
         getSearchResults(selectedStartAddress.coords.lat, selectedStartAddress.coords.lng, selectedEndAddress.coords.lat, selectedEndAddress.coords.lng, selectedStartRadius, selectedStartTime)
         .then( r => {
+            r = r.filter(trip => trip.driverId != props.authentication.user.id && new Date(trip.estimatedStartTime) > new Date(new Date().setHours(0,0,0,0))) // No mostrar avisos del usuario ni viejos
             r.forEach(trip => {
                 let hasBeenRequested = false;
                 let userSeatAssignment = null;
@@ -137,8 +173,8 @@ export default function PassengerSearchTripsMap(props)  {
 
         trip = availableTripList.find(item => item.id == tripId)
         coordinates = [{latitude: trip.startAddress.coords.lat, longitude: trip.startAddress.coords.lng}, {latitude: trip.endAddress.coords.lat, longitude: trip.endAddress.coords.lng}]
-        startMarker = React.cloneElement(getMarkerForAddress(trip.startAddress, 'start', trip.id), {onPress: () => mapRef.current.fitToCoordinates(coordinates, {edgePadding: {top: 50, bottom: 50, left: 50, right: 50}})})
-        endMarker = React.cloneElement(getMarkerForAddress(trip.endAddress, 'end', trip.id), {onPress: () => mapRef.current.fitToCoordinates(coordinates, {edgePadding: {top: 50, bottom: 50, left: 50, right: 50}})})
+        startMarker = React.cloneElement(getMarkerForAddress(trip.startAddress, 'start', trip.id), {onPress: () => mapRef.current.fitToCoordinates(coordinates, {edgePadding: styles.defaultEdgePadding})})
+        endMarker = React.cloneElement(getMarkerForAddress(trip.endAddress, 'end', trip.id), {onPress: () => mapRef.current.fitToCoordinates(coordinates, {edgePadding: styles.defaultEdgePadding})})
         setMapMarkers([startMarker, endMarker]);
         setSelectedTrip(trip? trip : null)
     }
@@ -207,7 +243,7 @@ export default function PassengerSearchTripsMap(props)  {
 
 
     React.useEffect(() => {
-        mapRef.current.fitToElements({edgePadding: {top: 50, bottom: 50, left: 50, right: 50}})
+        mapRef.current.fitToElements({edgePadding: styles.defaultEdgePadding})
     }, [mapMarkers])
 
     function handleChangeOfStartAddress(newAddress){
@@ -270,7 +306,8 @@ export default function PassengerSearchTripsMap(props)  {
                 style={styles.map}
                 initialRegion={DEFAULT_COORDINATE}
                 moveOnMarkerPress={false}
-                onPress={() => showAllTripsInMap()} 
+                onPress={() => showAllTripsInMap()}
+                mapPadding={{bottom: 20, left: 20, top: 20, right: 20}}
             >
                 {selectedStartAddress ?
                 <Circle id='startAddressCircle' center={{latitude: selectedStartAddress.coords.lat, longitude: selectedStartAddress.coords.lng}} radius={selectedStartRadius} fillColor='rgba(0,53,108,0.3)' strokeWidth={0}/>
@@ -304,7 +341,7 @@ export default function PassengerSearchTripsMap(props)  {
                         <>
                             {showFilters ? 
                                 <ScrollView contentContainerStyle={{paddingHorizontal: 10}} style={{height: height-topBarHeight-bottomTabHeight-55}}>
-                                    <View>
+                                    <View style={{marginTop: 10}}>
                                         <Text style={styles.boxLabel}>Radio de búsqueda</Text>
                                     </View>
                                     <View style={styles.defaultPicker}>
@@ -312,6 +349,7 @@ export default function PassengerSearchTripsMap(props)  {
                                         selectedValue= {selectedStartRadius}
                                         onValueChange={(value) => setSelectedStartRadius(value)}
                                         style={styles.radiusPicker}
+                                        dropdownIconColor='white'
                                         >
                                             <Picker.Item label={"500 m"} value={500} key={'_'}/>
                                             <Picker.Item label={"1 Km"} value={1000} key={'_'}/>
@@ -337,7 +375,7 @@ export default function PassengerSearchTripsMap(props)  {
                                         }}
                                         onCancel={() => setDateModalOpen(false)}
                                         mode={'date'}
-                                        minimumDate={new Date(new Date().setUTCHours(3,0,0,0))}
+                                        minimumDate={new Date(new Date().setHours(3,0,0,0))}
                                         date={new Date(selectedStartTime)}
 
                                     />
@@ -401,13 +439,13 @@ const styles = StyleSheet.create({
     boxLabel: {
         color: 'rgb(0,53,108)',
         fontFamily: 'Nunito-Bold',
-        marginTop: 5,
+        marginTop: 10,
         marginBottom: 2
     },
     defaultPicker: {
         borderRadius: 10,
         height: 50,
-        backgroundColor: '#EBF2FF',
+        backgroundColor: 'rgb(0,53,108)',
         width: "90%",
         alignSelf: 'center'
     },
@@ -448,7 +486,7 @@ const styles = StyleSheet.create({
     numberOfTripsCircleIndicator: {borderRadius: 50, margin: 5, backgroundColor: '#EBF2FF', width: 42, height: 42, alignItems: 'center', justifyContent: 'center'},
     tripNumberIndicator: {fontFamily: 'Nunito-Bold', fontSize: 22, color:'grey'},
     datePicker: { height: 53, justifyContent: 'center', alignSelf: 'center', margin: 5, backgroundColor: 'rgb(0,53,108)', width: '90%', borderRadius: 15 },
-    radiusPicker: {height:27, color: 'grey', borderRadius: 15},
+    radiusPicker: {height:27, color: 'white', borderRadius: 15, overflow: 'hidden'},
     AMBAContainer: {
         height: 50,
         marginVertical: 5
@@ -465,6 +503,6 @@ const styles = StyleSheet.create({
     topBarItemsContainer: {flex:1, flexDirection: 'row'},
     searchBarsContainer: {flex: 1, justifyContent: 'space-evenly'},
     addressFlipper: {justifyContent:'center'},
-    selectedTripAnimatedView: {position: 'absolute', zIndex: 10, width: '95%', alignSelf: 'center'},
+    selectedTripAnimatedView: {position: 'absolute', zIndex: 10, width: '95%', alignSelf: 'center', opacity: 0.9},
     defaultEdgePadding: {top: 50, bottom: 50, left: 50, right: 50},
   });

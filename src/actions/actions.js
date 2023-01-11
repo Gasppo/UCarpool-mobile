@@ -16,6 +16,7 @@ import {
 } from '../constants'
 import axios from 'axios';
 import { storage } from '../constants';
+import { MMKV } from 'react-native-mmkv';
 
 export function fetchUser(){
     return (dispatch) => {
@@ -35,12 +36,13 @@ export function loginUser(inputEmail, inputPassword){
         return (axios.post(`${API_URL}/users/login`, {
                 email: inputEmail,
                 password: inputPassword
-            }))
+            }, {timeout: 15000}))
         .then( json => {
             console.log('response:',json.data)
             if(!json.data.legajoUCA){
                 return(dispatch(logUserFailure(json.data.message)));
             }
+            storage.set('loggedUserData', JSON.stringify(json.data))
             return(dispatch(logUserSuccess(json.data)));
         })
         .catch( err => {
@@ -88,7 +90,6 @@ export function endTrip(tripId){
     return(dispatch) => {
         return (axios.get(`${API_URL}/trips/updateStatus?id=${tripId.toString()}&status=completed`))
         .then( json => {
-            console.log('here!')
             console.log(json.data)
             return(dispatch(startTripFailure()));
         })
@@ -100,6 +101,7 @@ export function endTrip(tripId){
 }
 
 export function logOutUser(){
+    storage.clearAll()
     return (dispatch) => {
         dispatch(logOut())
     }
