@@ -1,18 +1,76 @@
 import React from 'react';
-import { View, Image, TouchableOpacity, Alert, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, Image, TouchableOpacity, Alert, ActivityIndicator, StyleSheet, Modal, TextInput } from 'react-native';
 import Text from '../components/default_text';
-import {Button as PaperButton, TextInput as PaperInput} from 'react-native-paper';
+import {Button as PaperButton, IconButton, TextInput as PaperInput} from 'react-native-paper';
 import {MAINLOGO} from '../images';
-import { UCA_BLUE } from '../constants';
+import { UCA_BLUE, UCA_GREEN } from '../constants';
+import axios from 'axios';
+import { API_URL } from '../constants';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import  Icon  from 'react-native-vector-icons/MaterialCommunityIcons';
 
+const getRequestCode = async (email, type) => {
+  const response = await axios.get(`${API_URL}/users/requestCode?email=${email}&type=${type}`,{timeout: 15000});
+  if(response.status == 200){
+      return response.data
+  }
+  else{
+      throw new Error('Error obteniendo código')
+  }
+}
 
 export default function SignInScreen(props) {
 
-    const [inputEmail, setInputEmail] = React.useState("hola@hola.com");
-    const [inputPassword, setInputPassword] = React.useState("12345678");
+    const [inputEmail, setInputEmail] = React.useState("manu.crespo97@gmail.com");
+    const [inputCode, setInputCode] = React.useState(['','','','','','']);
     const isLoggedIn = props.authentication.isLoggedIn;
     const fetching = props.authentication.isFetching;
     const loginError = props.authentication.error;
+    const [modalVisible, setModalVisible] = React.useState(false);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const inputRef1 = React.useRef(null);
+    const inputRef2 = React.useRef(null);
+    const inputRef3 = React.useRef(null);
+    const inputRef4 = React.useRef(null);
+    const inputRef5 = React.useRef(null);
+    const inputRef6 = React.useRef(null);
+
+    const handleRequestLoginCode = async () => {
+        setRefreshing(true)
+        getRequestCode(inputEmail, 'login')
+        .then( r => {
+          console.log(r)
+            setModalVisible(true)
+        }
+        )
+        .catch(e => {
+            console.log(e);
+            Alert.alert('Error', 'Error obteniendo código')
+        })
+        .finally(r => {setRefreshing(false)}
+          )
+    }
+    const handleKeyPress = ({ nativeEvent: { key: keyValue } }, pos) => {
+      console.log(keyValue)
+      let refList = [inputRef1, inputRef2, inputRef3, inputRef4, inputRef5, inputRef6];
+      if(keyValue == 'Backspace'){
+        refList.forEach(rf => {
+          rf.current.clear()
+        })
+        inputRef1.current.focus()
+        setInputCode('')
+      }
+      else{
+        let aux = [...inputCode].slice(0,pos)
+        aux[pos] = keyValue;
+        setInputCode(aux);
+        if(pos <5){
+          theRef = refList[pos+1]
+          theRef.current.clear()
+          theRef.current.focus()
+        }
+      }
+    }
 
     const parseLoginError = (error) => {
       try{
@@ -72,6 +130,12 @@ export default function SignInScreen(props) {
     }
 
       return (
+        <>
+        {refreshing &&
+            <View style={{zIndex: 20, position:'absolute', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center'}}>
+                <ActivityIndicator color={'#0000ff'} size={80} />
+            </View>
+        }
         <View style={styles.loginBox}>
           {renderSpinner()}
             
@@ -89,21 +153,13 @@ export default function SignInScreen(props) {
                 value={inputEmail}
                 onChangeText={setInputEmail}
               />
-              <PaperInput
-                label='Password'
-                secureTextEntry={true}
-                mode="outlined"
-                activeOutlineColor={ UCA_BLUE }
-                value={inputPassword}
-                onChangeText={setInputPassword}
-              />
-              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
+              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => handleRequestLoginCode()} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
                 Iniciar Sesión
               </PaperButton>
-              {/* <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => props.loginUser( inputEmail, inputPassword)} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
-                Iniciar Sesión con UCA
-              </PaperButton> */}
-              <View>
+              <TouchableOpacity activeOpacity={0.5} onPress={() => setModalVisible(true)}>
+                  <Text style={styles.bottomText}>Recibí un código</Text>
+                </TouchableOpacity>
+              <View style={{marginTop: 10}}>
                 <Text>No tiene una cuenta todavía? </Text>
                 <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register')}>
                   <Text style={styles.bottomText}>Registrarse</Text>
@@ -111,6 +167,97 @@ export default function SignInScreen(props) {
               </View>
             </View>
         </View>
+        <Modal visible={modalVisible}  animationType='slide' transparent={true} style={styles.modal} onRequestClose={() => setModalVisible(false)}>
+          <SafeAreaView style={{flex: 1, alignItems: 'center', backgroundColor: UCA_BLUE, borderTopLeftRadius:10, borderTopRightRadius: 10}}>
+            <View style={{paddingVertical: 10, width: '100%', alignItems: 'flex-end', justifyContent: 'space-between'}}>
+                  <IconButton icon='close' color={'white'} size={30} onPress={() => setModalVisible(false)}/>
+            </View>
+            <Icon name='email-fast' size={46} color='white' style={{marginBottom: 10}}/>
+            <Text style={{fontFamily: 'Nunito-Bold', fontSize: 36, maxWidth: '85%', color: 'white'}} adjustsFontSizeToFit={true} numberOfLines={1}>Introduzca el código enviado a</Text>
+            <Text style={{fontFamily: 'Nunito-Bold', fontSize: 36, maxWidth: '80%', color: UCA_GREEN }} adjustsFontSizeToFit={true} numberOfLines={1}>{inputEmail}</Text>
+
+            <View style={{flexDirection: 'row', paddingTop: 50}}>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput
+                  ref={inputRef1}
+                  value={inputCode.length>=1? inputCode[0] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  //onChangeText={(num) => handleCodeInput(num, 0)}
+                  onKeyPress={(event) => handleKeyPress(event, 0)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+
+                />
+              </View>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput 
+                  ref={inputRef2}
+                  value={inputCode.length>=2? inputCode[1] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  //onChangeText={(num) => handleCodeInput(num, 1)}
+                  onKeyPress={(event) => handleKeyPress(event, 1)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+
+                />
+              </View>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput 
+                  ref={inputRef3}
+                  value={inputCode.length>=3? inputCode[2] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  onKeyPress={(event) => handleKeyPress(event, 2)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+                />
+              </View>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput 
+                  ref={inputRef4}
+                  value={inputCode.length>=4? inputCode[3] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  onKeyPress={(event) => handleKeyPress(event, 3)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+
+                />
+              </View>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput
+                  ref={inputRef5} 
+                  value={inputCode.length>=5? inputCode[4] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  onKeyPress={(event) => handleKeyPress(event, 4)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+                />
+              </View>
+              <View style={{alignItems: 'center', justifyContent: 'center',  borderRadius: 15, padding: 10, overflow: 'hidden', backgroundColor: 'white', marginHorizontal: 5}}>
+                <TextInput 
+                  ref={inputRef6}
+                  value={inputCode.length==6? inputCode[5] : ''}
+                  maxLength={1}
+                  keyboardType='numeric'
+                  onKeyPress={(event) => handleKeyPress(event, 5)}
+                  textAlign='center'
+                  style={{fontFamily: 'Nunito-Bold', fontSize: 30}}
+                />
+              </View>
+              
+            </View>
+            <Text style={{fontFamily: 'Nunito-Bold', fontSize: 36, maxWidth: '85%', color: 'white', paddingVertical: 50}} adjustsFontSizeToFit={true} numberOfLines={1}>No se olvide de revisar su casilla de Spam</Text>
+            <PaperButton icon="login" color={UCA_GREEN}  mode="contained" onPress = {() => props.loginUser(inputEmail, inputCode.join(''))} style={{margin: 20, height: 60, justifyContent: 'center', position: 'absolute', borderRadius: 15, bottom: 30}}>
+                Continuar
+              </PaperButton>
+          </SafeAreaView>
+                
+        </Modal>
+        </>
       );
   }
 

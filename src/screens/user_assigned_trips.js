@@ -10,7 +10,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { UCA_LOGO } from '../images';
 
 const getDriverTrips = async (userId, status) => {
-    const response = await axios.get(`${API_URL}/trips?driverId=${userId}&status=${status}`);
+    const response = await axios.get(`${API_URL}/trips?driverId=${userId}&status=${status}`,{timeout: 15000});
     if(response.status == 200){
         return response.data
     }
@@ -20,7 +20,7 @@ const getDriverTrips = async (userId, status) => {
 }
 
 const getPassengerTrips = async (userId) => {
-    const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${userId}`);
+    const response = await axios.get(`${API_URL}/trips/passengerTrips?passengerId=${userId}`, {timeout: 15000});
     if(response.status == 200){
         return response.data
     }

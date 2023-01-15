@@ -12,37 +12,38 @@ import {
     SWITCH_PASSENGER,
     SWITCH_DRIVER,
     START_TRIP_FAILURE,
-    START_TRIP_SUCCESS
+    START_TRIP_SUCCESS,
 } from '../constants'
 import axios from 'axios';
 import { storage } from '../constants';
 import { MMKV } from 'react-native-mmkv';
 
-export function fetchUser(){
+export function fetchUser(savedData){
+    axios.defaults.headers.common['x-access-token'] = savedData.accessToken
     return (dispatch) => {
         dispatch(getUser());
-        return (axios.get(`${API_URL}/users`))
-        //.then( res => res.json())
+        return (axios.get(`${API_URL}/users?email=${savedData.email}`, { timeout: 15000}))
         .then( json => {
-            return(dispatch(getUserSuccess(json.data)))
+            return(dispatch(logUserSuccess(json.data)))
         })
-        .catch( err => dispatch(getUserFailure(err)))
+        .catch( err => dispatch(logUserFailure(err)))
     }
 }
 
-export function loginUser(inputEmail, inputPassword){
+export function loginUser(inputEmail, inputCode){
     return(dispatch) => {
         dispatch(loggingUser());
         return (axios.post(`${API_URL}/users/login`, {
                 email: inputEmail,
-                password: inputPassword
-            }, {timeout: 15000}))
+                code: inputCode
+            }, { timeout: 15000}))
         .then( json => {
             console.log('response:',json.data)
             if(!json.data.legajoUCA){
                 return(dispatch(logUserFailure(json.data.message)));
             }
             storage.set('loggedUserData', JSON.stringify(json.data))
+            axios.defaults.headers.common['x-access-token'] = json.data.accessToken
             return(dispatch(logUserSuccess(json.data)));
         })
         .catch( err => {
@@ -53,7 +54,7 @@ export function loginUser(inputEmail, inputPassword){
 }
 export function userHasCurrentTrip(userId){
     return(dispatch) => {
-        return (axios.get(`${API_URL}/trips/currentTrip?driverId=${userId}`))
+        return (axios.get(`${API_URL}/trips/currentTrip?driverId=${userId}`, { timeout: 15000}))
         .then( json => {
             console.log('response:',json.data)
             if(!json.data.id){
@@ -70,7 +71,7 @@ export function userHasCurrentTrip(userId){
 
 export function startTrip(tripId){
     return(dispatch) => {
-        return (axios.get(`${API_URL}/trips/updateStatus?id=${tripId.toString()}&status=started`))
+        return (axios.get(`${API_URL}/trips/updateStatus?id=${tripId.toString()}&status=started`, { timeout: 15000}))
         .then( json => {
             console.log('response:',json.data)
             if(!json.data.id ){
@@ -88,7 +89,7 @@ export function startTrip(tripId){
 }
 export function endTrip(tripId){
     return(dispatch) => {
-        return (axios.get(`${API_URL}/trips/updateStatus?id=${tripId.toString()}&status=completed`))
+        return (axios.get(`${API_URL}/trips/updateStatus?id=${tripId.toString()}&status=completed`, { timeout: 15000}))
         .then( json => {
             console.log(json.data)
             return(dispatch(startTripFailure()));
@@ -138,6 +139,8 @@ function logUserSuccess(data){
     }
 }
 function logUserFailure(data){
+    //Borrar info de usuario
+    storage.clearAll()
     return {
         type: LOG_USER_FAILURE,
         data: data

@@ -37,7 +37,7 @@ export default function Auth(props){
     try{
       let savedData = JSON.parse(storage.getString('loggedUserData'));
       if(savedData){
-        props.loginUser(savedData.email, savedData.password)
+        props.fetchUser(savedData)
       }
     }
     // Loggear usuario si tiene credenciales

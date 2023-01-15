@@ -1,4 +1,5 @@
 import { MMKV } from "react-native-mmkv";
+import { connect } from 'react-redux';
 
 export const storage = new MMKV();
 
