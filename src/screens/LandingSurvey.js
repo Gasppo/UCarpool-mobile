@@ -10,6 +10,7 @@ import axios from 'axios';
 
 const setSurveyCompleted = async (userId) => {
     if(!userId){ throw new Error('User not defined')}
+    console.log('setting survey as completed')
     const response = await axios.put(`${API_URL}/users?id=${userId}`, {completedSurvey: true}, {timeout: 15000});
     if(response.status == 200){
         return response.data
@@ -29,9 +30,9 @@ export default function LandingPoll(props){
         setSurveyCompleted(props.authentication.user.id)
         .then(r => Alert.alert(
                                 'Encuesta enviada',  
-                                'Vuelva a iniciar sesión para comenzar a utilizar UCarpool',  
+                                'Ya podés acceder a UCarpool',  
                                 [  
-                                    {text: 'OK', onPress: () => props.logOutUser()}
+                                    {text: 'OK', onPress: () => props.fetchUser(props.authentication.user)}
                                 ]  
                             )
         )
@@ -61,8 +62,8 @@ export default function LandingPoll(props){
     return(
         <View style={{flex: 1}}>
             <View style={{alignItems: 'center', flexDirection: 'row', padding: 10}}>
-                <IconButton icon='arrow-left' size={28} color={UCA_BLUE} onPress={() => props.logOutUser()}/>
-                <Text style={{flex: 1, flexWrap: 'wrap', color: UCA_BLUE, fontSize: 20}}>{title}</Text>
+                <IconButton icon='arrow-left' size={28} color={UCA_BLUE} onPress={() => props.navigation.goBack()}/>
+                <Text style={{flex: 1, flexWrap: 'wrap', color: UCA_BLUE, fontSize: 20}}>Volver</Text>
             </View>
             <WebView
             ref={webViewRef}

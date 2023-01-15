@@ -38,6 +38,7 @@ export default function PassengerQRCodeCheck(props)  {
       updateSeatAssignment(result.id, 'pickedUp').then(navigation.goBack())
     }
     else{
+
       Alert.alert('Error', 'Código QR no válido o no perteneciente a un pasajero anotado al viaje')
     }
   }
@@ -75,7 +76,7 @@ export default function PassengerQRCodeCheck(props)  {
           <Camera
             style={styles.cameraVisor}
             device={device}
-            isActive={true}
+            isActive={isActive}
             focusable={true}
             frameProcessor={frameProcessor}
             frameProcessorFps={5}

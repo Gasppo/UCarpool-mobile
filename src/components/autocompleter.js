@@ -109,6 +109,7 @@ import axios from 'axios';
   
   const getReverseGeocode = async (latitude, longitude) => {
     try{
+      setLoading(true)
       let result = await axios.get(`${USIG_REVERSE_GEOCODER_URL}?x=${longitude}&y=${latitude}`)
       if(result.status == 200){
         // Quitar paréntesis de la respuesta
@@ -130,9 +131,13 @@ import axios from 'axios';
       console.log(e)
       Alert.alert('Error', 'Ocurrió un error en el servidor')
     }
+    finally{
+      setLoading(false)
+    }
     
   }
   const getLocation = async () => {
+    setLoading(true)
     const hasPermission = await hasLocationPermission();
 
     if (!hasPermission) {
@@ -389,7 +394,7 @@ import axios from 'axios';
     elevation: 1,
   },
   modal: {alignItems: 'center', width: '100%'},
-  modalContainer: {backgroundColor: 'white', flex: 1},
+  modalContainer: {backgroundColor: 'rgb(245,245,248)', flex: 1},
   topBar: {width: '100%', flexDirection: 'row', justifyContent: 'center'},
   closeIcon: {width:50, height: 50},
   inputButton: {flex: 1, flexDirection: 'row', backgroundColor: 'white', alignSelf: 'center', borderRadius: 10, elevation: 2,},

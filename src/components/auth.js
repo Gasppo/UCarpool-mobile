@@ -12,7 +12,10 @@ import RegisterPassengerCompleteScreen from 'screens/register_passenger_complete
 import CreateTripNavigatorScreen from './create_trip_navigator';
 import PassengerTripRequestNavigatorScreen from './passenger_trip_request_navigator';
 import StartTripNavigatorScreen from './StartTripNavigator';
-import LandingPollScreen from '../screens/LandingPoll';
+import LandingSurveyScreen from '../screens/LandingSurvey';
+import RegisterEmailScreen from '../screens/RegisterEmail';
+import WelcomeScreen from '../screens/Welcome';
+import PermissionCheckScreen from '../screens/PermissionCheck';
 
 //Redux config
 import { connect } from 'react-redux';
@@ -29,21 +32,26 @@ const RegisterPassengerComplete = connect(mapStateToProps, mapDispatchToProps)(R
 const UserNavigator = connect(mapStateToProps, mapDispatchToProps)(UserNavigatorScreen);
 const CreateTripNavigator = connect(mapStateToProps, mapDispatchToProps)(CreateTripNavigatorScreen);
 const PassengerTripRequestNavigator = connect(mapStateToProps, mapDispatchToProps)(PassengerTripRequestNavigatorScreen);
-const LandingPoll = connect(mapStateToProps, mapDispatchToProps)(LandingPollScreen);
+const LandingSurvey = connect(mapStateToProps, mapDispatchToProps)(LandingSurveyScreen);
 const StartTripNavigator = connect(mapStateToProps, mapDispatchToProps)(StartTripNavigatorScreen);
+const RegisterEmail = connect(mapStateToProps, mapDispatchToProps)(RegisterEmailScreen);
+const Welcome = connect(mapStateToProps, mapDispatchToProps)(WelcomeScreen);
+const PermissionCheck = connect(mapStateToProps, mapDispatchToProps)(PermissionCheckScreen);
+
 
 export default function Auth(props){
+
   React.useEffect(() => {
     try{
-      let savedData = JSON.parse(storage.getString('loggedUserData'));
+      let savedData = storage.getString('loggedUserData');
       if(savedData){
+        savedData = JSON.parse(savedData);
         props.fetchUser(savedData)
       }
     }
-    // Loggear usuario si tiene credenciales
     catch(e){ console.log(e)}
-    
   }, [])
+
   return (
         <Stack.Navigator>
           {props.authentication.isLoggedIn ?
@@ -53,17 +61,22 @@ export default function Auth(props){
                 <Stack.Screen name= "start_trip_navigator" component={StartTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
                 :
                 <>
+                  <Stack.Screen name= "permission_check" component={PermissionCheck} options={{headerShown: false, unmountOnBlur: true}} />
                   <Stack.Screen name= "user_navigator" component={UserNavigator} options={{headerShown: false}} />
                   <Stack.Screen name= "create_trip_navigator" component={CreateTripNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
                   <Stack.Screen name= "passenger_trip_request_navigator" component={PassengerTripRequestNavigator} options={{headerShown: false, animation: 'slide_from_bottom'}} />
                 </>)
               :
-              <Stack.Screen name= "landing_poll" component={LandingPoll} options={{headerShown: false, gestureEnabled: false}} />
+              <>
+                <Stack.Screen name= "welcome" component={Welcome} options={{headerShown: false, animation: 'slide_from_bottom'}} />
+                <Stack.Screen name= "landing_survey" component={LandingSurvey} options={{headerShown: false, gestureEnabled: false}} />
+              </>
               )
           :
           <>
             <Stack.Screen name= "signIn" component={SignIn} options={{headerShown: false}} />
-            <Stack.Screen name= "register" component={RegisterData} options={{headerShown: false}} />
+            <Stack.Screen name= "register_email" component={RegisterEmail} options={{headerShown: false}} />
+            <Stack.Screen name= "register_details" component={RegisterData} options={{headerShown: false, animation: 'slide_from_right'}} />
             <Stack.Screen name= "register_passenger_complete" component={RegisterPassengerComplete} options={{headerShown: false}} />
           </>
           }

@@ -9,33 +9,36 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Picker } from '@react-native-picker/picker';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import axios from 'axios';
+import SoftInputMode from 'react-native-set-soft-input-mode';
+import { storage } from '../constants';
 
 const signUpUser = async (signUpData) => {
+    console.log('signing up')
     const response = await axios.post(`${API_URL}/users/register`, signUpData);
     if(response.status == 200 || response.status == 201){
-        return response;
-    }
-    else{
-        throw new Error('Error cargando usuario nuevo.')
+        console.log(response.data)
+        return response.data;
     }
 }
+
+
 
 export default function RegisterData(props) {
     //Local State
     const refSurnameInput = React.useRef();
     const refLegajoInput = React.useRef();
     const refMailInput = React.useRef();
-    const refPassInput = React.useRef();
+    const refCodeInput = React.useRef();
     const refPhoneInput = React.useRef();
-    const [inputEmail, setInputEmail] = React.useState("");
+    const [inputEmail, setInputEmail] = React.useState(props.route.params.inputEmail);
     const [inputName, setInputName] = React.useState("");
     const [inputLegajoUCA, setInputLegajoUCA] = React.useState("");
     const [inputSurname, setInputSurname] = React.useState("");
     const [inputGender, setInputGender] = React.useState("placeholder");
     const [inputPhone, setInputPhone] = React.useState("");
-    const [inputPassword, setInputPassword] = React.useState("");
+    const [inputCode, setinputCode] = React.useState("");
     const [inputBirthday, setInputBirthday] = React.useState(new Date());
-    const [fieldValidation, setFieldValidation] = React.useState({inputEmail: false, inputName: false, inputPhone: false, inputLegajoUCA: false, inputSurname: false, inputPassword: false, inputGender: false, inputBirthday: false});
+    const [fieldValidation, setFieldValidation] = React.useState({inputEmail: false, inputName: false, inputPhone: false, inputLegajoUCA: false, inputSurname: false, inputCode: false, inputGender: false, inputBirthday: false});
     const [submitAvailable, setSubmitAvailable] = React.useState(false);
     const [dateModalOpen, setDateModalOpen] = React.useState(false);
     const [signUpData,setSignUpData] = React.useState(
@@ -43,7 +46,7 @@ export default function RegisterData(props) {
             name: '',
             surname: '',
             email: '',
-            password: '',
+            code: '',
             phone: '',
             gender: '',
             birthday: '',
@@ -65,8 +68,8 @@ export default function RegisterData(props) {
         setFieldValidation( validation => ({...validation, inputEmail: validateMail(inputEmail)}));
       }, [inputEmail])
       React.useEffect(() => {
-        setFieldValidation( validation => ({...validation, inputPassword: validateName(inputPassword)}));
-      }, [inputPassword])
+        setFieldValidation( validation => ({...validation, inputCode: validateName(inputCode)}));
+      }, [inputCode])
       React.useEffect(() => {
         setFieldValidation( validation => ({...validation, inputPhone: validatePhone(inputPhone)}));
       }, [inputPhone])
@@ -80,6 +83,10 @@ export default function RegisterData(props) {
           validateAll();
       }, [fieldValidation])
 
+      React.useEffect(() => {
+        SoftInputMode.set(SoftInputMode.ADJUST_RESIZE);
+    }, [])
+
       function handleDateShown(yourDate){
         const offset = yourDate.getTimezoneOffset();
         yourDate = new Date(yourDate.getTime() - (offset*60*1000));
@@ -88,21 +95,37 @@ export default function RegisterData(props) {
       const handleSignUpUser = async () => {
         signUpUser(signUpData)
         .then(r => {
-            props.navigation.navigate('signUp')
+            console.log(typeof r)
+            console.log(r)
+            storage.set('loggedUserData', JSON.stringify(r))
+            axios.defaults.headers.common['x-access-token'] = r.accessToken
+            props.fetchUser(r)
         })
         .catch(e => {
-            console.log(e);
-            Alert.alert('Error', 'Error creando nuevo usuario')
+            let errored = false
+            console.log(e)
+            if(e.response?.data?.errors){
+                e.response.data.errors.forEach(error => {
+                    console.log(error)
+                    if(error.msg == 'legajo is already registered'){
+                        errored = true
+                        Alert.alert('Error', 'Legajo ya registrado')
+                    }
+                })
+            }
+            if(!errored){
+                Alert.alert('Error', 'Error creando nuevo usuario')
+            }
         })
     }
       function validateAll(){ //Si todos los campos son válidos, ingreso los datos en signUpData
-        if( fieldValidation.inputGender && fieldValidation.inputBirthday && fieldValidation.inputEmail && fieldValidation.inputName && fieldValidation.inputPhone && fieldValidation.inputSurname && fieldValidation.inputPassword && fieldValidation.inputLegajoUCA){
+        if( fieldValidation.inputGender && fieldValidation.inputBirthday && fieldValidation.inputEmail && fieldValidation.inputName && fieldValidation.inputPhone && fieldValidation.inputSurname && fieldValidation.inputCode && fieldValidation.inputLegajoUCA){
             var auxSignUpData = signUpData;
             auxSignUpData.legajoUCA = inputLegajoUCA;
             auxSignUpData.email = inputEmail;
             auxSignUpData.name = inputName;
             auxSignUpData.surname = inputSurname;
-            auxSignUpData.password = inputPassword;
+            auxSignUpData.code = inputCode;
             auxSignUpData.phone = inputPhone;
             auxSignUpData.gender = inputGender;
             auxSignUpData.birthday = inputBirthday;
@@ -124,6 +147,41 @@ export default function RegisterData(props) {
                 style={{width: '90%', alignSelf: 'center'}}
                 contentContainerStyle={{alignItems: 'baseline', flexDirection: 'column'}}    
             >
+                <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
+                    <Icon name='at' size={26} color='rgb(0,53,103)' />
+                    <PaperInput
+                        ref={refMailInput}
+                        label='Correo Electrónico'
+                        mode="flat"
+                        disabled={true}
+                        value={props.route.params.inputEmail}
+                        onChangeText={(val)=>setInputEmail(val.toLowerCase())}
+                        style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
+                        theme={inputTheme}
+                        onSubmitEditing={() => refCodeInput.current.focus()}
+                        blurOnSubmit={false}
+                    />
+                </View>
+                <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
+                    <Icon name='asterisk' size={26} color='rgb(0,53,103)' />
+                    <PaperInput
+                        ref={refCodeInput}
+                        label='Código de Verificación'
+                        mode="flat"
+                        keyboardType='numeric'
+                        maxLength={6}
+                        value={inputCode}
+                        onChangeText={(text) => setinputCode(text.replace(/[^0-9]/g, ''))}
+                        style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
+                        theme={inputTheme}
+                        onSubmitEditing={() => refPhoneInput.current.focus()}
+                        blurOnSubmit={false}
+                    />
+                    
+                </View>
+                {!fieldValidation.inputCode &&
+                    <Text>Introduzca el código enviado a su casilla de correo</Text>
+                }
                 <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                 <Icon name='user-o' size={26} color='rgb(0,53,103)' />
                 <PaperInput
@@ -167,11 +225,13 @@ export default function RegisterData(props) {
                         label='Legajo UCA'
                         mode="flat"
                         value={inputLegajoUCA}
+                        maxLength={9}
                         onChangeText={setInputLegajoUCA}
                         style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
                         theme={inputTheme}
                         onSubmitEditing={() => refMailInput.current.focus()}
                         blurOnSubmit={false}
+                        keyboardType='numeric'
                     />
                     
                 </View>
@@ -217,42 +277,8 @@ export default function RegisterData(props) {
                     </View>
                 </View>  
                 
-            <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
-                <Icon name='at' size={26} color='rgb(0,53,103)' />
-                <PaperInput
-                    ref={refMailInput}
-                    label='Correo Electrónico'
-                    mode="flat"
-                    value={inputEmail}
-                    onChangeText={(val)=>setInputEmail(val.toLowerCase())}
-                    style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
-                    theme={inputTheme}
-                    onSubmitEditing={() => refPassInput.current.focus()}
-                    blurOnSubmit={false}
-                />
-            </View>
-            {!fieldValidation.inputEmail &&
-                <Text>Introduzca una dirección válida</Text>
-                }
-            <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
-                <Icon name='asterisk' size={26} color='rgb(0,53,103)' />
-                <PaperInput
-                    ref={refPassInput}
-                    label='Contraseña'
-                    secureTextEntry={true}
-                    mode="flat"
-                    value={inputPassword}
-                    onChangeText={setInputPassword}
-                    style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
-                    theme={inputTheme}
-                    onSubmitEditing={() => refPhoneInput.current.focus()}
-                    blurOnSubmit={false}
-                />
-                
-            </View>
-            {!fieldValidation.inputPassword &&
-                <Text>Introduzca una contraseña de 8 caracteres o más</Text>
-                }
+            
+            
             <View style={{flexDirection: 'row', width: 350, alignItems: 'center'}}>
                 <Icon name='phone' size={30} color='rgb(0,53,103)' />
                 <PaperInput
@@ -260,13 +286,14 @@ export default function RegisterData(props) {
                     label='Teléfono'
                     mode="flat"
                     value={inputPhone}
+                    keyboardType='phone-pad'
                     onChangeText={setInputPhone}
                     style={{height: 60, width: '100%', margin: 10, backgroundColor: 'rgba(0,0,0,0)'}}
                     theme={inputTheme}
                 />
                 
             </View>
-            {fieldValidation.inputPhone &&
+            {!fieldValidation.inputPhone &&
                 <Text>Introduzca un número de teléfono válido</Text>
                 }
             </KeyboardAwareScrollView>
@@ -276,15 +303,7 @@ export default function RegisterData(props) {
                 mode="contained"
                 //onPress = {()=> props.navigation.navigate('t_ShipmentSelector', {signUpData})}
                 onPress = {()=> {
-                    //checkUserExists();
-                    // sign up
-                    try{
                         handleSignUpUser()
-                        //.then( () => props.navigation.navigate('register_passenger_complete'))
-                    }catch(e){
-                        console.log(e)
-                        Alert.alert('Error', 'Server error')
-                    }
                     
                 }}
                 style={{margin: 20, height: 60, justifyContent: 'center', width: '40%'}}

@@ -31,14 +31,14 @@ export default function UserProfile(props)  {
                         </View>
                     </View>
                     <View style={styles.userModesContainer}>
-                        <Text style={styles.defaultText}>Modos habilitados</Text>
+                        <Text style={{...styles.defaultText, color: 'white'}}>Modos habilitados</Text>
                         <View style={styles.innerUserModesContainer}>
                             <View style={[styles.userModeRectangles, {backgroundColor: props.authentication.userType == 'passenger'? UCA_BLUE : 'white'}]}>
-                                <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType == 'passenger'? 'white' : UCA_BLUE}}>Pasajero</Text>
+                                <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType == 'passenger'? 'white' : UCA_BLUE}}>Conductor</Text>
                             </View>
                             { userData.isDriver?
                             <View style={[styles.userModeRectangles, {backgroundColor: props.authentication.userType == 'driver'? UCA_BLUE : 'white'}]}>
-                                <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType == 'driver'? 'white' : UCA_BLUE}}>Conductor</Text>
+                                <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType == 'driver'? 'white' : UCA_BLUE}}>Pasajero</Text>
                             </View>
                             : <></>
                             }
@@ -165,10 +165,10 @@ const styles = StyleSheet.create({
         margin: 5,
         color: 'rgb(70,70,70)'
     },
-    titleText: { textAlign: 'center', fontFamily: 'Nunito-Bold', color: 'rgb(80,80,80)'},
+    titleText: { textAlign: 'center', fontFamily: 'Nunito-Bold', color: 'white'},
     topBar: {flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE},
     myProfileText: {fontSize: 24, margin: 15, color: 'white'},
-    containerBox: {alignSelf: 'center', alignItems: 'center', padding: 10, backgroundColor: 'white', width: '100%'},
+    containerBox: {alignSelf: 'center', alignItems: 'center', padding: 10, backgroundColor: 'white', width: '100%', backgroundColor: UCA_BLUE, borderBottomLeftRadius: 15, borderBottomRightRadius: 15},
     nameMailContainer: {flexDirection: 'row', alignItems: 'center', width: '100%'},
     nameContainer: {flexDirection: 'column', flex: 1},
     userModesContainer: { width: '100%', paddingTop: 10, alignItems: 'center'},
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     },
     profileButton: {
         //marginTop: 10,
-        minHeight: 65,
+        minHeight: 60,
         alignContent: 'center',
         justifyContent: 'flex-start',
         flexDirection: 'row',
@@ -203,10 +203,12 @@ const styles = StyleSheet.create({
 
     },
     userModeRectangles: {
-        elevation: 5,
+        elevation: 10,
         padding: 5,
-        borderRadius: 5,
+        borderRadius: 10,
         margin: 5,
-        width: '50%'
+        width: '50%',
+        borderWidth: 1,
+        borderColor: 'white'
     }
   });

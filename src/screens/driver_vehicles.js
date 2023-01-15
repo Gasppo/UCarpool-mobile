@@ -55,11 +55,11 @@ export default function DriverVehicles(props)  {
       <SafeAreaView style={{marginTop: 10, width: '100%', flex:1,borderRadius: 10, paddingVertical: 5, elevation: 5, backgroundColor: 'white'}}>
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
           <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{marginHorizontal: 20}} onPress={() => props.navigation.goBack()}>
-            <Icon name='arrow-left' color={'rgb(0,53,108)'} size={20}  />
+            <Icon name='arrow-left' color={'rgb(0,53,108)'} size={30}  />
           </TouchableOpacity>
           <Text style={{fontSize: 30, margin: 10, color: 'rgb(0,53,108)'}}>Mis Vehículos</Text>
           <TouchableOpacity activeOpacity={0.5} style={{position: 'absolute', right: 20}} onPress = {() => setAddVehicleModalVisible(true)}>
-            <Icon name='plus' size={22} color={'rgb(0,53,108)'}/>
+            <Icon name='plus' size={30} color={'rgb(0,53,108)'}/>
           </TouchableOpacity>
         </View>
           

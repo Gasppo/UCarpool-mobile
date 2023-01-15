@@ -8,6 +8,7 @@ import axios from 'axios';
 import { API_URL } from '../constants';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import  Icon  from 'react-native-vector-icons/MaterialCommunityIcons';
+import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 
 const getRequestCode = async (email, type) => {
   const response = await axios.get(`${API_URL}/users/requestCode?email=${email}&type=${type}`,{timeout: 15000});
@@ -131,6 +132,11 @@ export default function SignInScreen(props) {
 
       return (
         <>
+        <FocusAwareStatusBar
+            animated={false}
+            backgroundColor='rgb(245,245,248)'
+            barStyle={'dark-content'}
+        />
         {refreshing &&
             <View style={{zIndex: 20, position:'absolute', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center'}}>
                 <ActivityIndicator color={'#0000ff'} size={80} />
@@ -145,15 +151,26 @@ export default function SignInScreen(props) {
             />
             <View style={{ width: '50%'}}>
             </View>
-            <View style={{width: '70%', height: 300, margin: 30}}>
+            <View style={{width: '70%', height: 300}}>
               <PaperInput
-                label='Email'
+                label='Email UCA'
                 mode="outlined"
                 activeOutlineColor={ UCA_BLUE }
                 value={inputEmail}
-                onChangeText={setInputEmail}
+                autoCapitalize='none'
+                onChangeText={(text) => setInputEmail(text.toLowerCase())}
+                style={{marginVertical: 30}}
+                theme={
+                  {
+                    fonts: {
+                      regular: {
+                        fontFamily: 'Nunito-Bold'
+                      }
+                    }
+                  }
+                }
               />
-              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => handleRequestLoginCode()} style={{margin: 20, height: 60, justifyContent: 'center', borderRadius: 15}}>
+              <PaperButton icon="login" color='rgb(0,53,108)'  mode="contained" onPress = {() => handleRequestLoginCode()} style={{height: 60, justifyContent: 'center', borderRadius: 15, marginBottom: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
                 Iniciar Sesión
               </PaperButton>
               <TouchableOpacity activeOpacity={0.5} onPress={() => setModalVisible(true)}>
@@ -161,7 +178,7 @@ export default function SignInScreen(props) {
                 </TouchableOpacity>
               <View style={{marginTop: 10}}>
                 <Text>No tiene una cuenta todavía? </Text>
-                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register')}>
+                <TouchableOpacity activeOpacity={0.5} onPress={() => props.navigation.navigate('register_email')}>
                   <Text style={styles.bottomText}>Registrarse</Text>
                 </TouchableOpacity>
               </View>
@@ -251,7 +268,7 @@ export default function SignInScreen(props) {
               
             </View>
             <Text style={{fontFamily: 'Nunito-Bold', fontSize: 36, maxWidth: '85%', color: 'white', paddingVertical: 50}} adjustsFontSizeToFit={true} numberOfLines={1}>No se olvide de revisar su casilla de Spam</Text>
-            <PaperButton icon="login" color={UCA_GREEN}  mode="contained" onPress = {() => props.loginUser(inputEmail, inputCode.join(''))} style={{margin: 20, height: 60, justifyContent: 'center', position: 'absolute', borderRadius: 15, bottom: 30}}>
+            <PaperButton icon="login" color={UCA_GREEN}  mode="contained" onPress = {() => props.loginUser(inputEmail, inputCode.join(''))} style={{margin: 20, height: 60, justifyContent: 'center', position: 'absolute', borderRadius: 15, bottom: 30}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
                 Continuar
               </PaperButton>
           </SafeAreaView>
@@ -275,7 +292,8 @@ const styles = StyleSheet.create({
   bottomText: {
     fontWeight:
     'bold',
-    color: 'grey'
+    color: 'grey',
+    textDecorationLine: 'underline'
   },
   textStyle : {
     fontSize:300,
@@ -302,8 +320,7 @@ const styles = StyleSheet.create({
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: 'white',
-
+      backgroundColor: 'rgb(245,245,248)',
   },
   container: {
       flex: 1,

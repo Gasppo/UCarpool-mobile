@@ -92,7 +92,7 @@ export default function PassengerActiveTrips(props)  {
             barStyle={'light-content'}
             hidden={false}
         />
-        <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE, borderBottomLeftRadius: 15, borderBottomRightRadius: 15}}>
             <Text style={{fontSize: 24, margin: 15, color: 'white'}}>Viajes Programados</Text>
             { props.authentication.userType == 'driver'?
             <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{position: 'absolute', right: 20}} onPress={() => props.navigation.navigate('create_trip_navigator')}>

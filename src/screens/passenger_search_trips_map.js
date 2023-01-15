@@ -80,6 +80,7 @@ export default function PassengerSearchTripsMap(props)  {
     const [searchResultsPosition, setSearchResultsPosition] = React.useState(new Animated.Value(55-(USABLE_HEIGHT-topBarHeight-bottomTabHeight)));
     const [selectedTripPosition, setSelectedTripPosition] = React.useState(new Animated.Value(-200));
     const [arrowSpinValue, setArrowSpinValue] = React.useState(new Animated.Value(0));
+    const [borderRadii, setBorderRadii] = React.useState(new Animated.Value(15));
     const spin = arrowSpinValue.interpolate({
         inputRange: [0, 1],
         outputRange: ["0 deg", "180 deg"]
@@ -199,7 +200,12 @@ export default function PassengerSearchTripsMap(props)  {
                     toValue: 0,
                     duration: 200,
                     useNativeDriver: false
-                })
+                }),
+                Animated.timing(borderRadii, {
+                    toValue: 0,
+                    duration: 200,
+                    useNativeDriver: false
+                }),
             ]).start();
         }
         else{
@@ -214,7 +220,12 @@ export default function PassengerSearchTripsMap(props)  {
                 toValue: 1,
                 duration: 200,
                 useNativeDriver: false
-            })
+            }),
+            Animated.timing(borderRadii, {
+                toValue: 15,
+                duration: 200,
+                useNativeDriver: false
+            }),
 
         ]).start();
         }
@@ -281,10 +292,10 @@ export default function PassengerSearchTripsMap(props)  {
         <SafeAreaView style={{width:'100%', height:'100%'}} onLayout={(event) => onLayout(event, 'safeView')}>
             <FocusAwareStatusBar
                 animated={false}
-                backgroundColor={Platform.OS === 'android' && Platform.Version >=23 ? 'rgb(245,245,248)' : 'black'}
-                barStyle={ 'dark-content' }
+                backgroundColor={Platform.OS === 'android' && Platform.Version >=23 ? UCA_BLUE : 'black'}
+                barStyle={ 'light-content' }
             />
-            <View style={styles.topBar} onLayout={(event) => onLayout(event, 'topBar')}>
+            <Animated.View style={[styles.topBar, {borderBottomLeftRadius: borderRadii, borderBottomRightRadius: borderRadii}]} onLayout={(event) => onLayout(event, 'topBar')}>
                 <View id='placeholderForTopBarSymmetry' style={{width:45, height: 45}}/>
                 <View style={styles.topBarItemsContainer}>
                     <View style={styles.searchBarsContainer}>
@@ -296,10 +307,10 @@ export default function PassengerSearchTripsMap(props)  {
                         </View>
                     </View>
                     <View style={styles.addressFlipper}>
-                        <IconButton icon="arrow-up-down" mode='contained' color={UCA_BLUE} onPress={() => flipAddresses()} />
+                        <IconButton icon="arrow-up-down" mode='contained' color={'white'} onPress={() => flipAddresses()} />
                     </View>
                 </View>
-            </View>
+            </Animated.View>
             <MapView
                 key={forceRefresh}
                 ref={mapRef}
@@ -325,7 +336,7 @@ export default function PassengerSearchTripsMap(props)  {
                         <></>
                     }
                 </Animated.View>
-                <Animated.View style={[styles.searchResultsHome, {bottom: searchResultsPosition, height: USABLE_HEIGHT-topBarHeight-bottomTabHeight}]}>
+                <Animated.View style={[styles.searchResultsHome, {bottom: searchResultsPosition, height: USABLE_HEIGHT-topBarHeight-bottomTabHeight, borderTopLeftRadius: borderRadii, borderTopRightRadius: borderRadii}]}>
                     <View style={styles.searchResultsContainer}>
                         <View style={styles.numberOfTripsCircleIndicator}>
                             <Text style={styles.tripNumberIndicator}>{availableTripList.length}</Text>
@@ -421,11 +432,10 @@ const styles = StyleSheet.create({
         width: '100%',
         alignSelf:'center',
         paddingTop: 5,
-        backgroundColor: 'rgb(245,245,248)',
+        backgroundColor: UCA_BLUE,
         elevation: 20,
-        paddingBottom: 5,
+        paddingBottom: 10,
         flexDirection: 'row',
-
     },
     searchBarHome: {
         flex: 1,
@@ -499,7 +509,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: 55
     },
-    map: {minHeight: 100, minWidth: 100, flex: 1},
+    map: {minHeight: 100, minWidth: 100, flex: 1, marginVertical: -15},
     topBarItemsContainer: {flex:1, flexDirection: 'row'},
     searchBarsContainer: {flex: 1, justifyContent: 'space-evenly'},
     addressFlipper: {justifyContent:'center'},

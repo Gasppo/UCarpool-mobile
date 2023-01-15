@@ -25,6 +25,7 @@ import { useIsFocused } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
 import { Polygon, Polyline } from 'react-native-maps';
 import { NIL } from 'uuid';
+import { getDistance } from 'geolib';
 
 const groupSeatAssignmentsByStatus = (seatAssignments) => {
   accepted = []
@@ -67,6 +68,9 @@ export default function PreTripCheck(props)  {
     const [bookedPassengersList, setBookedPassengersList] = React.useState([]);
     const navigation = useNavigation();
     const [location, setLocation] = React.useState(null);
+    const [firstPositionSent, setFirstPositionSent] = React.useState(false);
+    const [endTripRequested, setEndTripRequested] = React.useState(false);
+    const [positionsInsideEndLocation, setPositionsInsideEndLocation] = React.useState(0)
     const [testValue, setTestValue] = React.useState(0);
     const [observing, setObserving] = useState(false);
     let thePassengersList = groupSeatAssignmentsByStatus([]);
@@ -190,12 +194,33 @@ export default function PreTripCheck(props)  {
     }
 }
     const handleLocationUpdate = async (location) => {
+      
       location = {...location, seats: passengersList[1].data.length + 1}
-      console.log(location)
       let locationCoords = [location.coords.longitude, location.coords.latitude]
       let found = theAois.find( aoi => inside(locationCoords, [aoi]));
-      if(found){
-        console.log('inside')
+      console.log(location)
+      console.log('firstPositionSent:',firstPositionSent);
+      console.log(positionsInsideEndLocation)
+      if(!firstPositionSent || endTripRequested){
+        sendLocationUpdate(location)
+        .then(r => {
+          if(!firstPositionSent){
+            setFirstPositionSent(true);
+          }
+          else if(endTripRequested){
+            props.endTrip(props.authentication.currentTrip)
+          }
+        })
+        .catch(e => {
+          console.log(e)
+          // send to queue
+        })
+        .finally( r => {
+          setRefreshing(false)
+        });
+
+      }
+      else if(found){
         setRefreshing(true);
         sendLocationUpdate(location)
         .then(r => {
@@ -208,8 +233,17 @@ export default function PreTripCheck(props)  {
         .finally( r => {
           setRefreshing(false)
         });
-       
-      }    
+      }
+      if(getDistance({latitude: location.coords.latitude, longitude: location.coords.longitude}, {latitude: activeTrip.endAddress.coords.lat, longitude: activeTrip.endAddress.coords.lng} ) <= 500 ){ //500m
+        setPositionsInsideEndLocation(positionsInsideEndLocation + 1);
+        if(positionsInsideEndLocation >= 5){
+          // Se asume que el conductor está en destino! Cortamos el viaje
+          setEndTripRequested(true);
+        }
+      }
+      else{
+        setPositionsInsideEndLocation(0)
+      }
     }
 
     const handleGetFromMMKV = () => {
@@ -311,7 +345,7 @@ export default function PreTripCheck(props)  {
         return <SectionList
         extraData={true}
         sections= {passengersList}
-        style={{borderWidth: 2, borderRadius: 15, borderColor: 'rgb(200,200,200)', overflow: 'hidden'}}
+        style={{borderWidth: 0.5, borderRadius: 15, borderColor: 'rgb(200,200,200)', overflow: 'hidden', elevation: 10, backgroundColor: 'white'}}
         contentContainerStyle={{ borderRadius: 15, padding: 5, backgroundColor: 'white'}}
         bounces={false}
         overScrollMode={'never'}
@@ -517,7 +551,7 @@ export default function PreTripCheck(props)  {
 
     return (
     <>
-      <SafeAreaView style={{width: '100%',flex: 1, backgroundColor: 'white', elevation: 5, borderRadius: 10, padding: 10}}>
+      <SafeAreaView style={{width: '100%',flex: 1, backgroundColor: 'rgb(245,245,248)', elevation: 5, borderRadius: 10, padding: 10}}>
         <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>  
             <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Viaje</Text>
         </View>
@@ -541,7 +575,7 @@ export default function PreTripCheck(props)  {
             </View>
             <View style={{flexDirection: 'row'}}>
                 
-                <PaperButton color='rgb(120,0,0)'  mode="contained" onPress = {() => props.endTrip(props.authentication.currentTrip)} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
+                <PaperButton color='rgb(120,0,0)'  mode="contained" onPress = {() => {setEndTripRequested(true);}} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
                     Finalizar
                 </PaperButton>
             </View>

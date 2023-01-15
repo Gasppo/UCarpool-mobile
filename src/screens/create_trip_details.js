@@ -158,7 +158,7 @@ export default function CreateTripDetails(props){
             backgroundColor='rgb(242,242,242)'
             barStyle={'dark-content'}
         />
-        <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'white', elevation: 5, borderRadius: 10, padding: 10}}>
+        <SafeAreaView style={{width: '100%', height: '100%', backgroundColor: 'rgb(245,245,248)', elevation: 5, borderRadius: 10, padding: 10}}>
             <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center'}}>
                 <TouchableOpacity activeOpacity={0.5} style={{marginHorizontal: 10}} onPress={() => props.navigation.goBack()}>
                     <Icon name='arrow-left' color={'rgb(0,53,108)'} size={20}  />
@@ -174,7 +174,7 @@ export default function CreateTripDetails(props){
                     <TextInput 
                         placeholder={'Ingrese una descripción...'}
                         maxLength={200}
-                        style={{backgroundColor: 'white', height: 100, borderRadius: 10, textAlignVertical: 'top', borderColor: 'rgb(0,53,108)', borderWidth: 1, color: 'black', padding: 10, marginTop: 5}}
+                        style={{backgroundColor: 'white', height: 100, borderRadius: 15, textAlignVertical: 'top', borderColor: 'rgb(0,53,108)', borderWidth: 0.5, color: 'black', padding: 10, marginTop: 5, elevation: 5}}
                         onChangeText={(text) => setDescription(text)}
                         value={createTripData.description}
                         multiline={true}
@@ -185,7 +185,7 @@ export default function CreateTripDetails(props){
                     <PaperButton
                         mode='contained'
                         onPress = {()=> setDateModalOpen(true)}
-                        style={{ height: 53, justifyContent: 'center', alignSelf: 'center', margin: 5, backgroundColor: 'rgb(0,53,108)', width: '100%' }}
+                        style={{ height: 53, justifyContent: 'center', alignSelf: 'center', margin: 5, backgroundColor: 'rgb(0,53,108)', width: '100%', borderRadius: 10}}
                     >
                         {handleDateShown(createTripData.estimatedStartTime)}
                     </PaperButton>
@@ -203,7 +203,7 @@ export default function CreateTripDetails(props){
                 </View>
                 <View style={styles.itemContainer}>
                     <Text style={styles.headings}>Vehículo</Text>
-                    <View style={{width: '100%', backgroundColor: "rgb(0,53,108)", borderRadius: 5}}>
+                    <View style={{width: '100%', backgroundColor: "rgb(0,53,108)", borderRadius: 10}}>
                         <Picker
                             selectedValue={createTripData.vehicleId}
                             onValueChange={(itemValue, itemIndex) => {
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
         width: '100%',
         borderColor: 'black',
         borderWidth: 10,
-        color: 'white'
+        color: 'white',
     },
     circle: {
         width: 80,

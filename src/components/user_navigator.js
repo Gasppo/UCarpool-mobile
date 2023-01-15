@@ -40,15 +40,6 @@ export default function UserNavigator(props){
             }}
           >  
             <Tab.Screen
-              name= "passenger_active_trips"  
-              component={UserActiveTrips} 
-              options={{
-                title: 'Viajes Programados',
-                tabBarIcon: ({focused, color, size}) => <Icon name={focused? 'flag-variant' : 'flag-variant-outline'} color={focused? 'rgb(0,53,108)' : 'grey'} size={size}/>,
-                headerShown: false,
-                }}
-            />
-            <Tab.Screen
               name= "notifications"
               component={UserNotifications}
               options={{
@@ -57,6 +48,16 @@ export default function UserNavigator(props){
                 headerShown: false,
                 }}
             />
+            <Tab.Screen
+              name= "passenger_active_trips"  
+              component={UserActiveTrips} 
+              options={{
+                title: 'Viajes Programados',
+                tabBarIcon: ({focused, color, size}) => <Icon name={focused? 'flag-variant' : 'flag-variant-outline'} color={focused? 'rgb(0,53,108)' : 'grey'} size={size}/>,
+                headerShown: false,
+                }}
+            />
+            
             {
               props.authentication.userType == 'driver'?
               <></>

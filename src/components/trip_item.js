@@ -349,7 +349,7 @@ function TripItem(props)  {
                 { modalVisible ? 
                     <SafeAreaView style={styles.modalCanvas}>
                     <ScrollView 
-                        contentContainerStyle={{alignItems: 'center'}}
+                        contentContainerStyle={{alignItems: 'center', paddingBottom: 30}}
                         nestedScrollEnabled={true}
                     >
                         <MapView
@@ -472,40 +472,47 @@ function TripItem(props)  {
                                 </View>
                             </View>
                         </View>
-
-                        { props.authentication.userType == 'passenger' && item.userSeatAssignment && item.userSeatAssignment && item.userSeatAssignment.status == 'accepted' && item.userSeatAssignment.qrCode != -1 ?
-                            <View style={styles.row}>
-                                <View style={styles.qrContainer}>
-                                    <Text style={styles.boxLabel}>Código QR:</Text>
-                                        <View style={styles.qrCodeContainer} onLayout={() => console.log(item.userSeatAssignment)}>
-                                            <QRCode
-                                                value={item.userSeatAssignment.qrCode}
-                                                size={120}
-                                            />
-                                        </View>   
-                                </View>
-                            </View>
-                            :
-                            <></>
-                        }
-                        
-                        {props.authentication.userType == 'passenger' ?
-                                item.hasBeenRequested ?
-                                    (item.status != 'started' &&
-                                    <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
-                                :
-                                    <PaperButton mode='contained' icon='human-greeting-variant' color={UCA_BLUE} style={styles.actionButton} onPress={() => {handleNewRequest()}}>Solicitar asiento</PaperButton>
-                            :
-                            <></>
-                        }
-                        { props.authentication.userType == 'driver' ?
+                        {
+                            ['completed', 'canceled'].indexOf(item.status) == -1 ?
                             <>
-                                <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteTrip(item.id)}>Cancelar viaje</PaperButton>
-                                <PaperButton mode='contained' icon='flag' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleStartTrip(item.id)}>Comenzar viaje</PaperButton>
+                            { props.authentication.userType == 'passenger' && item.userSeatAssignment && item.userSeatAssignment && item.userSeatAssignment.status == 'accepted' && item.userSeatAssignment.qrCode != -1 ?
+                                <View style={styles.row}>
+                                    <View style={styles.qrContainer}>
+                                        <Text style={styles.boxLabel}>Código QR:</Text>
+                                            <View style={styles.qrCodeContainer} onLayout={() => console.log(item.userSeatAssignment)}>
+                                                <QRCode
+                                                    value={item.userSeatAssignment.qrCode}
+                                                    size={120}
+                                                />
+                                            </View>   
+                                    </View>
+                                </View>
+                                :
+                                <></>
+                            }
+                            {props.authentication.userType == 'passenger' ?
+                                    item.hasBeenRequested ?
+                                        (item.status != 'started' &&
+                                        <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
+                                    :
+                                        <PaperButton mode='contained' icon='human-greeting-variant' color={UCA_BLUE} style={styles.actionButton} onPress={() => {handleNewRequest()}}>Solicitar asiento</PaperButton>
+                                :
+                                <></>
+                            }
+                            { props.authentication.userType == 'driver' ?
+                                <>
+                                    <PaperButton mode='contained' icon='close' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteTrip(item.id)}>Cancelar viaje</PaperButton>
+                                    <PaperButton mode='contained' icon='flag' color={UCA_BLUE} style={styles.actionButton} onPress={() => handleStartTrip(item.id)}>Comenzar viaje</PaperButton>
+                                </>
+                                :
+                                <></>
+                            }
                             </>
                             :
                             <></>
+                            
                         }
+                        
                     </ScrollView>
                     
                     
@@ -587,7 +594,7 @@ const styles = StyleSheet.create({
         marginBottom: 2
     },
     actionButton: {
-        alignSelf: 'center', margin: 10, borderRadius: 15,
+        alignSelf: 'center', marginTop: 10, borderRadius: 15, paddingVertical: 5
     },
     dateText: { fontSize: 30, color: 'rgb(0,53,108)'}
   });

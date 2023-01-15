@@ -12,23 +12,13 @@ import TripItem from '../../components/trip_item';
 
 
 const getNotifications = async (userId) => {
-    try{
         const response = await axios.get(`${API_URL}/notifications?userId=${userId}`);
         if(response.status == 200){
             return response.data
         }
         else{
-            throw new Error('Error occurred')
+            //throw new Error('Error occurred')
         }
-    }
-    catch(e){
-        console.log(JSON.stringify(e))
-        if(e.code && e.code == 'ERR_CANCELED'){
-        }
-        else{
-            Alert.alert('Error', e.message)
-        }
-    }
 }
 
 const deleteAllNotifications = async (userId) => {
@@ -73,7 +63,7 @@ export default function PassengerNotifications(props)  {
                 setTripLoading(false)
             }
         })
-        .catch(e => {console.log(e); setTripLoading(false)})
+        .catch(e => {console.log(e.response.data.errors); setTripLoading(false)})
     }
     const handleDeleteAllNotifs = async (tripId)=> {
         Alert.alert(
@@ -118,26 +108,25 @@ export default function PassengerNotifications(props)  {
     };
 
     const handleGetNotifs = async () => {
-        try{
-            setRefreshing(true);
-            getNotifications(props.authentication.user.id).then((notifs) => {
-                notifications = []
-                notifs.forEach(notif => {
-                    if(props.authentication.userType === 'driver' && driverNotificationList.indexOf(notif.notificationTypeId) !== -1){
-                        notifications.push(notif)
-                    }
-                    if(props.authentication.userType === 'passenger' && passengerNotificationList.indexOf(notif.notificationTypeId) !== -1){
-                        notifications.push(notif)
-                    }
-                })
-                setNotificationList(notifications);
-                setRefreshing(false)
-            });
-        }
-        catch(e){
-            console.log(e)
+        setRefreshing(true);
+        getNotifications(props.authentication.user.id).then((notifs) => {
+            let notifications = []
+            notifs.forEach(notif => {
+                if(props.authentication.userType === 'driver' && driverNotificationList.indexOf(notif.notificationTypeId) !== -1){
+                    notifications.push(notif)
+                }
+                if(props.authentication.userType === 'passenger' && passengerNotificationList.indexOf(notif.notificationTypeId) !== -1){
+                    notifications.push(notif)
+                }
+            })
+            setNotificationList(notifications);
+        })
+        .catch(e => {
+            console.log(e.response?.data?.errors)
+        })
+        .finally(r => {
             setRefreshing(false)
-        }
+        });
         
     }
     const setCurrentTripFalse =()=> {
@@ -171,7 +160,7 @@ export default function PassengerNotifications(props)  {
             <></>
         }
         <View style={{width: '100%', height: '100%'}}>
-            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgb(0,53,108)'}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE, borderBottomLeftRadius: 15, borderBottomRightRadius: 15}}>
                 <Text style={{fontSize: 24, margin: 15, color: 'white'}}>Notificaciones</Text>
                 <TouchableOpacity activeOpacity={0.5} hitSlop={{top: 40, left: 40, bottom: 40, right: 40}} style={{position: 'absolute', right: 20}} onPress={() => handleDeleteAllNotifs()}>
                     <Icon name='trash' color={'white'} size={20}  />
