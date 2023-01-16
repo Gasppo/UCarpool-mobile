@@ -8,7 +8,9 @@ import { View, StyleSheet, TouchableOpacity, Alert,
     PermissionsAndroid,
     Platform,
     ToastAndroid,
-    SectionList} from 'react-native';
+    SectionList,
+    ActivityIndicator
+  } from 'react-native';
 import Text from 'components/default_text';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -62,20 +64,21 @@ const groupSeatAssignmentsByStatus = (seatAssignments) => {
   ]
 }
 
-export default function PreTripCheck(props)  {
+
+
+export default function TripInProgress(props)  {
     
     const isFocused = useIsFocused();
+    const [activeTrip, setActiveTrip] = React.useState({})
     const [bookedPassengersList, setBookedPassengersList] = React.useState([]);
     const navigation = useNavigation();
     const [location, setLocation] = React.useState(null);
-    const [firstPositionSent, setFirstPositionSent] = React.useState(false);
+    const [firstPositionSent, setFirstPositionSent] = React.useState(true); //Al principio true, pero se chequea en el back
     const [endTripRequested, setEndTripRequested] = React.useState(false);
     const [positionsInsideEndLocation, setPositionsInsideEndLocation] = React.useState(0)
-    const [testValue, setTestValue] = React.useState(0);
     const [observing, setObserving] = useState(false);
     let thePassengersList = groupSeatAssignmentsByStatus([]);
     const [passengersList, setPassengersList] = React.useState(groupSeatAssignmentsByStatus([]))
-    const [activeTrip, setActiveTrip] = React.useState({})
     const [refreshing, setRefreshing] = React.useState(false);
     let theAois = [];
     const [aois, setAois] = React.useState([]);
@@ -103,11 +106,31 @@ export default function PreTripCheck(props)  {
           }
     }
 
+    const checkOlderTripStats = async () => {
+      try{
+        console.log('checking for:', props.authentication.currentTrip)
+        let trippy = await axios.get(`${API_URL}/tripStats?tripId=${props.authentication.currentTrip}`);
+        if(trippy.status== 400 && trippy.errors[0].msg == 'Trip has no tripStat'){
+            console.log('trip has no positions sent!')
+            setFirstPositionSent(false)
+        }
+        else{
+          console.log('trip had positions already')
+        }
+      }catch(e){
+        console.log('error:',e.response.data.errors)
+        if(e.response?.data?.errors[0]?.msg == 'Trip has no tripStat'){
+          setFirstPositionSent(false)
+        }
+      }
+      
+
+    }
     const getAOIs = async () => {
       try{
           const response = await axios.get(API_URL + '/aois');
           if(response.status == 200){
-              console.log(JSON.stringify(response.data))
+              console.log('responded',JSON.stringify(response.data))
               aux = []
               response.data.forEach(aoi => {
                 aux.push(aoi.coordinates)
@@ -120,7 +143,7 @@ export default function PreTripCheck(props)  {
           }
       }
       catch(e){
-          console.log(JSON.stringify(e.response))
+          console.log('error:',JSON.stringify(e.response))
           Alert.alert('Error', e.message)
       }
     }
@@ -139,9 +162,8 @@ export default function PreTripCheck(props)  {
           setRefreshing(true)
           const response = await axios.get(`${API_URL}/trips?id=${props.authentication.currentTrip}`);
 
-          setRefreshing(false)
           if(response.status == 200){
-              console.log(response.data[0].SeatAssignments)
+              console.log('seats:',response.data[0].SeatAssignments)
               setActiveTrip(response.data[0])
               getSeatBookings()
           }
@@ -150,13 +172,16 @@ export default function PreTripCheck(props)  {
           }
       }
       catch(e){
-          setRefreshing(false)
-          console.log(JSON.stringify(e.response))
+          console.log('error:',JSON.stringify(e.response))
           Alert.alert('Error', e.message)
+      }
+      finally{
+        setRefreshing(false)
       }
   }
   const sendLocationUpdate = async (location) => {
-        const response = await axios.put(`${API_URL}/tripStats?tripId=${props.authentication.currentTrip}`, {realTimeData: location});
+    console.log('sending location!')
+        const response = await axios.put(`${API_URL}/tripStats?tripId=${props.authentication.currentTrip}`, {realTimeData: location}, {timeout: 15000});
         if(response.status == 200){
             return response.data
         }
@@ -194,55 +219,61 @@ export default function PreTripCheck(props)  {
     }
 }
     const handleLocationUpdate = async (location) => {
-      
-      location = {...location, seats: passengersList[1].data.length + 1}
-      let locationCoords = [location.coords.longitude, location.coords.latitude]
-      let found = theAois.find( aoi => inside(locationCoords, [aoi]));
-      console.log(location)
-      console.log('firstPositionSent:',firstPositionSent);
-      console.log(positionsInsideEndLocation)
-      if(!firstPositionSent || endTripRequested){
-        sendLocationUpdate(location)
-        .then(r => {
-          if(!firstPositionSent){
-            setFirstPositionSent(true);
-          }
-          else if(endTripRequested){
-            props.endTrip(props.authentication.currentTrip)
-          }
-        })
-        .catch(e => {
-          console.log(e)
-          // send to queue
-        })
-        .finally( r => {
-          setRefreshing(false)
-        });
-
-      }
-      else if(found){
-        setRefreshing(true);
-        sendLocationUpdate(location)
-        .then(r => {
-          setTripLocationsCoordinates(tripLocationsCoordinates => [...tripLocationsCoordinates, {latitude: location.coords.latitude, longitude: location.coords.longitude}])
-        })
-        .catch(e => {
-          console.log(e)
-          // send to queue
-        })
-        .finally( r => {
-          setRefreshing(false)
-        });
-      }
-      if(getDistance({latitude: location.coords.latitude, longitude: location.coords.longitude}, {latitude: activeTrip.endAddress.coords.lat, longitude: activeTrip.endAddress.coords.lng} ) <= 500 ){ //500m
-        setPositionsInsideEndLocation(positionsInsideEndLocation + 1);
-        if(positionsInsideEndLocation >= 5){
-          // Se asume que el conductor está en destino! Cortamos el viaje
-          setEndTripRequested(true);
+      if(aois.length){
+        location = {...location, seats: passengersList[1].data.length + 1}
+        let locationCoords = [location.coords?.longitude, location.coords?.latitude]
+        let found = aois.find( aoi => inside(locationCoords, [aoi]));
+        console.log('firstPositionSent:',firstPositionSent);
+        console.log('positionsInsideEndLocation:',positionsInsideEndLocation);
+        if(!firstPositionSent || endTripRequested){
+          sendLocationUpdate(location)
+          .then(r => {
+            console.log('response:', r)
+            if(!firstPositionSent){
+              console.log('sent first position :)')
+              setFirstPositionSent(true);
+            }
+            else if(endTripRequested){
+              props.endTrip(props.authentication.currentTrip)
+            }
+          })
+          .catch(e => {
+            console.log('Error')
+            console.log(e.response.data.errors)
+            // send to queue maybe
+          })
+          .finally( r => {
+            setRefreshing(false)
+          });
+  
         }
-      }
-      else{
-        setPositionsInsideEndLocation(0)
+        else if(found){
+          console.log('inside')
+          setRefreshing(true);
+          sendLocationUpdate(location)
+          .then(r => {
+            console.log(r)
+            setTripLocationsCoordinates(tripLocationsCoordinates => [...tripLocationsCoordinates, {latitude: location.coords.latitude, longitude: location.coords.longitude}])
+          })
+          .catch(e => {
+            console.log('Error')
+            console.log(e.response.data)
+            // send to queue
+          })
+          .finally( r => {
+            setRefreshing(false)
+          });
+        }
+        if(getDistance({latitude: location.coords.latitude, longitude: location.coords.longitude}, {latitude: activeTrip.endAddress.coords.lat, longitude: activeTrip.endAddress.coords.lng} ) <= 500 ){ //500m
+          setPositionsInsideEndLocation(positionsInsideEndLocation + 1);
+          if(positionsInsideEndLocation >= 60){
+            // Se asume que el conductor está en destino! Cortamos el viaje
+            setEndTripRequested(true);
+          }
+        }
+        else{
+          setPositionsInsideEndLocation(0)
+        }
       }
     }
 
@@ -289,7 +320,7 @@ export default function PreTripCheck(props)  {
           getSeatBookings()
         })
         .catch(e => {
-          console.log(e.response);
+          console.log('error:',e.response);
           Alert.alert('Error', 'Error agregando usuario extra')
         })
         //setRefreshValue(!refreshValue)
@@ -313,7 +344,7 @@ export default function PreTripCheck(props)  {
     const watchId = React.useRef(null);
     
     React.useEffect(() => {
-      getAOIs().then(getActiveTrip()).then(getLocationUpdates())
+      getAOIs().then(getActiveTrip()).then(checkOlderTripStats()).then(getLocationUpdates())
         return () => {
           removeLocationUpdates();
         };
@@ -326,7 +357,7 @@ export default function PreTripCheck(props)  {
     }, [isFocused]);
 
       React.useEffect(() => {
-        console.log(location?.timestamp
+        console.log('location:',location?.timestamp
           ? new Date(location.timestamp).toLocaleString()
           : '')
           console.log('passengers:', passengersList[1].data.length)
@@ -463,7 +494,7 @@ export default function PreTripCheck(props)  {
           (error) => {
             Alert.alert(`Code ${error.code}`, error.message);
             setLocation(null);
-            console.log(error);
+            console.log('error:',error);
           },
           {
             accuracy: {
@@ -496,7 +527,7 @@ export default function PreTripCheck(props)  {
           },
           (error) => {
             setLocation(null);
-            console.log(error);
+            console.log('error:',error);
           },
           {
             accuracy: {
@@ -551,6 +582,14 @@ export default function PreTripCheck(props)  {
 
     return (
     <>
+    {refreshing && (
+          <View style={{position: 'absolute', width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', zIndex: 15}}>
+              <ActivityIndicator
+              size={'large'}
+              />
+          </View>
+          
+      )}
       <SafeAreaView style={{width: '100%',flex: 1, backgroundColor: 'rgb(245,245,248)', elevation: 5, borderRadius: 10, padding: 10}}>
         <View style={{paddingVertical: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>  
             <Text style={{ fontSize: 26, color: 'rgb(0,53,108)'}}>Viaje</Text>
@@ -575,14 +614,14 @@ export default function PreTripCheck(props)  {
             </View>
             <View style={{flexDirection: 'row'}}>
                 
-                <PaperButton color='rgb(120,0,0)'  mode="contained" onPress = {() => {setEndTripRequested(true);}} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
+                <PaperButton color='rgb(120,0,0)'  mode="contained" onPress = {() => {setRefreshing(true); setEndTripRequested(true);}} style={{margin: 10, height: 50, justifyContent: 'center', borderRadius: 10}} labelStyle={{fontFamily: 'Nunito-Bold'}}>
                     Finalizar
                 </PaperButton>
             </View>
         </View>
       </SafeAreaView>
       <Modal id='detailsModal' visible={detailsModalVisible} onRequestClose={() => setDetailsModalVisible(false)} animationType="slide">
-        <SafeAreaView style={{flex: 1}}>
+        <SafeAreaView style={{flex: 1, paddingHorizontal: 10}}>
           <MapView
               toolbarEnabled={false}
               showsBuildings={false}
@@ -603,37 +642,22 @@ export default function PreTripCheck(props)  {
                 <Icon name='times' color={'rgb(0,53,108)'} size={26}  />
             </TouchableOpacity>
         </View>
-            <Button onPress={() => handleGetFromMMKV()} title='Get locations from MMKV'></Button>
         <ScrollView
-            style={styles.container}
             contentContainerStyle={styles.contentContainer}
         >
             <View style={styles.buttonContainer}>
             
-            <View style={styles.buttons}>
-              <Button title="Get Location" onPress={getLocation} />
-                <Button
-                title="Start Observing"
-                onPress={getLocationUpdates}
-                disabled={observing}
-                />
-                <Button
-                title="Stop Observing"
-                onPress={removeLocationUpdates}
-                disabled={!observing}
-                />
-            </View>
             </View>
             <View style={styles.result}>
-            <Text>Latitude: {location?.coords?.latitude || ''}</Text>
-            <Text>Longitude: {location?.coords?.longitude || ''}</Text>
-            <Text>Heading: {location?.coords?.heading}</Text>
-            <Text>Accuracy: {location?.coords?.accuracy}</Text>
-            <Text>Altitude: {location?.coords?.altitude}</Text>
-            <Text>Altitude Accuracy: {location?.coords?.altitudeAccuracy}</Text>
-            <Text>Speed: {location?.coords?.speed}</Text>
-            <Text>Provider: {location?.provider || ''}</Text>
-            <Text>Location access count: {testValue}</Text>
+            <Text>Latitud: {location?.coords?.latitude || ''}</Text>
+            <Text>Longitud: {location?.coords?.longitude || ''}</Text>
+            <Text>Dirección: {location?.coords?.heading}</Text>
+            <Text>Precisión: {location?.coords?.accuracy}</Text>
+            <Text>Altitud: {location?.coords?.altitude}</Text>
+            <Text>Precisión de altitud: {location?.coords?.altitudeAccuracy}</Text>
+            <Text>Velocidad: {location?.coords?.speed}</Text>
+            <Text>Proveedor: {location?.provider || ''}</Text>
+            <Text>Cantidad de personas: {passengersList[1].data.length +1 || ''}</Text>
             <Text>
                 Timestamp:{' '}
                 {location?.timestamp
