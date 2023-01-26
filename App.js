@@ -20,6 +20,7 @@ import configureStore from './src/configureStore';
 import * as reduxActionCreators from './src/actions/actions';
 import Auth from 'components/auth';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import AuthProvider from './src/components/AuthProvider';
 const store = configureStore();
 
 //Configuración de Screens para Navigators y su conexión con los props de Redux
@@ -35,9 +36,11 @@ export default function App(){
     <Provider store={store}>
       <SafeAreaProvider>
         <NavigationContainer>
-          
+          <AuthProvider>
+
           <AuthComponent/>
 
+          </AuthProvider>
         </NavigationContainer>
       </SafeAreaProvider>
     </Provider>

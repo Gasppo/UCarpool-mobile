@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, ScrollView, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import Text from '../components/default_text';
 import { Avatar, Title } from 'react-native-paper';
@@ -6,8 +6,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import FocusAwareStatusBar from '../components/FocusAwareStatusBar';
 import { useNavigation } from '@react-navigation/native';
 import { UCA_BLUE } from '../constants';
+import { AuthContext } from '../components/AuthProvider';
 
 export default function UserProfile(props)  {
+    const { logout } = useContext(AuthContext)
 
     const userData = props.authentication.user
     const navigation = useNavigation();
@@ -138,7 +140,7 @@ export default function UserProfile(props)  {
                         <TouchableOpacity
                             activeOpacity={0.5}
                             style={[styles.profileButton, {borderBottomWidth:0}]}
-                            onPress={() => props.logOutUser()}
+                            onPress={() => props.logOutUser(logout)}
                             >
                             <View style={styles.iconContainer}>
                                 <Icon name={'account-remove'} size={20} style={[styles.optionIcon, {color: 'red'}]}/>
