@@ -45,7 +45,7 @@ const defaultAuthState: AuthState = {
 
 export const AuthContext = React.createContext<{
     authState: AuthState;
-    login:(provider: keyof typeof authConfigs) => void;
+    login: (provider: keyof typeof authConfigs) => void;
     logout: () => void;
     refresh: () => void;
     loading: boolean;
@@ -77,11 +77,12 @@ export const loginServer = async (data: { access_token: string, email: string, i
 };
 
 
-const AuthProvider = ({ children }) => {
+const AuthProvider = (props: { children: JSX.Element }) => {
     const [authState, setAuthState] = useState(defaultAuthState);
+    const { children } = props;
     const [loading, setLoading] = useState(false)
 
-    const handleAuthorize = useCallback(async (provider: string | number) => {
+    const handleAuthorize = useCallback(async (provider: keyof typeof authConfigs) => {
         try {
             setLoading(true)
             const config = authConfigs[provider];
@@ -100,6 +101,8 @@ const AuthProvider = ({ children }) => {
                 JSON.stringify({ accessToken, accessTokenExpirationDate, refreshToken, idToken, scopes })
             );
 
+            storage.set('loggedUserData', JSON.stringify(loginResponse.mobileUser))
+
             setAuthState(prev => ({
                 ...prev,
                 email: decoded.email,
@@ -116,9 +119,12 @@ const AuthProvider = ({ children }) => {
 
         } catch (error) {
             console.log(error);
-            Alert.alert('Failed to log in', error.message);
             setLoading(false)
-
+            if (error instanceof Error) {
+                Alert.alert('Failed to log in', error.message);
+                return
+            }
+            Alert.alert('Failed to log in', 'Something went wrong');
         }
     }, []);
 
@@ -154,8 +160,13 @@ const AuthProvider = ({ children }) => {
             setLoading(false)
 
         } catch (error) {
-            Alert.alert('Failed to refresh token', error.message);
+            console.log(error);
             setLoading(false)
+            if (error instanceof Error) {
+                Alert.alert('Failed to log in', error.message);
+                return
+            }
+            Alert.alert('Failed to log in', 'Something went wrong');
 
         }
     }, [authState]);
@@ -167,7 +178,12 @@ const AuthProvider = ({ children }) => {
             storage.delete('user_session');
             setAuthState(defaultAuthState);
         } catch (error) {
-            Alert.alert('Failed to revoke token', error.message);
+            console.log(error);
+            if (error instanceof Error) {
+                Alert.alert('Failed to log in', error.message);
+                return
+            }
+            Alert.alert('Failed to log in', 'Something went wrong');
         }
     }, []);
 

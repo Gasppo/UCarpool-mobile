@@ -7,5 +7,7 @@ module.exports = {
     'prettier/prettier': ['off', {singleQuote: true}],
     'react-native/no-inline-styles': 'off',
     'semi': 'off',
+    'curly': 'off',
+    'no-spaced-func': 'off',
   },
 };
