@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import Text from '../components/default_text';
 import { IconButton } from 'react-native-paper';
-import { UCA_BLUE, USIG_REVERSE_GEOCODER_URL } from '../constants';
+import { UCA_BLUE, USIG_REVERSE_GEOCODER_URL } from '../utils/constants';
 import Geolocation from 'react-native-geolocation-service';
 import appConfig from '../../app.json';
 import axios from 'axios';

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Alert } from "react-native";
-import { API_URL } from "../constants";
+import { API_URL } from "../utils/constants";
 
 export async function getVehiclesFromApi(driverId, signal){
 

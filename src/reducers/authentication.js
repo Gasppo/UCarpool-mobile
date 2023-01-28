@@ -13,8 +13,8 @@ import {
     SWITCH_PASSENGER,
     START_TRIP_FAILURE,
     START_TRIP_SUCCESS
-} from '../constants'
-import { storage } from '../constants'
+} from '../utils/constants'
+import { storage } from '../utils/constants'
 
 const initialState = {
     user: [],

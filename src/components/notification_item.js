@@ -4,7 +4,7 @@ import Text from './default_text';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
 import { connect } from 'react-redux';
-import { API_URL } from '../constants';
+import { API_URL } from '../utils/constants';
 import { IconButton } from 'react-native-paper';
 
 const buildNotificationStyle = (notificationTypeId, issuerName) => {

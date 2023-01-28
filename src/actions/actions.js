@@ -13,9 +13,9 @@ import {
     SWITCH_DRIVER,
     START_TRIP_FAILURE,
     START_TRIP_SUCCESS,
-} from '../constants';
+} from '../utils/constants';
 import axios from 'axios';
-import { storage } from '../constants';
+import { storage } from '../utils/constants';
 import { MMKV } from 'react-native-mmkv';
 
 export function fetchUser(savedData){

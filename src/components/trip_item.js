@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Button as PaperButton } from 'react-native-paper';
 import MapView from 'react-native-maps';
 import { Marker } from 'react-native-maps';
-import { API_URL, UCA_BLUE, UCA_GREEN } from '../constants';
+import { API_URL, UCA_BLUE, UCA_GREEN } from '../utils/constants';
 import RequestDetail from './request_detail';
 import axios from 'axios';
 import QRCode from 'react-native-qrcode-svg';
@@ -16,7 +16,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { startTrip } from '../actions/actions';
 import { MARKER_RED, MARKER_RED_ENCODED } from '../images';
-import { getMarkerForAddress } from '../auxiliaryFunctions';
+import { getMarkerForAddress } from '../utils/auxiliaryFunctions';
 
 const handleRequestStatusText = (status) => {
     switch (status){

@@ -4,7 +4,7 @@ import Text from '../components/default_text';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button, TextInput } from 'react-native-paper';
 import {Picker} from '@react-native-picker/picker';
-import { API_URL, UCA_BLUE } from '../constants';
+import { API_URL, UCA_BLUE } from '../utils/constants';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CapacityButton from './capacity_button';
 import axios from 'axios';

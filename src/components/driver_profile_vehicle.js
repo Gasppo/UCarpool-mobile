@@ -3,7 +3,7 @@ import { View, StyleSheet, Modal, TouchableOpacity, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Button } from 'react-native-paper';
 import Text from './default_text'
-import { API_URL, UCA_BLUE, UCA_GREEN } from '../constants';
+import { API_URL, UCA_BLUE, UCA_GREEN } from '../utils/constants';
 import axios from 'axios';
 
 function generatePassengersIcons(capacity){

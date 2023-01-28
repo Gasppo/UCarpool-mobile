@@ -16,7 +16,7 @@ import { LogBox } from 'react-native';
 //Redux config
 import { Provider, connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import configureStore from './src/configureStore';
+import configureStore from './src/utils/configureStore';
 import * as reduxActionCreators from './src/actions/actions';
 import Auth from 'components/auth';
 import { SafeAreaProvider } from 'react-native-safe-area-context';

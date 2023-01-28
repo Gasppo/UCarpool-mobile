@@ -1,27 +1,27 @@
 
-import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from 'react';
 
 //Importar Navigators
-import UserNavigatorScreen from './user_navigator';
+import UserNavigatorScreen from '../navigators/user_navigator';
 
 //Importar screens
-import SignInScreen from 'screens/signIn';
 import RegisterDataScreen from 'screens/register';
 import RegisterPassengerCompleteScreen from 'screens/register_passenger_complete';
-import CreateTripNavigatorScreen from './create_trip_navigator';
-import PassengerTripRequestNavigatorScreen from './passenger_trip_request_navigator';
-import StartTripNavigatorScreen from './StartTripNavigator';
-import LandingSurveyScreen from '../screens/LandingSurvey';
-import RegisterEmailScreen from '../screens/RegisterEmail';
-import WelcomeScreen from '../screens/Welcome';
-import PermissionCheckScreen from '../screens/PermissionCheck';
+import SignInScreen from 'screens/signIn';
+import CreateTripNavigatorScreen from '../navigators/create_trip_navigator';
+import PassengerTripRequestNavigatorScreen from '../navigators/passenger_trip_request_navigator';
+import StartTripNavigatorScreen from '../navigators/start_trip_navigator';
+import LandingSurveyScreen from '../screens/landing_survey';
+import PermissionCheckScreen from '../screens/permission_check';
+import RegisterEmailScreen from '../screens/register_email';
+import WelcomeScreen from '../screens/welcome';
 
 //Redux config
+import * as reduxActionCreators from 'actions/actions';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as reduxActionCreators from 'actions/actions';
-import { storage } from '../constants';
+import { storage } from '../utils/constants';
 
 const Stack = createNativeStackNavigator();
 
