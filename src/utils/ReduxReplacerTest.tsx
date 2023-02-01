@@ -35,14 +35,14 @@ export const defaultContext = {
     isLoggedIn: false,
     currentTrip: 'none',
     userType: '',
-    logOutUser: () => { },
-    switchToDriver: () => { },
-    switchToPassenger: () => { },
-    clearUser: () => { },
-    endTrip: () => { },
-    startTrip: () => { },
-    userHasCurrentTrip: () => { },
-    fetchUser: () => { },
+    logOutUser: () => { console.log('logOutUser') },
+    switchToDriver: () => { console.log('switchToDriver') },
+    switchToPassenger: () => { console.log('switchToPassenger') },
+    clearUser: () => { console.log('clearUser') },
+    endTrip: () => { console.log('endTrip') },
+    startTrip: () => { console.log('startTrip') },
+    userHasCurrentTrip: () => { console.log('userHasCurrentTrip') },
+    fetchUser: () => { console.log('fetchUser') },
 }
 
 export const ReduxContext = createContext<{
@@ -51,7 +51,7 @@ export const ReduxContext = createContext<{
     isLoggedIn: boolean;
     currentTrip: string;
     userType: string;
-    logOutUser:(logout: () => void) => void;
+    logOutUser: (logout: () => void) => void;
     switchToDriver: () => void;
     switchToPassenger: () => void;
     clearUser: () => void;
@@ -70,7 +70,7 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
     const [currentTrip, setCurrentTrip] = useState('')
     const [userType, setUserType] = useState('')
 
-    const logOutUser = (logout = () => { }) => {
+    const logOutUser = (logout = () => { console.log('No action') }) => {
         storage.clearAll();
         logout();
         setIsLoggedIn(false);

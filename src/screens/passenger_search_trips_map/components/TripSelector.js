@@ -13,6 +13,7 @@ const TripSelector = ({ borderRadii, onLayout, setSelectedStartAddress, setSelec
     }
 
     function handleChangeOfStartAddress(newAddress) {
+        console.log('NEW ADDRESS', newAddress)
         setSelectedStartAddress(newAddress)
     }
 

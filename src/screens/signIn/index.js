@@ -30,7 +30,7 @@ export default function SignInScreen(props) {
         getRequestCode(inputEmail, 'login')
             .then(() => setModalVisible(true))
             .catch(e => { console.log(e); Alert.alert('Error', 'Error obteniendo código') })
-            .finally(r => { setRefreshing(false) })
+            .finally(() => { setRefreshing(false) })
     }
 
     React.useEffect(() => {
@@ -59,8 +59,6 @@ export default function SignInScreen(props) {
         if (authState.email && !authState.hasLoggedInOnce) { navigation.navigate('register_details', { inputEmail: authState.email }) }
         if (authState.email && authState.hasLoggedInOnce) { fetchUser({ email: authState.email, accessToken: authState.accessToken }) }
     }, [authState.accessToken, authState.email, authState.hasLoggedInOnce, fetchUser, navigation])
-
-    console.log('RENDERING')
 
 
     return (

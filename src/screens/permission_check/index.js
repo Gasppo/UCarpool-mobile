@@ -39,8 +39,6 @@ export default function PermissionCheck(props) {
     }, []);
 
     React.useEffect(() => {
-        console.log('running')
-        console.log(Object.values(statuses))
         let allPermitted = false
         if (!(Object.values(statuses).length)) {
 

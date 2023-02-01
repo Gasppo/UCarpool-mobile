@@ -55,6 +55,14 @@ export default function PassengerSearchTripsMap(props) {
         }
     }, [isFocused])
 
+    React.useEffect(() => {
+        console.log('START', selectedStartAddress)
+    }, [selectedStartAddress])
+
+
+    React.useEffect(() => {
+        console.log('END', selectedEndAddress)
+    }, [selectedEndAddress])
 
     const handleGetSearchResults = async () => {
         setRefreshing(true)

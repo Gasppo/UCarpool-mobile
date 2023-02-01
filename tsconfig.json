@@ -16,19 +16,8 @@
       "jsx": "preserve",
       "incremental": true,
       "noUncheckedIndexedAccess": true,
-      "baseUrl": "src",
-      "paths": {
-        "@utils/*": ["utils/*"],
-        "@screens/*": ["screens/*"],
-        "@reducers/*": ["reducers/*"],
-        "@navigators/*": ["navigators/*"],
-        "@images/*": ["images/*"],
-        "@components/*": ["components/*"],
-        "@fetchers/*": ["fetchers/*"],
-        "@actions/*": ["actions/*"],
-      }
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs", "**/*.js", "**/*.jsx"],
     "exclude": ["node_modules"]
   }
   

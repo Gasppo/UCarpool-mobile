@@ -28,7 +28,7 @@ const store = configureStore();
 const AuthComponent = connect(mapStateToProps, mapDispatchToProps)(Auth)
 
 LogBox.ignoreLogs([
-  "localStorage"
+  'localStorage',
 ]);
 
 export default function App() {
@@ -55,6 +55,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    ...bindActionCreators(reduxActionCreators, dispatch)
+    ...bindActionCreators(reduxActionCreators, dispatch),
   }
 }

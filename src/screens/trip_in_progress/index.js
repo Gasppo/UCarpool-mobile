@@ -47,64 +47,63 @@ export default function TripInProgress(props) {
 
     const handleGetActiveTrip = useCallback(() => getActiveTrip(tripId, setRefreshing, setActiveTrip, setPassengersList), [tripId])
 
-    const handleLocationUpdate =  useCallback( async (updateLocation) => {
-        if (aois.length){
-        updateLocation = { ...updateLocation, seats: passengersList[1].data.length + 1 }
-        let locationCoords = [updateLocation.coords?.longitude, updateLocation.coords?.latitude]
-        let found = aois.find(aoi => inside(locationCoords, [aoi]));
-        console.log('firstPositionSent:', firstPositionSent);
-        console.log('positionsInsideEndLocation:', positionsInsideEndLocation);
-        if (!firstPositionSent || endTripRequested) {
-            sendLocationUpdate(tripId, updateLocation)
-                .then(r => {
-                    console.log('response:', r)
-                    if (!firstPositionSent) {
-                        console.log('sent first position :)')
-                        setFirstPositionSent(true);
-                    }
-                    else if (endTripRequested) {
-                        props.endTrip(tripId)
-                    }
-                })
-                .catch(e => {
-                    console.log('Errors')
-                    console.log(e.response.data.errors)
-                    // send to queue maybe
-                })
-                .finally(r => {
-                    setRefreshing(false)
-                });
+    const handleLocationUpdate = useCallback(async (updateLocation) => {
+        if (aois.length) {
+            updateLocation = { ...updateLocation, seats: passengersList[1].data.length + 1 }
+            let locationCoords = [updateLocation.coords?.longitude, updateLocation.coords?.latitude]
+            let found = aois.find(aoi => inside(locationCoords, [aoi]));
+            console.log('firstPositionSent:', firstPositionSent);
+            console.log('positionsInsideEndLocation:', positionsInsideEndLocation);
+            if (!firstPositionSent || endTripRequested) {
+                sendLocationUpdate(tripId, updateLocation)
+                    .then(() => {
+                        if (!firstPositionSent) {
+                            console.log('sent first position :)')
+                            setFirstPositionSent(true);
+                        }
+                        else if (endTripRequested) {
+                            props.endTrip(tripId)
+                        }
+                    })
+                    .catch(e => {
+                        console.log('Errors')
+                        console.log(e.response.data.errors)
+                        // send to queue maybe
+                    })
+                    .finally(() => {
+                        setRefreshing(false)
+                    });
 
-        }
-        else if (found) {
-            console.log('inside')
-            setRefreshing(true);
-            sendLocationUpdate(updateLocation)
-                .then(r => {
-                    console.log(r)
-                    setTripLocationsCoordinates(prevLocationCoordinates => [...prevLocationCoordinates, { latitude: updateLocation.coords.latitude, longitude: updateLocation.coords.longitude }])
-                })
-                .catch(e => {
-                    console.log('Error')
-                    console.log(e.response.data)
-                    // send to queue
-                })
-                .finally(r => {
-                    setRefreshing(false)
-                });
-        }
-        if (getDistance({ latitude: updateLocation.coords.latitude, longitude: updateLocation.coords.longitude }, { latitude: activeTrip.endAddress.coords.lat, longitude: activeTrip.endAddress.coords.lng }) <= 500) { //500m
-            setPositionsInsideEndLocation(positionsInsideEndLocation + 1);
-            if (positionsInsideEndLocation >= 60) {
-                // Se asume que el conductor está en destino! Cortamos el viaje
-                setEndTripRequested(true);
+            }
+            else if (found) {
+                console.log('inside')
+                setRefreshing(true);
+                sendLocationUpdate(updateLocation)
+                    .then(r => {
+                        console.log(r)
+                        setTripLocationsCoordinates(prevLocationCoordinates => [...prevLocationCoordinates, { latitude: updateLocation.coords.latitude, longitude: updateLocation.coords.longitude }])
+                    })
+                    .catch(e => {
+                        console.log('Error')
+                        console.log(e.response.data)
+                        // send to queue
+                    })
+                    .finally(() => {
+                        setRefreshing(false)
+                    });
+            }
+            if (getDistance({ latitude: updateLocation.coords.latitude, longitude: updateLocation.coords.longitude }, { latitude: activeTrip.endAddress.coords.lat, longitude: activeTrip.endAddress.coords.lng }) <= 500) { //500m
+                setPositionsInsideEndLocation(positionsInsideEndLocation + 1);
+                if (positionsInsideEndLocation >= 60) {
+                    // Se asume que el conductor está en destino! Cortamos el viaje
+                    setEndTripRequested(true);
+                }
+            }
+            else {
+                setPositionsInsideEndLocation(0)
             }
         }
-        else {
-            setPositionsInsideEndLocation(0)
-        }
-    }
-    },[activeTrip?.endAddress?.coords?.lat, activeTrip?.endAddress?.coords?.lng, aois, endTripRequested, firstPositionSent, passengersList, positionsInsideEndLocation, props, tripId])
+    }, [activeTrip?.endAddress?.coords?.lat, activeTrip?.endAddress?.coords?.lng, aois, endTripRequested, firstPositionSent, passengersList, positionsInsideEndLocation, props, tripId])
 
 
 
@@ -142,7 +141,7 @@ export default function TripInProgress(props) {
         };
 
         uploadNewRequest(uncheckedPassenger)
-            .then(r => { getSeatBookings(tripId, setPassengersList)  })
+            .then(() => { getSeatBookings(tripId, setPassengersList) })
             .catch(e => {
                 console.log('error:', e.response);
                 Alert.alert('Error', 'Error agregando usuario extra')
@@ -171,9 +170,9 @@ export default function TripInProgress(props) {
 
     React.useEffect(() => {
         getAOIs(setAois)
-        .then(() => handleGetActiveTrip())
-        .then(() => checkOlderTripStats(tripId, setFirstPositionSent))
-        .then(() => getLocationUpdates(watchId, setLocation))
+            .then(() => handleGetActiveTrip())
+            .then(() => checkOlderTripStats(tripId, setFirstPositionSent))
+            .then(() => getLocationUpdates(watchId, setLocation))
         return () => {
             removeLocationUpdates();
         };
@@ -221,7 +220,7 @@ export default function TripInProgress(props) {
                 <RequestDetail key={index} details={item} tripStartAddress={activeTrip.startAddress} tripEndAddress={activeTrip.endAddress} refreshFn={handleGetActiveTrip} tripView={true} />
             }
         />
-    },[activeTrip.endAddress, activeTrip.startAddress, handleGetActiveTrip, passengersList])
+    }, [activeTrip.endAddress, activeTrip.startAddress, handleGetActiveTrip, passengersList])
 
 
 
