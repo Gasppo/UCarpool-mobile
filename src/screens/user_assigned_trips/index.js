@@ -30,7 +30,7 @@ export default function PassengerActiveTrips(props) {
                 console.log(e);
                 Alert.alert('Error', 'Error obteniendo viajes de conductor')
             })
-            .finally(r => setRefreshing(false))
+            .finally(() => setRefreshing(false))
     }, [props.authentication.user.id])
 
     const handleGetPassengerTrips = useCallback(async () => {
@@ -54,7 +54,7 @@ export default function PassengerActiveTrips(props) {
                 console.log(e);
                 Alert.alert('Error', 'Error obteniendo viajes de pasajero')
             })
-            .finally(r => setRefreshing(false))
+            .finally(() => setRefreshing(false))
     }, [props.authentication.user.id])
 
     React.useEffect(() => {

@@ -52,8 +52,8 @@ export const AuthContext = React.createContext<{
 }>({
     authState: defaultAuthState,
     login: (provider: keyof typeof authConfigs) => { console.log(provider) },
-    logout: () => { },
-    refresh: () => { },
+    logout: () => { console.log('logout') },
+    refresh: () => { console.log('refresh') },
     loading: false,
 
 })
