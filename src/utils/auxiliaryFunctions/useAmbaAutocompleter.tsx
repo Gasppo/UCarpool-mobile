@@ -1,33 +1,5 @@
 import { Autocompleter } from '@usig-gcba/autocompleter';
-
-export interface Suggestion {
-    category: string;
-    data: Data;
-    subTitle: string;
-    suggesterName: string;
-    title: string;
-    type: string;
-}
-
-
-
-export interface Data {
-    altura: number;
-    calle: string[];
-    calleCruce: null;
-    coordenadas: {
-        lat?: number;
-        lng?: number;
-        x?: number;
-        y?: number;
-    };
-    descripcion: string;
-    nombre: string;
-    smp: string;
-    tipo: string;
-    tipoDireccion: number;
-}
-
+import { Suggestion } from '../../components/autocompleter';
 
 export const useAmbaAutocompleter = (params: { onSuggestions: (value: Suggestion[]) => void, onCompleteSuggestions: () => void, onError: (error: unknown) => void }) => {
 

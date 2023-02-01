@@ -6,9 +6,35 @@ import {
 import Geolocation from 'react-native-geolocation-service';
 import { IconButton } from 'react-native-paper';
 import { hasLocationPermission } from '../utils/auxiliaryFunctions/location';
-import { Suggestion, useAmbaAutocompleter } from '../utils/auxiliaryFunctions/useAmbaAutocompleter';
+import { useAmbaAutocompleter } from '../utils/auxiliaryFunctions/useAmbaAutocompleter';
 import { UCA_BLUE, USIG_REVERSE_GEOCODER_URL } from '../utils/constants';
 import Text from './default_text';
+
+export interface Suggestion {
+  category: string;
+  data: Data;
+  subTitle: string;
+  suggesterName: string;
+  title: string;
+  type: string;
+}
+
+export interface Data {
+  altura: number;
+  calle: string[];
+  calleCruce: null;
+  coordenadas: {
+    lat?: number;
+    lng?: number;
+    x?: number;
+    y?: number;
+  };
+  descripcion: string;
+  nombre: string;
+  smp: string;
+  tipo: string;
+  tipoDireccion: number;
+}
 
 
 type Address = {
@@ -136,6 +162,7 @@ function AMBACompleter(props: AMBACompleterProps) {
   async function updateCoords(selectedSuggestion: Suggestion) {
 
     if (selectedSuggestion) {
+      console.log('SELECTED SUGGESTION: ', selectedSuggestion)
       setInput(selectedSuggestion.data.nombre);
       //distintos tipos de Suggestion tienen distintas maneras de elegir coordenadas.
       try {
