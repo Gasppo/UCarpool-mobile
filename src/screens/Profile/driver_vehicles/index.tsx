@@ -9,11 +9,11 @@ import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { UCA_BLUE } from '../../../utils/constants';
 import { getVehiclesFromApi, VehicleResponseType } from '../../../fetchers';
 import { ProfileStackNavProps } from '../../../navigators/paramList/ProfileList';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 
 
 export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehicles'>) {
-    const { user } = useExperimentalRedux()
+    const { user } = useAppActions()
     const [addVehicleModalVisible, setAddVehicleModalVisible] = React.useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
     const [userVehicleList, setUserVehicleList] = React.useState<VehicleResponseType[]>([]);

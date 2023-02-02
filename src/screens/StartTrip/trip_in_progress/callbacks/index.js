@@ -132,6 +132,7 @@ export const getActiveTrip = async (tripId, onRefresh, onUpdateActiveTrip, onUpd
 
 export const sendLocationUpdate = async (tripId, location) => {
     console.log('sending location!')
+    console.log('tripId:', tripId)
     const response = await axios.put(`${API_URL}/tripStats?tripId=${tripId}`, { realTimeData: location }, { timeout: 15000 });
     if (response.status === 200) {
         return response.data

@@ -33,7 +33,7 @@ export const defaultContext = {
     user: null,
     isFetching: false,
     isLoggedIn: false,
-    currentTrip: 'none',
+    currentTrip: '',
     userType: '',
     logOutUser: () => { console.log('logOutUser') },
     switchToDriver: () => { console.log('switchToDriver') },
@@ -45,7 +45,7 @@ export const defaultContext = {
     fetchUser: () => { console.log('fetchUser') },
 }
 
-export const ReduxContext = createContext<{
+export const AppActionsContext = createContext<{
     user: User | null;
     isFetching: boolean;
     isLoggedIn: boolean;
@@ -61,7 +61,7 @@ export const ReduxContext = createContext<{
     fetchUser: (savedData: { access_token: string, email: string }) => void;
 }>(defaultContext)
 
-const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
+const AppActionsProvider = (props: ReduxReplacerTestProps) => {
     const { children } = props
 
     const [isFetching, setIsFetching] = useState(false)
@@ -70,12 +70,16 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
     const [currentTrip, setCurrentTrip] = useState('')
     const [userType, setUserType] = useState('')
 
+
+
     const logOutUser = (logout = () => { console.log('No action') }) => {
         storage.clearAll();
         logout();
         setIsLoggedIn(false);
         setUser(null);
     }
+
+
 
     const switchToDriver = () => {
         if (!user) return Alert.alert('Error', 'Not permitted');
@@ -84,6 +88,8 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         return Alert.alert('Error', 'Not permitted');
     }
 
+
+
     const switchToPassenger = () => {
         if (!user) return Alert.alert('Error', 'Not permitted');
         if (user.isDriver && userType !== 'passenger') return setUserType('passenger');
@@ -91,23 +97,29 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         return Alert.alert('Error', 'Not permitted');
     }
 
+
+
     const clearUser = useCallback(() => {
         setUser(null);
         setIsLoggedIn(false);
     }, [])
+
+
 
     const endTrip = useCallback(async (tripId: string) => {
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/trips/updateStatus?id=${tripId}&status=completed`, { timeout: 15000 })
         setIsFetching(false);
 
-        if (response.status === 200) return setCurrentTrip('none');
+        if (response.status === 200) return setCurrentTrip('');
         return Alert.alert('Error', response?.data?.message || 'Error ending trip');
 
     }, [])
 
+
+
     const startTrip = useCallback(async (tripId: string) => {
-        setCurrentTrip('none')
+        setCurrentTrip('')
         setUserType('driver')
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/trips/updateStatus?id=${tripId}&status=started`, { timeout: 15000 })
@@ -119,8 +131,10 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         return setCurrentTrip(response.data.id);
     }, [])
 
+
+
     const userHasCurrentTrip = useCallback(async (userId: string) => {
-        setCurrentTrip('none')
+        setCurrentTrip('')
         setUserType('driver')
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/trips/currentTrip?driverId=${userId}`, { timeout: 15000 })
@@ -132,6 +146,8 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         return setCurrentTrip(response.data.id);
     }, [])
 
+
+
     const fetchUser = useCallback(async (savedData: { access_token: string, email: string }) => {
         axios.defaults.headers.common['x-access-token'] = savedData.access_token;
         setIsFetching(true);
@@ -141,16 +157,18 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         if (response.status !== 200) return Alert.alert('Error', response?.data?.message || 'Error fetching user');
         if (!response?.data?.id) return Alert.alert('Error', response?.data?.message || 'Error fetching user');
 
+        setIsLoggedIn(true);
         return setUser(response.data);
     }, [])
 
+
+
     return (
-        <ReduxContext.Provider value={{ isFetching, user, currentTrip, isLoggedIn, userType, logOutUser, switchToDriver, switchToPassenger, clearUser, endTrip, startTrip, userHasCurrentTrip, fetchUser }}>
+        <AppActionsContext.Provider value={{ isFetching, user, currentTrip, isLoggedIn, userType, logOutUser, switchToDriver, switchToPassenger, clearUser, endTrip, startTrip, userHasCurrentTrip, fetchUser }}>
             {children}
-        </ReduxContext.Provider>
+        </AppActionsContext.Provider>
     )
 }
 
-export const useExperimentalRedux = () => useContext(ReduxContext)
-
-export default ReduxReplacerProvider
+export const useAppActions = () => useContext(AppActionsContext)
+export default AppActionsProvider

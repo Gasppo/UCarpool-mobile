@@ -41,7 +41,7 @@ export const styles = StyleSheet.create({
     loginBox: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'space-evenly',
         backgroundColor: 'rgb(245,245,248)',
     },
     container: {

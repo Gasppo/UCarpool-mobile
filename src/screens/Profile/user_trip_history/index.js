@@ -6,15 +6,16 @@ import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import TripItem from '../../../components/trip_item';
 import { UCA_BLUE } from '../../../utils/constants';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { getDriverTrips, getPassengerTrips, groupTripsByStatus } from './callbacks';
 
 
 
 export default function PassengerActiveTrips(props) {
 
+    const { userType, user } = useAppActions()
 
-
-    const [activeTripList, setActiveTripList] = React.useState(groupTripsByStatus(props.authentication.userType, []));
+    const [activeTripList, setActiveTripList] = React.useState(groupTripsByStatus(userType, []));
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
 
@@ -22,22 +23,24 @@ export default function PassengerActiveTrips(props) {
 
 
     const handleGetDriverTrips = useCallback(async () => {
+        if (!user) return
         setRefreshing(true)
-        getDriverTrips(props.authentication.user.id, 'completed')
+        getDriverTrips(user.id, 'completed')
             .then(trips => {
-                setActiveTripList(groupTripsByStatus(props.authentication.userType, trips));
+                setActiveTripList(groupTripsByStatus(userType, trips));
             }
             )
             .catch(e => {
                 console.log(e);
                 Alert.alert('Error', 'Error obteniendo viajes de conductor')
             })
-            .finally(r => setRefreshing(false))
-    }, [props.authentication.user.id, props.authentication.userType])
+            .finally(() => setRefreshing(false))
+    }, [user, userType])
 
     const handleGetPassengerTrips = useCallback(async () => {
+        if (!user) return
         setRefreshing(true)
-        getPassengerTrips(props.authentication.user.id, 'canceled')
+        getPassengerTrips(user.id, 'canceled')
             .then(r => {
                 console.log(r)
                 const activeTrips = []
@@ -49,27 +52,27 @@ export default function PassengerActiveTrips(props) {
                     trip.hasBeenRequested = true;
                     activeTrips.push(trip);
                 })
-                setActiveTripList(groupTripsByStatus(props.authentication.userType, activeTrips))
+                setActiveTripList(groupTripsByStatus(userType, activeTrips))
             }
             )
             .catch(e => {
                 console.log(e);
                 Alert.alert('Error', 'Error obteniendo viajes de pasajero')
             })
-            .finally(r => setRefreshing(false))
-    }, [props.authentication.user.id, props.authentication.userType])
+            .finally(() => setRefreshing(false))
+    }, [user, userType])
 
     React.useEffect(() => {
         if (isFocused) {
-            props.authentication.userType === 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips()
+            userType === 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips()
         }
-    }, [handleGetDriverTrips, handleGetPassengerTrips, isFocused, props.authentication.userType])
+    }, [handleGetDriverTrips, handleGetPassengerTrips, isFocused, userType])
 
 
 
     const EmptyListComponent = () => <Text> No hay registros de viajes </Text>
     const HeaderComponent = ({ section }) => <Text style={{ fontSize: 20, color: 'rgb(0,53,108)', marginTop: 10, marginBottom: 5 }}>{section.title}</Text>
-    const ListComponent = ({ item, index }) => <TripItem item={item} refreshFn={props.authentication.userType === 'driver' ? handleGetDriverTrips : handleGetPassengerTrips} key={index + '_'} />
+    const ListComponent = ({ item, index }) => <TripItem item={item} refreshFn={userType === 'driver' ? handleGetDriverTrips : handleGetPassengerTrips} key={index + '_'} />
 
     return (
         <SafeAreaView style={{ width: '100%', height: '100%' }}>

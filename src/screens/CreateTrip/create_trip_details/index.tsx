@@ -10,7 +10,7 @@ import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { getVehiclesFromApi, VehicleResponseType } from '../../../fetchers';
 import { CreateTripStackNavProps } from '../../../navigators/paramList/CreateTripList';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { editTrip, uploadNewTrip } from './callbacks';
 import { styles } from './styles';
 
@@ -21,7 +21,7 @@ export default function CreateTripDetails(props: CreateTripStackNavProps<'create
     const [vehicleList, setVehicleList] = React.useState<VehicleResponseType[]>([]);
     const [dateModalOpen, setDateModalOpen] = React.useState(false);
     const [submitAvailable, setSubmitAvailable] = React.useState(false);
-    const { user } = useExperimentalRedux()
+    const { user } = useAppActions()
     const myLocale = NativeModules.I18nManager.localeIdentifier;
 
     const handleUploadNewTrip = async () => {

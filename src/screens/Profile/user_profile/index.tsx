@@ -7,12 +7,12 @@ import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { ProfileStackNavProps } from '../../../navigators/paramList/ProfileList';
 import { UCA_BLUE } from '../../../utils/constants';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { styles } from './styles';
 
 export function UserProfile(props: ProfileStackNavProps<'user_profile'>) {
     const { logout } = useAuthContext()
-    const { user, userType, switchToDriver, switchToPassenger, logOutUser } = useExperimentalRedux()
+    const { user, userType, switchToDriver, switchToPassenger, logOutUser } = useAppActions()
 
     const userData = user
 

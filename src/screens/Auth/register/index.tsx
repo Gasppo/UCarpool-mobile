@@ -13,12 +13,12 @@ import { validateDate, validateGender, validateLegajo, validateMail, validateNam
 import { signUpUser } from './callbacks';
 import InputElement from './components/InputElement';
 import { inputTheme, styles } from './styles';
-import { ReduxContext } from '../../../utils/ReduxReplacerTest';
+import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 
 
 export default function RegisterData(props: AuthStackNavProps<'register_details'>) {
 
-    const { fetchUser } = useContext(ReduxContext)
+    const { fetchUser } = useContext(AppActionsContext)
     //Local State
     const refSurnameInput = React.useRef<TextInput>();
     const refLegajoInput = React.useRef<TextInput>();

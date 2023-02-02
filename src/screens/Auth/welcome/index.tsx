@@ -6,13 +6,13 @@ import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { MAINLOGO_ICON } from '../../../images';
 import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
 import { UCA_BLUE, UCA_GREEN } from '../../../utils/constants';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { styles } from './styles';
 import React from 'react';
 
 export default function Welcome(props: AuthStackNavProps<'welcome'>) {
     const { logout } = useAuthContext();
-    const { logOutUser } = useExperimentalRedux();
+    const { logOutUser } = useAppActions();
 
     return (
         <>

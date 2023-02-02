@@ -4,11 +4,11 @@ import { ActivityIndicator, IconButton } from 'react-native-paper';
 import WebView from 'react-native-webview';
 import Text from '../../../components/default_text';
 import { API_URL, UCA_BLUE } from '../../../utils/constants';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 
 
 export default function LandingPoll() {
-    const { logOutUser, user } = useExperimentalRedux()
+    const { logOutUser, user } = useAppActions()
 
     const [loading, setLoading] = React.useState(true);
     const title = 'Estadísticas de Usuario'

@@ -7,13 +7,13 @@ import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
 import { UCA_BLUE, UCA_GREEN } from '../../../utils/constants';
-import { ReduxContext } from '../../../utils/ReduxReplacerTest';
+import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 
 
 
 export default function PermissionCheck(props: AuthStackNavProps<'permission_check'>) {
 
-    const { logOutUser } = useContext(ReduxContext)
+    const { logOutUser } = useContext(AppActionsContext)
 
     const [statuses, setStatuses] = React.useState<
         Record<'android.permission.CAMERA' | 'android.permission.ACCESS_BACKGROUND_LOCATION' | 'android.permission.ACCESS_FINE_LOCATION' | 'android.permission.ACCESS_COARSE_LOCATION', PermissionStatus | string>

@@ -3,7 +3,7 @@ import { Alert, View } from 'react-native';
 import { ActivityIndicator, IconButton } from 'react-native-paper';
 import WebView from 'react-native-webview';
 import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
-import { ReduxContext } from '../../../utils/ReduxReplacerTest';
+import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 import Text from '../../../components/default_text';
 import { FORM_URI, UCA_BLUE } from '../../../utils/constants';
 import { setSurveyCompleted } from './callbacks';
@@ -11,7 +11,7 @@ import { setSurveyCompleted } from './callbacks';
 
 export default function LandingPoll({ navigation }: AuthStackNavProps<'landing_survey'>) {
 
-    const { fetchUser, user, logOutUser } = useContext(ReduxContext)
+    const { fetchUser, user, logOutUser } = useContext(AppActionsContext)
 
     const userId = user?.id || '0'
     const [loading, setLoading] = React.useState(true);

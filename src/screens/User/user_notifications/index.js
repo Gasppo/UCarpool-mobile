@@ -7,11 +7,14 @@ import NotificationItem from '../../../components/notification_item';
 import TripItem from '../../../components/trip_item';
 import { UCA_LOGO } from '../../../images';
 import { driverNotificationList, passengerNotificationList, UCA_BLUE } from '../../../utils/constants';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { deleteAllNotifications, getNotifications, getTrip } from './callbacks';
 
 
 
 export default function PassengerNotifications(props) {
+
+    const { user, userType } = useAppActions()
     const [notificationList, setNotificationList] = React.useState([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const [tripLoading, setTripLoading] = React.useState(false);
@@ -19,8 +22,10 @@ export default function PassengerNotifications(props) {
 
 
     const handleGetTrip = async (tripId) => {
+        if (!user?.id) return
+
         setTripLoading(true)
-        getTrip(props.authentication.user.id, tripId).then(theTrip => {
+        getTrip(user.id, tripId).then(theTrip => {
             if (theTrip) {
                 console.log(theTrip)
                 setCurrentTrip(theTrip)
@@ -35,6 +40,7 @@ export default function PassengerNotifications(props) {
     }
 
     const handleDeleteAllNotifs = async (tripId) => {
+        if (!user?.id) return
         Alert.alert(
             'Aviso',
             'Está seguro de eliminar todas las notificaciones?',
@@ -44,21 +50,22 @@ export default function PassengerNotifications(props) {
                     onPress: () => console.log('Cancel Pressed'),
                     style: 'cancel',
                 },
-                { text: 'OK', onPress: () => deleteAllNotifications(props.authentication.user.id).then(r => { handleGetNotifs() }) },
+                { text: 'OK', onPress: () => deleteAllNotifications(user.id).then(() => { handleGetNotifs() }) },
             ]
         );
     }
 
 
     const handleGetNotifs = useCallback(async () => {
+        if (!user?.id) return
         setRefreshing(true);
-        getNotifications(props.authentication.user.id).then((notifs) => {
+        getNotifications(user.id).then((notifs) => {
             let notifications = []
             notifs.forEach(notif => {
-                if (props.authentication.userType === 'driver' && driverNotificationList.indexOf(notif.notificationTypeId) !== -1) {
+                if (userType === 'driver' && driverNotificationList.indexOf(notif.notificationTypeId) !== -1) {
                     notifications.push(notif)
                 }
-                if (props.authentication.userType === 'passenger' && passengerNotificationList.indexOf(notif.notificationTypeId) !== -1) {
+                if (userType === 'passenger' && passengerNotificationList.indexOf(notif.notificationTypeId) !== -1) {
                     notifications.push(notif)
                 }
             })
@@ -67,11 +74,11 @@ export default function PassengerNotifications(props) {
             .catch(e => {
                 console.log(e.response?.data?.errors)
             })
-            .finally(r => {
+            .finally(() => {
                 setRefreshing(false)
             });
 
-    }, [props.authentication.user.id, props.authentication.userType])
+    }, [user.id, userType])
 
 
     const setCurrentTripFalse = () => {

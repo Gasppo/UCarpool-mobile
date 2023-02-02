@@ -10,7 +10,7 @@ import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { DEFAULT_COORDINATE, UCA_BLUE } from '../../../utils/constants';
 import { styles } from './styles';
 import { CreateTripStackNavProps } from '../../../navigators/paramList/CreateTripList';
-import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { TripData } from '../create_trip_details/callbacks';
 
 
@@ -38,7 +38,7 @@ const defaultTripData = {
 
 export default function CreateTripLocation(props: CreateTripStackNavProps<'create_trip_location'>) {
 
-    const { user } = useExperimentalRedux()
+    const { user } = useAppActions()
 
     const mapRef = React.useRef<MapView>(null);
     const [mapMarkers, setMapMarkers] = React.useState<JSX.Element[]>([]);

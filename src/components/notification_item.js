@@ -1,14 +1,13 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import Text from './default_text';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import axios from 'axios';
-import { connect } from 'react-redux';
-import { API_URL } from '../utils/constants';
+import React from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { API_URL } from '../utils/constants';
+import Text from './default_text';
 
 const buildNotificationStyle = (notificationTypeId, issuerName) => {
-    switch( notificationTypeId ){
+    switch ( notificationTypeId ){
         case 'CHANGED_TRIP_DETAILS':
             return {icon: 'car-clock', label: `${issuerName} modificó detalles de su viaje`}
         case 'ACCEPTED_SEAT_BOOKING':
@@ -28,17 +27,17 @@ const buildNotificationStyle = (notificationTypeId, issuerName) => {
         case 'PICKED_UP_TRIP':
             return {icon: 'notebook-check', label: `${issuerName} declaró que subiste al viaje`}
         default:
-            return {icon: 'file-question-outline', label: `Notificación indefinida`}
+            return {icon: 'file-question-outline', label: 'Notificación indefinida'}
 
     }
 }
 
 const deleteNotification = async (notifId) => {
     const response = await axios.delete(`${API_URL}/notifications?id=${notifId}`);
-    if(response.status == 200){
+    if (response.status === 200){
         return response.data
     }
-    else{
+    else {
         throw new Error('Error occurred')
     }
 }
@@ -56,7 +55,7 @@ function NotificationItem(props)  {
     const handleDeleteNotification = async () => {
         deleteNotification(state.id)
         .then(res => {
-            if(props.refreshFn){
+            if (props.refreshFn){
                 props.refreshFn()
             }
         })
@@ -72,21 +71,21 @@ function NotificationItem(props)  {
             <TouchableOpacity style={[styles.card, {flexDirection: 'row', alignItems: 'center'}]} onPress={() => props.action()} activeOpacity={0.5}>
                 <Icon name={state.notificationStyle.icon} size={30} color={'grey'} style={{paddingRight: 10}}/>
                 <View style={{ flex: 1}}>
-                    <Text style={{ color: 'black', fontStyle: 'italic', fontSize: 11}}>{(new Date(state.date).getDate()+1<10? '0':'') + new Date(state.date).getDate() + '/' + (new Date(state.date).getMonth()+1<10? '0':'') + (new Date(state.date).getMonth()+1)} - {new Date(state.date).getHours()}:{new Date(state.date).getMinutes()<10?'0':''}{new Date(state.date).getMinutes()}</Text>
+                    <Text style={{ color: 'black', fontStyle: 'italic', fontSize: 11}}>{(new Date(state.date).getDate() + 1 < 10 ? '0' : '') + new Date(state.date).getDate() + '/' + (new Date(state.date).getMonth() + 1 < 10 ? '0' : '') + (new Date(state.date).getMonth() + 1)} - {new Date(state.date).getHours()}:{new Date(state.date).getMinutes() < 10 ? '0' : ''}{new Date(state.date).getMinutes()}</Text>
                     <Text style={{ color: 'black', flexShrink: 1, flex: 1}}>{state.notificationStyle.label}</Text>
                 </View>
             </TouchableOpacity>
-            <IconButton icon="trash-can-outline" mode='contained' style={{alignSelf: 'center'}} color="grey" onPress={() => handleDeleteNotification()}/>
+            <IconButton icon="trash-can-outline" mode="contained" style={{alignSelf: 'center'}} color="grey" onPress={() => handleDeleteNotification()}/>
         </View>
         :
         <></>
-  ); 
+  );
 }
 
 const styles = StyleSheet.create({
     notificationButtons: {
         alignSelf: 'center',
-        alignContent: 'center'
+        alignContent: 'center',
     },
     card: {
         flex: 1,
@@ -96,12 +95,10 @@ const styles = StyleSheet.create({
         alignContent: 'center',
         justifyContent: 'center',
         padding: 10,
-        elevation: 2
-    }
+        elevation: 2,
+    },
   });
 
-const mapStateToProps = state => ({
-authentication: state.authentication,
-});
 
-export default connect(mapStateToProps)(NotificationItem)
+
+export default NotificationItem

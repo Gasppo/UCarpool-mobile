@@ -1,33 +1,29 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { ActivityIndicator, Alert, Image, View } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
-import { AuthContext, useAuthContext } from '../../../components/AuthProvider';
+import { useAuthContext } from '../../../components/AuthProvider';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { MAINLOGO } from '../../../images';
 import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
-import { ReduxContext, useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
-import Spinner from './components/Spinner';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { styles } from './styles';
 
 
 
 export default function SignInScreen(props: AuthStackNavProps<'signIn'>) {
     const { authState, login, loading } = useAuthContext()
-    const { clearUser, fetchUser, isFetching, isLoggedIn, user } = useExperimentalRedux()
+    const { clearUser, fetchUser, isFetching, isLoggedIn, user } = useAppActions()
     const { navigation } = props
     const fetching = isFetching || loading;
 
+
     React.useEffect(() => {
+        console.log('isLoggedIn', isLoggedIn)
         if (isLoggedIn) {
-            if (!user) {
-                return Alert.alert('Hubo un problema al iniciar sesión.')
-            }
+            if (!user) return Alert.alert('Hubo un problema al iniciar sesión.')
             if (user.legajoUCA) {
                 navigation.navigate('signIn');
             }
-        }
-        else {
-            clearUser();
         }
     }, [clearUser, isLoggedIn, navigation, user])
 
@@ -46,10 +42,8 @@ export default function SignInScreen(props: AuthStackNavProps<'signIn'>) {
                 </View>
             }
             <View style={styles.loginBox}>
-                <Spinner fetching={fetching} />
                 <Image style={styles.mainAppLogo} source={MAINLOGO} />
-                <View style={{ width: '50%' }} />
-                <View style={{ width: '70%', height: 300 }}>
+                <View style={{ width: '70%', height: 300, marginTop: 40 }}>
                     <PaperButton icon="login" color="rgb(0,53,108)" mode="contained" onPress={() => login('Azure')} style={{ height: 60, justifyContent: 'center', borderRadius: 15, marginBottom: 10 }} labelStyle={{ fontFamily: 'Nunito-Bold' }}>
                         Iniciar Sesión con UCA
                     </PaperButton>

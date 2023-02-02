@@ -14,6 +14,7 @@ import MapComponent from './components/MapComponent';
 import TripList from './components/TripList';
 import TripSelector from './components/TripSelector';
 import { styles } from './styles';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 
 
 
@@ -25,7 +26,7 @@ export default function PassengerSearchTripsMap(props) {
     const bottomTabHeight = useBottomTabBarHeight();
     const [mapMarkers, setMapMarkers] = React.useState([]);
     const [selectedStartAddress, setSelectedStartAddress] = React.useState({ address: '', coords: { lat: 0, lng: 0 } });
-
+    const { user } = useAppActions()
     // Layout
     const [topBarHeight, setTopBarHeight] = React.useState(0);
     const [selectedEndAddress, setSelectedEndAddress] = React.useState({ address: '', coords: { lat: 0, lng: 0 } });
@@ -65,15 +66,16 @@ export default function PassengerSearchTripsMap(props) {
     }, [selectedEndAddress])
 
     const handleGetSearchResults = async () => {
+        if (!user) return
         setRefreshing(true)
         getSearchResults(selectedStartAddress.coords.lat, selectedStartAddress.coords.lng, selectedEndAddress.coords.lat, selectedEndAddress.coords.lng, selectedStartRadius, selectedStartTime)
             .then(r => {
-                r = r.filter(trip => trip.driverId !== props.authentication.user.id && new Date(trip.estimatedStartTime) > new Date(new Date().setHours(0, 0, 0, 0))) // No mostrar avisos del usuario ni viejos
+                r = r.filter(trip => trip.driverId !== user.id && new Date(trip.estimatedStartTime) > new Date(new Date().setHours(0, 0, 0, 0))) // No mostrar avisos del usuario ni viejos
                 r.forEach(trip => {
                     let hasBeenRequested = false;
                     let userSeatAssignment = null;
                     trip.SeatAssignments.forEach(seatAssignment => {
-                        if (seatAssignment.passengerId === props.authentication.user.id) {
+                        if (seatAssignment.passengerId === user.id) {
                             hasBeenRequested = true;
                             userSeatAssignment = seatAssignment
                         }
@@ -88,7 +90,7 @@ export default function PassengerSearchTripsMap(props) {
                 console.log(e);
                 Alert.alert('Error', 'No pueden obtenerse resultados.')
             })
-            .finally(r => {
+            .finally(() => {
                 setRefreshing(false)
             })
     }

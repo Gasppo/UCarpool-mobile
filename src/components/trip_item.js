@@ -10,10 +10,8 @@ import Text from '../components/default_text';
 import { API_URL, UCA_BLUE, UCA_GREEN } from '../utils/constants';
 import RequestDetail from './request_detail';
 
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { startTrip } from '../actions/actions';
 import { getMarkerForAddress } from '../utils/auxiliaryFunctions';
+import { useAppActions } from '../utils/ReduxReplacerTest';
 
 const handleRequestStatusText = (status) => {
     switch (status) {
@@ -99,6 +97,7 @@ function getRegionForCoordinates(points) {
 }
 
 function TripItem(props) {
+    const { userType, user, startTrip } = useAppActions()
     const item = props.item
     const [modalVisible, setModalVisibility] = React.useState(props.hiddenCard ? true : false);
     const [seatAssignments, setSeatAssignments] = React.useState([]);
@@ -200,7 +199,7 @@ function TripItem(props) {
                 },
                 {
                     text: 'OK', onPress: () => {
-                        props.startTrip(tripId)
+                        startTrip(tripId)
                     },
                 },
             ]
@@ -236,13 +235,13 @@ function TripItem(props) {
 
     React.useEffect(() => {
         // Obtener solicitudes cuando se abre el Modal (siendo driver)
-        if (props.authentication.userType === 'driver' && modalVisible) {
+        if (userType === 'driver' && modalVisible) {
             getSeatAssignmentsForTrip(item.id)
         }
-        if (props.authentication.userType === 'passenger' && modalVisible) {
+        if (userType === 'passenger' && modalVisible) {
             setSeatAssignments(item.SeatAssignments)
         }
-    }, [item.SeatAssignments, item.id, modalVisible, props.authentication.userType]);
+    }, [item.SeatAssignments, item.id, modalVisible, userType]);
 
     const getAvailableSeats = (seats) => {
         let count = 0;
@@ -258,7 +257,7 @@ function TripItem(props) {
     }
     const createTripData = { // Usado para feditar el viaje de ser necesario
         id: item.id,
-        driverId: props.authentication.user.id,
+        driverId: user.id || 'none',
         startAddress: item.startAddress,
         endAddress: item.endAddress,
         estimatedStartTime: item.estimatedStartTime,
@@ -315,7 +314,7 @@ function TripItem(props) {
                                 <View style={[styles.cardTripStatus, { backgroundColor: handleBackgroundColor(item.status) }]}>
                                     <Text style={styles.cardTripDateText}>{(new Date(item.estimatedStartTime).getDate() < 10 ? '0' : '') + new Date(item.estimatedStartTime).getDate() + '/' + (new Date(item.estimatedStartTime).getMonth() + 1 < 10 ? '0' : '') + (new Date(item.estimatedStartTime).getMonth() + 1)}</Text>
                                     <Text style={styles.cardTripStatusText}>
-                                        {props.authentication.userType === 'passenger' && item.hasBeenRequested ?
+                                        {userType === 'passenger' && item.hasBeenRequested ?
                                             handlePassengerRequestStatusTextShown(item.userSeatAssignment.status)
                                             :
                                             getAvailableSeats(item.SeatAssignments) + '/' + item.maxPassengers
@@ -334,7 +333,7 @@ function TripItem(props) {
             <Modal visible={modalVisible} animationType="slide" style={styles.modal} onRequestClose={() => handleCloseModal()}>
 
                 <View style={styles.modalTopBar}>
-                    {props.authentication.userType === 'driver' ?
+                    {userType === 'driver' ?
                         <TouchableOpacity activeOpacity={0.5} onPress={() => handleEditTrip()}>
                             <Icon name="application-edit-outline" size={40} style={styles.editButton} />
                         </TouchableOpacity>
@@ -403,7 +402,7 @@ function TripItem(props) {
                                     </View>
 
                                 </View>
-                                {props.authentication.userType === 'driver' ?
+                                {userType === 'driver' ?
                                     <View style={styles.row}>
                                         <View style={styles.stateContainer}>
                                             <Text style={styles.boxLabel}>Solicitudes:</Text>
@@ -447,13 +446,13 @@ function TripItem(props) {
 
                                     }
                                     <View style={styles.carContainer}>
-                                        <Text style={styles.boxLabel}>{props.authentication.userType === 'driver' ? 'Vehículo:' : 'Vas en:'}</Text>
+                                        <Text style={styles.boxLabel}>{userType === 'driver' ? 'Vehículo:' : 'Vas en:'}</Text>
                                         <View style={styles.vehicleBox}>
                                             <Icon name={'car'} size={40} color={UCA_GREEN} style={styles.carIcon} />
                                             <Text style={styles.carLabel}>{item.Vehicle?.VehicleModel?.VehicleMake?.make} {item.Vehicle?.VehicleModel?.model}</Text>
                                         </View>
                                     </View>
-                                    {props.authentication.userType === 'driver' ?
+                                    {userType === 'driver' ?
                                         <></>
                                         :
                                         <View style={styles.driverContainer}>
@@ -476,7 +475,7 @@ function TripItem(props) {
                                 {
                                     ['completed', 'canceled'].indexOf(item.status) === -1 ?
                                         <>
-                                            {props.authentication.userType === 'passenger' && item.userSeatAssignment && item.userSeatAssignment && item.userSeatAssignment.status === 'accepted' && item.userSeatAssignment.qrCode !== -1 ?
+                                            {userType === 'passenger' && item.userSeatAssignment && item.userSeatAssignment && item.userSeatAssignment.status === 'accepted' && item.userSeatAssignment.qrCode !== -1 ?
                                                 <View style={styles.row}>
                                                     <View style={styles.qrContainer}>
                                                         <Text style={styles.boxLabel}>Código QR:</Text>
@@ -491,7 +490,7 @@ function TripItem(props) {
                                                 :
                                                 <></>
                                             }
-                                            {props.authentication.userType === 'passenger' ?
+                                            {userType === 'passenger' ?
                                                 item.hasBeenRequested ?
                                                     (item.status !== 'started' &&
                                                         <PaperButton mode="contained" icon="close" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
@@ -500,7 +499,7 @@ function TripItem(props) {
                                                 :
                                                 <></>
                                             }
-                                            {props.authentication.userType === 'driver' ?
+                                            {userType === 'driver' ?
                                                 <>
                                                     <PaperButton mode="contained" icon="close" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteTrip(item.id)}>Cancelar viaje</PaperButton>
                                                     <PaperButton mode="contained" icon="flag" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleStartTrip(item.id)}>Comenzar viaje</PaperButton>
@@ -595,15 +594,6 @@ const styles = StyleSheet.create({
     dateText: { fontSize: 30, color: 'rgb(0,53,108)' },
 });
 
-const mapStateToProps = state => ({
-    authentication: state.authentication,
-});
 
-const mapDispatchToProps = dispatch => (
-    {
-        ...bindActionCreators({ 'startTrip': startTrip }, dispatch),
-    }
-)
-
-export default connect(mapStateToProps, mapDispatchToProps)(TripItem)
+export default TripItem
 
