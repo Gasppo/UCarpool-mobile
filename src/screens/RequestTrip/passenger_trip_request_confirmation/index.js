@@ -2,7 +2,7 @@ import React from 'react';
 import {SafeAreaView, View} from 'react-native';
 import {Button as PaperButton} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Text from '../../components/default_text';
+import Text from '../../../components/default_text';
 import {styles} from './styles';
 
 export default function PassengerTripRequestConfirmation(props) {

@@ -1,12 +1,12 @@
 import React, { useCallback } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Text from '../../components/default_text';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import NotificationItem from '../../components/notification_item';
-import TripItem from '../../components/trip_item';
-import { UCA_LOGO } from '../../images';
-import { driverNotificationList, passengerNotificationList, UCA_BLUE } from '../../utils/constants';
+import Text from '../../../components/default_text';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import NotificationItem from '../../../components/notification_item';
+import TripItem from '../../../components/trip_item';
+import { UCA_LOGO } from '../../../images';
+import { driverNotificationList, passengerNotificationList, UCA_BLUE } from '../../../utils/constants';
 import { deleteAllNotifications, getNotifications, getTrip } from './callbacks';
 
 

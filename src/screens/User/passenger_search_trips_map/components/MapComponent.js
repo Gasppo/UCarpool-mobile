@@ -1,6 +1,6 @@
 import React from 'react';
 import MapView, { Circle } from 'react-native-maps';
-import { DEFAULT_COORDINATE } from '../../../utils/constants';
+import { DEFAULT_COORDINATE } from '../../../../utils/constants';
 import { styles } from '../styles';
 
 

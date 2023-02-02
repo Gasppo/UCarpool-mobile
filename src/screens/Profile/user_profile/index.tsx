@@ -1,17 +1,28 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Avatar, Title } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { AuthContext } from '../../../components/AuthProvider';
+import { useAuthContext } from '../../../components/AuthProvider';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import { ProfileStackNavProps } from '../../../navigators/paramList/ProfileList';
 import { UCA_BLUE } from '../../../utils/constants';
+import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
 import { styles } from './styles';
 
-export default function UserProfile(props) {
-    const { logout } = useContext(AuthContext)
+export function UserProfile(props: ProfileStackNavProps<'user_profile'>) {
+    const { logout } = useAuthContext()
+    const { user, userType, switchToDriver, switchToPassenger, logOutUser } = useExperimentalRedux()
 
-    const userData = props.authentication.user
+    const userData = user
+
+    if (!userData) return <></>
+
+    const nameInitial = userData.name.charAt(0)
+    const surnameInitial = userData.surname.charAt(0)
+    const userLabel = nameInitial + surnameInitial
+
+
     return (
         <>
             <FocusAwareStatusBar
@@ -25,7 +36,7 @@ export default function UserProfile(props) {
                 </View>
                 <View style={styles.containerBox}>
                     <View style={styles.nameMailContainer}>
-                        <Avatar.Text style={{ margin: 10 }} backgroundColor={'green'} size={72} label={userData.name[0] + userData.surname[0]} />
+                        <Avatar.Text style={{ margin: 10, backgroundColor: 'green' }} size={72} label={userLabel} />
                         <View style={styles.nameContainer}>
                             <Title style={styles.titleText}>{userData.name} {userData.surname}</Title>
                             <Title style={styles.titleText}>{userData.email}</Title>
@@ -34,12 +45,12 @@ export default function UserProfile(props) {
                     <View style={styles.userModesContainer}>
                         <Text style={{ ...styles.defaultText, color: 'white' }}>Modos habilitados</Text>
                         <View style={styles.innerUserModesContainer}>
-                            <View style={[styles.userModeRectangles, { backgroundColor: props.authentication.userType === 'passenger' ? UCA_BLUE : 'white' }]}>
-                                <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType === 'passenger' ? 'white' : UCA_BLUE }}>Conductor</Text>
+                            <View style={[styles.userModeRectangles, { backgroundColor: userType === 'passenger' ? UCA_BLUE : 'white' }]}>
+                                <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'passenger' ? 'white' : UCA_BLUE }}>Conductor</Text>
                             </View>
                             {userData.isDriver ?
-                                <View style={[styles.userModeRectangles, { backgroundColor: props.authentication.userType === 'driver' ? UCA_BLUE : 'white' }]}>
-                                    <Text style={{ fontSize: 20, textAlign: 'center', color: props.authentication.userType === 'driver' ? 'white' : UCA_BLUE }}>Pasajero</Text>
+                                <View style={[styles.userModeRectangles, { backgroundColor: userType === 'driver' ? UCA_BLUE : 'white' }]}>
+                                    <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'driver' ? 'white' : UCA_BLUE }}>Pasajero</Text>
                                 </View>
                                 : <></>
                             }
@@ -56,7 +67,7 @@ export default function UserProfile(props) {
                             <View style={styles.iconContainer}>
                                 <Icon name={'chart-bar'} size={20} style={styles.optionIcon} />
                             </View>
-                            <Text style={styles.defaultText}>Estadísticas de {props.authentication.userType === 'driver' ? 'conductor' : 'pasajero'}</Text>
+                            <Text style={styles.defaultText}>Estadísticas de {userType === 'driver' ? 'conductor' : 'pasajero'}</Text>
                         </TouchableOpacity>
                         {userData.isDriver ?
                             <TouchableOpacity
@@ -79,7 +90,7 @@ export default function UserProfile(props) {
                             <View style={styles.iconContainer}>
                                 <Icon name={'history'} size={20} style={styles.optionIcon} />
                             </View>
-                            <Text style={styles.defaultText}>Historial de viajes como {props.authentication.userType === 'driver' ? 'conductor' : 'pasajero'}</Text>
+                            <Text style={styles.defaultText}>Historial de viajes como {userType === 'driver' ? 'conductor' : 'pasajero'}</Text>
                         </TouchableOpacity>
                         {
                             !(userData.isDriver) ?
@@ -107,11 +118,11 @@ export default function UserProfile(props) {
                             <Text style={styles.defaultText}>Acerca de la aplicación</Text>
                         </TouchableOpacity>
                         {
-                            userData.isDriver && props.authentication.userType === 'passenger' ?
+                            userData.isDriver && userType === 'passenger' ?
                                 <TouchableOpacity
                                     activeOpacity={0.5}
                                     style={[styles.profileButton, { backgroundColor: UCA_BLUE }]}
-                                    onPress={() => { props.switchToDriver(userData) }}
+                                    onPress={() => { switchToDriver() }}
                                 >
                                     <View style={styles.iconContainer}>
                                         <Icon name={'account-key'} size={20} style={[styles.optionIcon, { color: 'white' }]} />
@@ -122,11 +133,11 @@ export default function UserProfile(props) {
                                 <></>
                         }
                         {
-                            userData.isDriver && props.authentication.userType === 'driver' ?
+                            userData.isDriver && userType === 'driver' ?
                                 <TouchableOpacity
                                     activeOpacity={0.5}
                                     style={[styles.profileButton, { backgroundColor: UCA_BLUE }]}
-                                    onPress={() => props.switchToPassenger()}
+                                    onPress={() => switchToPassenger()}
                                 >
                                     <View style={styles.iconContainer}>
                                         <Icon name={'seat-passenger'} size={20} style={[styles.optionIcon, { color: 'white' }]} />
@@ -139,7 +150,7 @@ export default function UserProfile(props) {
                         <TouchableOpacity
                             activeOpacity={0.5}
                             style={[styles.profileButton, { borderBottomWidth: 0 }]}
-                            onPress={() => props.logOutUser(logout)}
+                            onPress={() => logOutUser(logout)}
                         >
                             <View style={styles.iconContainer}>
                                 <Icon name={'account-remove'} size={20} style={[styles.optionIcon, { color: 'red' }]} />

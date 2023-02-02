@@ -1,19 +1,19 @@
 import React, { useContext } from 'react';
 import { ActivityIndicator, Alert, Image, View } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
-import { AuthContext } from '../../../components/AuthProvider';
+import { AuthContext, useAuthContext } from '../../../components/AuthProvider';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { MAINLOGO } from '../../../images';
 import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
-import { ReduxContext } from '../../../utils/ReduxReplacerTest';
+import { ReduxContext, useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
 import Spinner from './components/Spinner';
 import { styles } from './styles';
 
 
 
 export default function SignInScreen(props: AuthStackNavProps<'signIn'>) {
-    const { authState, login, loading } = useContext(AuthContext)
-    const { clearUser, fetchUser, isFetching, isLoggedIn, user } = useContext(ReduxContext)
+    const { authState, login, loading } = useAuthContext()
+    const { clearUser, fetchUser, isFetching, isLoggedIn, user } = useExperimentalRedux()
     const { navigation } = props
     const fetching = isFetching || loading;
 

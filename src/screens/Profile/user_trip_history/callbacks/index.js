@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_URL } from '../../../utils/constants';
+import { API_URL } from '../../../../utils/constants';
 
 export const getDriverTrips = async (userId, status) => {
     const response = await axios.get(`${API_URL}/trips?driverId=${userId}&status=${status}`);

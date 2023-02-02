@@ -37,13 +37,11 @@ export interface Data {
 }
 
 
-type Address = {
+export type Address = {
   address: string;
   coords: {
-    lat?: number;
-    lng?: number;
-    x?: number;
-    y?: number;
+    lat: number;
+    lng: number;
   };
 }
 
@@ -59,7 +57,7 @@ function AMBACompleter(props: AMBACompleterProps) {
   const [input, setInput] = React.useState(props.address.address ? props.address.address : '');
   const [suggestions, setSuggestions] = React.useState<Suggestion[]>([]);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const [selectedDirection, setSelectedDirection] = React.useState(props.address ? props.address : { address: '', coords: { lat: 0, lng: 0 } })
+  const [selectedDirection, setSelectedDirection] = React.useState<Address>(props.address ? props.address : { address: '', coords: { lat: 0, lng: 0 } })
   const [loading, setLoading] = React.useState(false);
 
   const { ambaAutocompleter } = useAmbaAutocompleter({
@@ -180,7 +178,7 @@ function AMBACompleter(props: AMBACompleterProps) {
             }
             break;
           case 'LUGAR':
-            const selectedDir = { address: selectedSuggestion.title, coords: { lng: selectedSuggestion.data.coordenadas.x, lat: selectedSuggestion.data.coordenadas.y } }
+            const selectedDir = { address: selectedSuggestion.title, coords: { lng: selectedSuggestion.data.coordenadas.x || 0, lat: selectedSuggestion.data.coordenadas.y || 0 } }
             console.log(selectedDir)
             props.addressSetter(selectedDir)
             setSelectedDirection(selectedDir)

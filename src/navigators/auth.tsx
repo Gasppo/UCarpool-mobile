@@ -23,6 +23,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { AuthParamList } from './paramList/AuthList';
 import { storage } from '../utils/constants';
+import { useExperimentalRedux } from '../utils/ReduxReplacerTest';
 
 const Stack = createNativeStackNavigator<AuthParamList>();
 
@@ -41,17 +42,19 @@ const PermissionCheck = connect(mapStateToProps, mapDispatchToProps)(PermissionC
 
 
 export default function Auth(props: any) {
+  const { user, fetchUser, isLoggedIn } = useExperimentalRedux()
 
   React.useEffect(() => {
     try {
       let savedData = storage.getString('loggedUserData');
-      if (savedData) {
+      if (savedData && !user?.id) {
         savedData = JSON.parse(savedData);
         props.fetchUser(savedData)
+        fetchUser(savedData)
       }
     }
     catch (e) { console.log(e) }
-  }, [])
+  }, [user?.id])
 
   return (
     <Stack.Navigator>

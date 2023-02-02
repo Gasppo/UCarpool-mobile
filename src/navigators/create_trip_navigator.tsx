@@ -29,6 +29,7 @@ const CreateTripDetails = connect(mapStateToProps, mapDispatchToProps)(CreateTri
 const CreateTripLocation = connect(mapStateToProps, mapDispatchToProps)(CreateTripLocationScreen);
 
 export default function CreateTripNavigator() {
+
   return (
     <Stack.Navigator initialRouteName="create_trip_location">
       <Stack.Screen name="create_trip_location" component={CreateTripLocation} options={{ headerShown: false }} />

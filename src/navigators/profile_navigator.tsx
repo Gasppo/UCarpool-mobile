@@ -3,10 +3,10 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 //Importar screens
-import UserProfileScreen from '../screens/Profile/user_profile';
+import { UserProfile as UserProfileScreen } from '../screens/Profile/user_profile';
 import DriverVehiclesScreen from '../screens/Profile/driver_vehicles';
 import UserStatsScreen from '../screens/Profile/user_stats';
-import AboutAppScreen from '../screens/Profile/about';
+import { AboutApp as AboutAppScreen } from '../screens/Profile/about';
 import UserTripHistoryScreen from '../screens/Profile/user_trip_history';
 
 
@@ -27,6 +27,7 @@ const AboutApp = connect(mapStateToProps, mapDispatchToProps)(AboutAppScreen);
 const UserTripHistory = connect(mapStateToProps, mapDispatchToProps)(UserTripHistoryScreen);
 
 export default function ProfileNavigator() {
+
   return (
     <Stack.Navigator initialRouteName="user_profile"
       screenOptions={{

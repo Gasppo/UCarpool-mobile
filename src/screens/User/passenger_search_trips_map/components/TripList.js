@@ -3,9 +3,9 @@ import React from 'react';
 import { Animated, FlatList, NativeModules, ScrollView, View } from 'react-native';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { Button as PaperButton, IconButton } from 'react-native-paper';
-import { UCA_BLUE } from '../../../utils/constants';
-import Text from '../../../components/default_text';
-import TripItem from '../../../components/trip_item';
+import { UCA_BLUE } from '../../../../utils/constants';
+import Text from '../../../../components/default_text';
+import TripItem from '../../../../components/trip_item';
 import { styles } from '../styles';
 
 

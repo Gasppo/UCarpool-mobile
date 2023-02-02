@@ -1,7 +1,7 @@
 import React from 'react';
 import { Animated, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
-import AMBACompleter from '../../../components/autocompleter';
+import AMBACompleter from '../../../../components/autocompleter';
 import { styles } from '../styles';
 
 const TripSelector = ({ borderRadii, onLayout, setSelectedStartAddress, setSelectedEndAddress, selectedStartAddress, selectedEndAddress }) => {

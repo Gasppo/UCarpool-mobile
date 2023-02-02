@@ -3,7 +3,7 @@ import { SafeAreaView, TextInput, TouchableOpacity, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import Text from '../../components/default_text';
+import Text from '../../../components/default_text';
 import { styles } from './styles';
 
 export default function PassengerTripRequestDetails(props)  {

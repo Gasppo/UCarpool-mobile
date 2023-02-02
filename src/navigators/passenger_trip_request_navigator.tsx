@@ -28,6 +28,7 @@ const PassengerTripRequestDetails = connect(mapStateToProps, mapDispatchToProps)
 const PassengerTripRequestLocation = connect(mapStateToProps, mapDispatchToProps)(PassengerTripRequestLocationScreen);
 
 export default function PassengerTripRequestNavigator() {
+
   return (
     <Stack.Navigator initialRouteName="passenger_trip_request_details">
       <Stack.Screen name="passenger_trip_request_details" component={PassengerTripRequestDetails} options={{ headerShown: false, animation: 'slide_from_right' }} />

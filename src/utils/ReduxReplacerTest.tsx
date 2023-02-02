@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useState } from 'react'
 import { Alert } from 'react-native'
 import { API_URL, storage } from './constants';
 import axios from 'axios'
@@ -86,17 +86,17 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
 
     const switchToPassenger = () => {
         if (!user) return Alert.alert('Error', 'Not permitted');
-        if (!user.isDriver && userType !== 'passenger') return setUserType('passenger');
+        if (user.isDriver && userType !== 'passenger') return setUserType('passenger');
 
         return Alert.alert('Error', 'Not permitted');
     }
 
-    const clearUser = () => {
+    const clearUser = useCallback(() => {
         setUser(null);
         setIsLoggedIn(false);
-    }
+    }, [])
 
-    const endTrip = async (tripId: string) => {
+    const endTrip = useCallback(async (tripId: string) => {
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/trips/updateStatus?id=${tripId}&status=completed`, { timeout: 15000 })
         setIsFetching(false);
@@ -104,9 +104,9 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         if (response.status === 200) return setCurrentTrip('none');
         return Alert.alert('Error', response?.data?.message || 'Error ending trip');
 
-    };
+    }, [])
 
-    const startTrip = async (tripId: string) => {
+    const startTrip = useCallback(async (tripId: string) => {
         setCurrentTrip('none')
         setUserType('driver')
         setIsFetching(true);
@@ -117,22 +117,22 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         if (!response?.data?.id) return Alert.alert('Error', response?.data?.message || 'Error starting trip');
 
         return setCurrentTrip(response.data.id);
-    }
+    }, [])
 
-    const userHasCurrentTrip = async (userId: string) => {
+    const userHasCurrentTrip = useCallback(async (userId: string) => {
         setCurrentTrip('none')
         setUserType('driver')
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/trips/currentTrip?driverId=${userId}`, { timeout: 15000 })
         setIsFetching(false);
 
-        if (response.status !== 200) return Alert.alert('Error', response?.data?.message || 'Error getting trip');
-        if (!response?.data?.id) return Alert.alert('Error', response?.data?.message || 'Error getting trip');
+        if (response.status !== 200) return Alert.alert('Info', response?.data?.message || 'No active trip');
+        if (!response?.data?.id) return Alert.alert('Info', response?.data?.message || 'No active trip');
 
         return setCurrentTrip(response.data.id);
-    }
+    }, [])
 
-    const fetchUser = async (savedData: { access_token: string, email: string }) => {
+    const fetchUser = useCallback(async (savedData: { access_token: string, email: string }) => {
         axios.defaults.headers.common['x-access-token'] = savedData.access_token;
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/users?email=${savedData.email}`, { timeout: 15000 })
@@ -142,7 +142,7 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         if (!response?.data?.id) return Alert.alert('Error', response?.data?.message || 'Error fetching user');
 
         return setUser(response.data);
-    }
+    }, [])
 
     return (
         <ReduxContext.Provider value={{ isFetching, user, currentTrip, isLoggedIn, userType, logOutUser, switchToDriver, switchToPassenger, clearUser, endTrip, startTrip, userHasCurrentTrip, fetchUser }}>

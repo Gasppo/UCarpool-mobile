@@ -5,21 +5,23 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import CapacityButton from '../../components/capacity_button';
-import Text from '../../components/default_text';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import { getVehiclesFromApi } from '../../fetchers';
+import CapacityButton from '../../../components/capacity_button';
+import Text from '../../../components/default_text';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import { getVehiclesFromApi, VehicleResponseType } from '../../../fetchers';
+import { CreateTripStackNavProps } from '../../../navigators/paramList/CreateTripList';
+import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
 import { editTrip, uploadNewTrip } from './callbacks';
 import { styles } from './styles';
 
 
 
-export default function CreateTripDetails(props) {
+export default function CreateTripDetails(props: CreateTripStackNavProps<'create_trip_details'>) {
     const [createTripData, setcreateTripData] = React.useState(props.route.params.createTripData);
-    const [vehicleList, setVehicleList] = React.useState([]);
+    const [vehicleList, setVehicleList] = React.useState<VehicleResponseType[]>([]);
     const [dateModalOpen, setDateModalOpen] = React.useState(false);
     const [submitAvailable, setSubmitAvailable] = React.useState(false);
-
+    const { user } = useExperimentalRedux()
     const myLocale = NativeModules.I18nManager.localeIdentifier;
 
     const handleUploadNewTrip = async () => {
@@ -36,7 +38,7 @@ export default function CreateTripDetails(props) {
 
     const handleEditTrip = async () => {
         editTrip(createTripData)
-            .then(r => {
+            .then(() => {
                 props.navigation.navigate('create_trip_confirmation')
             })
             .catch(e => {
@@ -45,26 +47,26 @@ export default function CreateTripDetails(props) {
             })
     }
 
-    function setEstimatedStartTime(newTime) {
+    function setEstimatedStartTime(newTime: string) {
         setcreateTripData(tripData => ({
             ...tripData,
             estimatedStartTime: newTime,
         }))
     }
 
-    function setVehicleId(newVehicleId) {
+    function setVehicleId(newVehicleId: string) {
         setcreateTripData(tripData => ({
             ...tripData,
             vehicleId: newVehicleId,
         }))
     }
-    function setMaxPassengers(newSeats) {
+    function setMaxPassengers(newSeats: number) {
         setcreateTripData(tripData => ({
             ...tripData,
             maxPassengers: newSeats,
         }))
     }
-    function setDescription(newDescription) {
+    function setDescription(newDescription: string) {
         setcreateTripData(tripData => ({
             ...tripData,
             description: newDescription,
@@ -72,11 +74,11 @@ export default function CreateTripDetails(props) {
     }
 
 
-    function handleDateShown(yourDate) {
+    function handleDateShown(yourDate: string | number | Date) {
         return new Date(yourDate).toLocaleDateString(myLocale.replace('_', '-'), { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }) + ' - ' + new Date(yourDate).toLocaleTimeString(myLocale.replace('_', '-'), { hour: '2-digit', minute: '2-digit' });
     }
 
-    function validateStartTime(value) {
+    function validateStartTime(value: string | number | Date) {
         return (new Date(value) > new Date())
     }
 
@@ -87,10 +89,10 @@ export default function CreateTripDetails(props) {
     }, [createTripData])
 
     React.useEffect(() => {
-        getVehiclesFromApi(props.authentication.user.id)
-            .then(vehicles => { console.log(vehicles); setVehicleList(vehicles) })
-
-    }, [props.authentication.user.id])
+        if (user?.id) {
+            getVehiclesFromApi(user.id).then(vehicles => { console.log(vehicles); setVehicleList(vehicles) })
+        }
+    }, [user?.id])
 
 
     React.useEffect(() => {
@@ -99,10 +101,10 @@ export default function CreateTripDetails(props) {
 
     }, [createTripData.vehicleId])
 
-    let vehicles = vehicleList.map((item) => { return (<Picker.Item label={item.licensePlate + ' - ' + item.VehicleModel.VehicleMake.make + ' ' + item.VehicleModel.model} value={item.id} key={item.id} />) });
+    const vehicles = vehicleList.map((item) => { return (<Picker.Item label={item.licensePlate + ' - ' + item.VehicleModel.VehicleMake.make + ' ' + item.VehicleModel.model} value={item.id} key={item.id} />) });
 
     function getSeatIcons() {
-        const icons = [];
+        const icons: JSX.Element[] = [];
         if (!createTripData.vehicleId) { return (<Text style={{ marginVertical: 20 }}> Seleccione un vehículo para continuar</Text>) }
         vehicleList.forEach((vehicle) => {
             if (vehicle.id === createTripData.vehicleId) {
@@ -129,7 +131,7 @@ export default function CreateTripDetails(props) {
                     <View style={styles.itemContainer}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <Text style={styles.headings}>Descripción (opcional) </Text>
-                            <Text style={styles.headings}>{createTripData.description.length}/200</Text>
+                            <Text style={styles.headings}>{createTripData?.description?.length || 0}/200</Text>
                         </View>
                         <TextInput placeholder={'Ingrese una descripción...'} maxLength={200} style={styles.descriptionContainer} onChangeText={setDescription} value={createTripData.description} multiline={true} />
                     </View>

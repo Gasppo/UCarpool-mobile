@@ -2,11 +2,11 @@ import { useIsFocused } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Alert, FlatList, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import Text from '../../components/default_text';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import TripItem from '../../components/trip_item';
-import { UCA_LOGO } from '../../images';
-import { UCA_BLUE } from '../../utils/constants';
+import Text from '../../../components/default_text';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import TripItem from '../../../components/trip_item';
+import { UCA_LOGO } from '../../../images';
+import { UCA_BLUE } from '../../../utils/constants';
 import { getDriverTrips, getPassengerTrips } from './callbacks';
 import { styles } from './styles';
 

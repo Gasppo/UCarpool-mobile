@@ -1,41 +1,48 @@
-/* eslint-disable no-undef */
 import React from 'react';
 import { useCallback } from 'react';
 import { Alert, FlatList, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Text from '../../components/default_text';
-import DriverAddVehicle from '../../components/driver_add_vehicle';
-import DriverProfileVehicle from '../../components/driver_profile_vehicle';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import { UCA_BLUE } from '../../utils/constants';
-import { getVehiclesFromApi } from '../../fetchers';
+import Text from '../../../components/default_text';
+import DriverAddVehicle from '../../../components/driver_add_vehicle';
+import DriverProfileVehicle from '../../../components/driver_profile_vehicle';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import { UCA_BLUE } from '../../../utils/constants';
+import { getVehiclesFromApi, VehicleResponseType } from '../../../fetchers';
+import { ProfileStackNavProps } from '../../../navigators/paramList/ProfileList';
+import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
 
 
-export default function DriverVehicles(props) {
+export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehicles'>) {
+    const { user } = useExperimentalRedux()
     const [addVehicleModalVisible, setAddVehicleModalVisible] = React.useState(false);
     const [refreshing, setRefreshing] = React.useState(false);
-    const [userVehicleList, setUserVehicleList] = React.useState([]);
+    const [userVehicleList, setUserVehicleList] = React.useState<VehicleResponseType[]>([]);
 
-    const loadVehicles = useCallback((signal) => {
-        setRefreshing(true);
-        getVehiclesFromApi(props.authentication.user.id, signal)
-            .then(vehicles => { setUserVehicleList(vehicles) })
-            .catch(e => {
-                console.log(e);
-                Alert.alert('Error', 'Error obteniendo vehículos del servidor')
-            })
-            .finally(() => {
-                setRefreshing(false)
-            })
-    }, [props.authentication.user.id])
-
+    const loadVehicles = useCallback((signal: AbortSignal) => {
+        if (user?.id) {
+            setRefreshing(true);
+            getVehiclesFromApi(user.id, signal)
+                .then(vehicles => { setUserVehicleList(vehicles) })
+                .catch(e => {
+                    console.log(e);
+                    Alert.alert('Error', 'Error obteniendo vehículos del servidor')
+                })
+                .finally(() => {
+                    setRefreshing(false)
+                })
+        }
+    }, [user?.id])
+    
+    
+    
     React.useEffect(() => {
         const controller = new AbortController();
         const signal = controller.signal;
         loadVehicles(signal)
         return () => { controller.abort() }
     }, [loadVehicles]);
-
+    
+    console.log('IM BREAKING HERE')
 
     React.useEffect(() => {
         if (!addVehicleModalVisible) { // Add vehicle modal was closed
@@ -79,7 +86,7 @@ export default function DriverVehicles(props) {
                                 <DriverProfileVehicle carData={item} key={item.id} reloadFn={loadVehicles} />
                         }
                     />
-                    <DriverAddVehicle driverId={props.authentication.user.id} visible={addVehicleModalVisible} visibilitySetter={setAddVehicleModalVisible} />
+                    <DriverAddVehicle driverId={user?.id} visible={addVehicleModalVisible} visibilitySetter={setAddVehicleModalVisible} />
                 </SafeAreaView>
 
             </View>

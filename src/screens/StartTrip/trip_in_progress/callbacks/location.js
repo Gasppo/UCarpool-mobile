@@ -1,7 +1,7 @@
 import VIForegroundService from '@voximplant/react-native-foreground-service';
 import { Alert, Linking, PermissionsAndroid, Platform, ToastAndroid } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import appConfig from '../../../../app.json';
+import appConfig from '../../../../../app.json';
 
 export const locationSettings = {
     forceLocation: true,

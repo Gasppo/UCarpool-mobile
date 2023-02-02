@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { UCA_BLUE } from '../../utils/constants';
+import { UCA_BLUE } from '../../../utils/constants';
 
 export const styles = StyleSheet.create({
     defaultView: {

@@ -4,10 +4,11 @@ import { Marker } from 'react-native-maps';
 import appConfig from '../../../app.json'
 import React from 'react';
 import { MARKER_RED } from '../../images';
+import { Address } from '../../components/autocompleter';
 
 
 
-export function getMarkerForAddress(address: { coords: { lat: number; lng: number; }; }, type: string, tripId?: string) {
+export function getMarkerForAddress(address: Address, type: string, tripId?: string) {
     let label = ''
     switch (type) {
         case 'start':
@@ -28,7 +29,7 @@ export function getMarkerForAddress(address: { coords: { lat: number; lng: numbe
 
 
     return (
-        <Marker key={Math.random()} identifier={tripId ? `${tripId.toString()}_${type}` : '0'} coordinate={{ latitude: address.coords.lat, longitude: address.coords.lng }}>
+        <Marker key={Math.random()} identifier={tripId ? `${tripId.toString()}_${type}` : '0'} coordinate={{ latitude: address?.coords?.lat || 0, longitude: address?.coords?.lng || 0 }}>
             <ImageBackground style={{ height: 40, width: 30 }} source={MARKER_RED} resizeMode="contain">
                 <Text style={{ borderRadius: 20, backgroundColor: 'white', alignSelf: 'center', width: 20, textAlign: 'center', top: 3 }}>{label}</Text>
             </ImageBackground>

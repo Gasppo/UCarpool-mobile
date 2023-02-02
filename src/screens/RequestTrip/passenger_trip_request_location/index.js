@@ -3,10 +3,10 @@ import { Alert, Animated, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, 
 import MapView from 'react-native-maps';
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import AMBACompleter from '../../components/autocompleter';
-import Text from '../../components/default_text';
-import { getMarkerForAddress } from '../../utils/auxiliaryFunctions';
-import { DEFAULT_COORDINATE } from '../../utils/constants';
+import AMBACompleter from '../../../components/autocompleter';
+import Text from '../../../components/default_text';
+import { getMarkerForAddress } from '../../../utils/auxiliaryFunctions';
+import { DEFAULT_COORDINATE } from '../../../utils/constants';
 import { uploadNewRequest } from './callbacks';
 
 

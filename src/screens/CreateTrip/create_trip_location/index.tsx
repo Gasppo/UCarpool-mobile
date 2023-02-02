@@ -3,16 +3,19 @@ import { Animated, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, View } 
 import MapView from 'react-native-maps';
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { getMarkerForAddress } from '../../utils/auxiliaryFunctions';
-import AMBACompleter from '../../components/autocompleter';
-import Text from '../../components/default_text';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import { DEFAULT_COORDINATE, UCA_BLUE } from '../../utils/constants';
+import { getMarkerForAddress } from '../../../utils/auxiliaryFunctions';
+import AMBACompleter, { Address } from '../../../components/autocompleter';
+import Text from '../../../components/default_text';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import { DEFAULT_COORDINATE, UCA_BLUE } from '../../../utils/constants';
 import { styles } from './styles';
+import { CreateTripStackNavProps } from '../../../navigators/paramList/CreateTripList';
+import { useExperimentalRedux } from '../../../utils/ReduxReplacerTest';
+import { TripData } from '../create_trip_details/callbacks';
 
 
 const defaultTripData = {
-    driverId: 0,
+    driverId: '',
     startAddress: {
         address: '',
         coords: {
@@ -28,17 +31,19 @@ const defaultTripData = {
         },
     },
     estimatedStartTime: new Date().toString(),
-    vehicleId: 0,
+    vehicleId: '0',
     maxPassengers: 0,
     description: '',
 }
 
-export default function CreateTripLocation(props) {
+export default function CreateTripLocation(props: CreateTripStackNavProps<'create_trip_location'>) {
 
-    const mapRef = React.useRef(null);
-    const [mapMarkers, setMapMarkers] = React.useState([]);
+    const { user } = useExperimentalRedux()
+
+    const mapRef = React.useRef<MapView>(null);
+    const [mapMarkers, setMapMarkers] = React.useState<JSX.Element[]>([]);
     const [nextButtonAvailable, setNextButtonAvailable] = React.useState(false);
-    const [createTripData, setcreateTripData] = React.useState({ ...defaultTripData, driverId: props.authentication.user.id })
+    const [createTripData, setcreateTripData] = React.useState<TripData>({ ...defaultTripData, driverId: user?.id || '' })
 
     React.useEffect(() => {
         const auxMarkers = []
@@ -49,11 +54,11 @@ export default function CreateTripLocation(props) {
             auxMarkers.push(getMarkerForAddress(createTripData.endAddress, 'end'))
         }
         if (auxMarkers.length === 2) {
-            const coordinates = [{ latitude: auxMarkers[0].props.coordinate.latitude, longitude: auxMarkers[0].props.coordinate.longitude }, { latitude: auxMarkers[1].props.coordinate.latitude, longitude: auxMarkers[1].props.coordinate.longitude }]
-            mapRef.current.fitToCoordinates(coordinates, { edgePadding: { top: 50, bottom: 50, left: 50, right: 50 } })
+            const coordinates = [{ latitude: auxMarkers?.[0]?.props.coordinate.latitude, longitude: auxMarkers?.[0]?.props.coordinate.longitude }, { latitude: auxMarkers?.[1]?.props.coordinate.latitude, longitude: auxMarkers?.[1]?.props.coordinate.longitude }]
+            mapRef?.current?.fitToCoordinates(coordinates, { edgePadding: { top: 50, bottom: 50, left: 50, right: 50 } })
         }
         if (auxMarkers.length === 1) {
-            mapRef.current.animateToRegion({ ...auxMarkers[0].props.coordinate, ...{ latitudeDelta: 500 / 11104.5, longitudeDelta: 500 / 11104.5 } }, 500)
+            mapRef?.current?.animateToRegion({ ...auxMarkers?.[0]?.props.coordinate, ...{ latitudeDelta: 500 / 11104.5, longitudeDelta: 500 / 11104.5 } }, 500)
         }
         setMapMarkers(auxMarkers);
 
@@ -62,18 +67,18 @@ export default function CreateTripLocation(props) {
 
     }, [createTripData.startAddress, createTripData.endAddress]);
 
-    function validateAddresses(startAddress, endAddress) {
+    function validateAddresses(startAddress: string, endAddress: string) {
         return !!startAddress && !!endAddress
     }
 
-    function handleChangeOfStartAddress(newAddress) {
+    function handleChangeOfStartAddress(newAddress: Address) {
         setcreateTripData(tripForm => ({
             ...tripForm,
             startAddress: newAddress,
         }))
     }
 
-    function handleChangeOfEndAddress(newAddress) {
+    function handleChangeOfEndAddress(newAddress: Address) {
         setcreateTripData(tripForm => ({
             ...tripForm,
             endAddress: newAddress,
@@ -97,7 +102,7 @@ export default function CreateTripLocation(props) {
                             </TouchableOpacity>
                         </View>
                         <View style={{ flexDirection: 'row', marginBottom: 10 }}>
-                            <AMBACompleter  addressSetter={handleChangeOfStartAddress} address={createTripData.startAddress} placeholder={'Origen'} />
+                            <AMBACompleter addressSetter={handleChangeOfStartAddress} address={createTripData.startAddress} placeholder={'Origen'} />
                         </View>
                         <View style={{ flexDirection: 'row', marginBottom: 10 }}>
                             <AMBACompleter addressSetter={handleChangeOfEndAddress} address={createTripData.endAddress} placeholder={'Destino'} />

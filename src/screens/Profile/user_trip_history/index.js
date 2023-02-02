@@ -2,10 +2,10 @@ import { useIsFocused } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Alert, SafeAreaView, SectionList, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
-import Text from '../../components/default_text';
-import FocusAwareStatusBar from '../../components/FocusAwareStatusBar';
-import TripItem from '../../components/trip_item';
-import { UCA_BLUE } from '../../utils/constants';
+import Text from '../../../components/default_text';
+import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
+import TripItem from '../../../components/trip_item';
+import { UCA_BLUE } from '../../../utils/constants';
 import { getDriverTrips, getPassengerTrips, groupTripsByStatus } from './callbacks';
 
 
@@ -18,6 +18,7 @@ export default function PassengerActiveTrips(props) {
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
 
+    console.log('IM BREAKING HERE')
 
 
     const handleGetDriverTrips = useCallback(async () => {

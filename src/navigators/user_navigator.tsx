@@ -14,6 +14,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import * as reduxActionCreators from '../actions/actions';
 import { UserParamList } from './paramList/UserList';
+import { useExperimentalRedux } from '../utils/ReduxReplacerTest';
 
 
 const UserActiveTrips = connect(mapStateToProps, mapDispatchToProps)(UserActiveTripsScreen);
@@ -24,12 +25,15 @@ const UserSearchTripsMap = connect(mapStateToProps, mapDispatchToProps)(UserSear
 const Tab = createBottomTabNavigator<UserParamList>();
 
 export default function UserNavigator(props: any) {
+
+  const { user, userHasCurrentTrip } = useExperimentalRedux()
+
   React.useEffect(() => {
     // Check if the user has a trip started, should he be a driver
-    if (props.authentication.user.isDriver) {
-      props.userHasCurrentTrip(props.authentication.user.id)
+    if (user?.id && user?.isDriver) {
+      userHasCurrentTrip(user.id)
     }
-  }, [props])
+  }, [user?.id, user?.isDriver, userHasCurrentTrip])
 
 
   return (
