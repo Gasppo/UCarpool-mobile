@@ -1,5 +1,5 @@
 import jwt_decode from 'jwt-decode';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { authorize, refresh } from 'react-native-app-auth';
 import { storage } from '../utils/constants';
@@ -216,5 +216,6 @@ const AuthProvider = (props: { children: JSX.Element }) => {
     )
 }
 
+export const useAuthContext = () => useContext(AuthContext)
 
 export default AuthProvider

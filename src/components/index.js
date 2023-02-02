@@ -1,4 +1,4 @@
-export { Auth } from './auth'
+export { Auth } from '../navigators/auth'
 export { Autocompleter } from './autocompleter'
 export { DefaultText } from './default_text'
 export { DriverAddVehicle } from './driver_add_vehicle'

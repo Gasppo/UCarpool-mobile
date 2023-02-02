@@ -7,7 +7,7 @@ export const validateName = (name: string) => {
     const expression = /(.|\s)*\S(.|\s)*/
     return expression.test(String(name).toLowerCase())
 }
-export const validatePhone = (number: number) => {
+export const validatePhone = (number: string) => {
     const expression = /^\d+$/
     return expression.test(String(number).toLowerCase())
 }
@@ -21,8 +21,8 @@ export const validateGender = (gender: string) => {
     return (gender !== 'placeholder')
 }
 
-export const validateLegajo = (legajo: number) => {
+export const validateLegajo = (legajo: string) => {
     //Chequear longitud de legajo y si es numérico
-    return !isNaN(legajo) && legajo.toString().length === 9
+    return legajo.length === 9 && /^\d+$/.test(legajo)
 }
 

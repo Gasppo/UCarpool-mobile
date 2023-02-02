@@ -1,4 +1,4 @@
-import React, { createContext, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import { Alert } from 'react-native'
 import { API_URL, storage } from './constants';
 import axios from 'axios'
@@ -51,14 +51,14 @@ export const ReduxContext = createContext<{
     isLoggedIn: boolean;
     currentTrip: string;
     userType: string;
-    logOutUser: (logout: () => void) => void;
+    logOutUser: (logout?: () => void) => void;
     switchToDriver: () => void;
     switchToPassenger: () => void;
     clearUser: () => void;
     endTrip: (tripId: string) => void;
     startTrip: (tripId: string) => void;
     userHasCurrentTrip: (userId: string) => void;
-    fetchUser: (savedData: User) => void;
+    fetchUser: (savedData: { access_token: string, email: string }) => void;
 }>(defaultContext)
 
 const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
@@ -132,7 +132,7 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         return setCurrentTrip(response.data.id);
     }
 
-    const fetchUser = async (savedData: User) => {
+    const fetchUser = async (savedData: { access_token: string, email: string }) => {
         axios.defaults.headers.common['x-access-token'] = savedData.access_token;
         setIsFetching(true);
         const response = await axios.get(`${API_URL}/users?email=${savedData.email}`, { timeout: 15000 })
@@ -150,5 +150,7 @@ const ReduxReplacerProvider = (props: ReduxReplacerTestProps) => {
         </ReduxContext.Provider>
     )
 }
+
+export const useExperimentalRedux = () => useContext(ReduxContext)
 
 export default ReduxReplacerProvider
