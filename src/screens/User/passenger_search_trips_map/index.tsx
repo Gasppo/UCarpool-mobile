@@ -1,27 +1,27 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useIsFocused } from '@react-navigation/native';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { ActivityIndicator, Alert, Animated, Dimensions, LayoutChangeEvent, Platform, View } from 'react-native';
-import { SafeAreaView, useSafeAreaFrame } from 'react-native-safe-area-context';
+import MapView from 'react-native-maps';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import SoftInputMode from 'react-native-set-soft-input-mode';
-import { getMarkerForAddress } from '../../../utils/auxiliaryFunctions';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import TripItem, { TripItemType } from '../../../components/trip_item';
+import { getMarkerForAddress } from '../../../utils/auxiliaryFunctions';
 import { UCA_BLUE } from '../../../utils/constants';
+import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { getSearchResults } from './callbacks';
+import { useAnimated } from './components/hooks/useAnimated';
 import MapComponent from './components/MapComponent';
 import TripList from './components/TripList';
 import TripSelector from './components/TripSelector';
 import { styles } from './styles';
-import { useAppActions } from '../../../utils/ReduxReplacerTest';
-import MapView from 'react-native-maps';
 
 
 
 
 export default function PassengerSearchTripsMap() {
-    const USABLE_HEIGHT = useSafeAreaFrame().height;
     const { height } = Dimensions.get('screen');
     const mapRef = React.useRef<MapView>(null);
     const bottomTabHeight = useBottomTabBarHeight();
@@ -31,18 +31,14 @@ export default function PassengerSearchTripsMap() {
     // Layout
     const [topBarHeight, setTopBarHeight] = React.useState(0);
     const [selectedEndAddress, setSelectedEndAddress] = React.useState({ address: '', coords: { lat: 0, lng: 0 } });
-
-    const searchResultsPosition = useMemo(() => new Animated.Value(55 - (USABLE_HEIGHT - topBarHeight - bottomTabHeight)), [USABLE_HEIGHT, bottomTabHeight, topBarHeight])
-    const selectedTripPosition = useMemo(() => new Animated.Value(-200), []);
-    const arrowSpinValue = useMemo(() => new Animated.Value(0), []);
-    const borderRadii = useMemo(() => new Animated.Value(15), []);
-
     const [showBottomBox, setShowBottomBox] = React.useState(false);
     const [selectedStartRadius, setSelectedStartRadius] = React.useState(500);
     const [refreshing, setRefreshing] = React.useState(false);
     const [availableTripList, setAvailableTripList] = React.useState<TripItemType[]>([]);
     const [selectedStartTime, setSelectedStartTime] = React.useState(new Date(new Date().setUTCHours(3, 0, 0, 0)).toISOString());
     const [selectedTrip, setSelectedTrip] = React.useState<TripItemType | null>(null)
+    const tripIsSelected = !!selectedTrip;
+    const { arrowSpinValue, borderRadii, listHeight, searchResultsPosition, selectedTripPosition } = useAnimated({ showBottomBox, bottomTabHeight, height, topBarHeight, tripIsSelected })
     const isFocused = useIsFocused();
 
 
@@ -108,14 +104,6 @@ export default function PassengerSearchTripsMap() {
         }
     }, [isFocused])
 
-    React.useEffect(() => {
-        console.log('START', selectedStartAddress)
-    }, [selectedStartAddress])
-
-
-    React.useEffect(() => {
-        console.log('END', selectedEndAddress)
-    }, [selectedEndAddress])
 
     React.useEffect(() => {
         const auxMarkers: JSX.Element[] = []
@@ -128,60 +116,6 @@ export default function PassengerSearchTripsMap() {
         setSelectedTrip(null)
     }, [availableTripList, showThisTrip]);
 
-    React.useEffect(() => {
-        if (selectedTrip) {
-            Animated.timing(selectedTripPosition, { toValue: 80, duration: 200, useNativeDriver: false }).start();
-        }
-        else {
-            Animated.timing(selectedTripPosition, { toValue: -300, duration: 200, useNativeDriver: false }).start();
-        }
-
-    }, [selectedTrip, selectedTripPosition]);
-
-
-    React.useEffect(() => {
-        if (showBottomBox) {
-            //Mostrar resultados
-            Animated.parallel([
-                Animated.timing(searchResultsPosition, {
-                    toValue: 0,
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(arrowSpinValue, {
-                    toValue: 0,
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(borderRadii, {
-                    toValue: 0,
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-            ]).start();
-        }
-        else {
-            //No mostrar resultados
-            Animated.parallel([
-                Animated.timing(searchResultsPosition, {
-                    toValue: 55 - (USABLE_HEIGHT - topBarHeight - bottomTabHeight),
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(arrowSpinValue, {
-                    toValue: 1,
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(borderRadii, {
-                    toValue: 15,
-                    duration: 200,
-                    useNativeDriver: false,
-                }),
-
-            ]).start();
-        }
-    }, [showBottomBox, topBarHeight, height, bottomTabHeight, searchResultsPosition, arrowSpinValue, borderRadii, USABLE_HEIGHT])
 
     React.useEffect(() => {
         setMapMarkers([])
@@ -209,7 +143,6 @@ export default function PassengerSearchTripsMap() {
     }, [mapMarkers])
 
 
-
     return (
         <>
             <View style={{ width: '100%', height: '100%', position: 'absolute', zIndex: 15, alignContent: 'center', justifyContent: 'center', display: refreshing ? 'flex' : 'none' }}>
@@ -232,7 +165,7 @@ export default function PassengerSearchTripsMap() {
                     }
                 </Animated.View>
                 <TripList
-                    style={{ bottom: searchResultsPosition, height: USABLE_HEIGHT - topBarHeight - bottomTabHeight, borderTopLeftRadius: borderRadii, borderTopRightRadius: borderRadii }}
+                    style={{ bottom: searchResultsPosition, height: listHeight, borderTopLeftRadius: borderRadii, borderTopRightRadius: borderRadii }}
                     {...{
                         availableTripList,
                         height, topBarHeight,

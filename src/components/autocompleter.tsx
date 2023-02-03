@@ -59,6 +59,7 @@ function AMBACompleter(props: AMBACompleterProps) {
   const [modalVisible, setModalVisible] = React.useState(false);
   const [selectedDirection, setSelectedDirection] = React.useState<Address>(props.address ? props.address : { address: '', coords: { lat: 0, lng: 0 } })
   const [loading, setLoading] = React.useState(false);
+  const timeout = React.useRef<NodeJS.Timeout | null>(null);
 
   const { ambaAutocompleter } = useAmbaAutocompleter({
     onCompleteSuggestions: useCallback(() => setLoading(false), []),
@@ -129,16 +130,26 @@ function AMBACompleter(props: AMBACompleterProps) {
   const inputRef = React.useRef<TextInput>(null);
 
   const handleInputChange = async (text: string) => {
+
+    //Debounce para evitar que se hagan requests cada vez que se escribe una letra
     setInput(text);
-    text.length > 2 ? setLoading(true) : setLoading(false)
-    try {
-      if (ambaAutocompleter) {
-        await ambaAutocompleter.updateSuggestions(text)
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
+    timeout.current = setTimeout(async () => {
+      console.log('RECIEN BUSCANDO')
+      timeout.current = null;
+      text.length > 2 ? setLoading(true) : setLoading(false)
+      try {
+        if (ambaAutocompleter) {
+          await ambaAutocompleter.updateSuggestions(text)
+        }
       }
-    }
-    catch (error) {
-      console.error(error)
-    }
+      catch (error) {
+        console.error(error)
+      }
+    }, 1000);
+
   }
 
 

@@ -48,8 +48,8 @@ export default function Auth() {
             <Stack.Screen name="start_trip_navigator" component={StartTripNavigatorScreen} options={{ headerShown: false, animation: 'slide_from_bottom' }} />
             :
             <>
-              <Stack.Screen name="permission_check" component={PermissionCheckScreen} options={{ headerShown: false }} />
               <Stack.Screen name="user_navigator" component={UserNavigatorScreen} options={{ headerShown: false }} />
+              <Stack.Screen name="permission_check" component={PermissionCheckScreen} options={{ headerShown: false }} />
               <Stack.Screen name="create_trip_navigator" component={CreateTripNavigatorScreen} options={{ headerShown: false, animation: 'slide_from_bottom' }} />
               <Stack.Screen name="passenger_trip_request_navigator" component={PassengerTripRequestNavigatorScreen} options={{ headerShown: false, animation: 'slide_from_bottom' }} />
             </>)
