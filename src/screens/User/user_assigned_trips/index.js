@@ -19,12 +19,16 @@ export default function PassengerActiveTrips(props) {
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
 
+    React.useEffect(() => {
+        console.log('Active Trips', activeTripList)
+    }, [activeTripList])
 
     const handleGetDriverTrips = useCallback(async () => {
         if (!user?.id) return
         setRefreshing(true)
         getDriverTrips(user.id, 'available')
             .then(r => {
+                console.log('Drivber Trips', r)
                 const tripList = r.filter(trip => new Date(trip.estimatedStartTime) >= new Date(new Date().setHours(0, 0, 0, 0))) // No mostrar avisos del usuario ni viejos
                 setActiveTripList(tripList);
             }

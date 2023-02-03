@@ -1,13 +1,12 @@
 
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import VIForegroundService from '@voximplant/react-native-foreground-service';
-import Text from 'components/default_text';
 import { getDistance } from 'geolib';
 import inside from 'point-in-polygon-hao';
 import React, { useCallback } from 'react';
 import {
     ActivityIndicator, Alert, Modal,
-    ScrollView, SectionList, TouchableOpacity, View,
+    ScrollView, SectionList, TouchableOpacity, View
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
@@ -15,6 +14,7 @@ import { Button as PaperButton, IconButton } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { NIL } from 'uuid';
+import Text from '../../../components/default_text';
 import RequestDetail from '../../../components/request_detail';
 import { DEFAULT_COORDINATE, UCA_BLUE } from '../../../utils/constants';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
@@ -23,7 +23,7 @@ import { getLocationUpdates } from './callbacks/location';
 import { styles } from './styles';
 
 
-export default function TripInProgress(props) {
+export default function TripInProgress() {
 
     const { currentTrip, endTrip } = useAppActions()
     const isFocused = useIsFocused();

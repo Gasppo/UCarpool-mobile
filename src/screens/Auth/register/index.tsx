@@ -6,7 +6,7 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import { Button as PaperButton } from 'react-native-paper';
 import SoftInputMode from 'react-native-set-soft-input-mode';
-import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
+import { AuthStackProps } from '../../../navigators/paramList/AuthList';
 import Text from '../../../components/default_text';
 import { storage } from '../../../utils/constants';
 import { validateDate, validateGender, validateLegajo, validateMail, validateName, validatePhone } from '../../../utils/validations';
@@ -16,7 +16,7 @@ import { inputTheme, styles } from './styles';
 import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 
 
-export default function RegisterData(props: AuthStackNavProps<'register_details'>) {
+export default function RegisterData(props: AuthStackProps<'register_details'>) {
 
     const { fetchUser } = useContext(AppActionsContext)
     //Local State

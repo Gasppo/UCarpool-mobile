@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import Text from 'components/default_text';
+import Text from '../../../components/default_text';
 import React, { useCallback } from 'react';
 import { Alert, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

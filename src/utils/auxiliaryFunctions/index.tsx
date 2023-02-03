@@ -4,11 +4,10 @@ import { Marker } from 'react-native-maps';
 import appConfig from '../../../app.json'
 import React from 'react';
 import { MARKER_RED } from '../../images';
-import { Address } from '../../components/autocompleter';
 
 
 
-export function getMarkerForAddress(address: Address, type: string, tripId?: string) {
+export function getMarkerForAddress(address: { coords: { lat: number, lng: number } }, type: string, tripId?: string) {
     let label = ''
     switch (type) {
         case 'start':

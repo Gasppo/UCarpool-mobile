@@ -12,30 +12,32 @@ import {
   VehicleType,
 } from './prisma';
 
+export type GetTripsResponseSeats = {
+  User: MobileUser;
+  coords: Coordinates;
+  id: string;
+  pickupAdressId: string;
+  dropoffAdressId: string;
+  status: string;
+  qrCode: string;
+  userRating: number | null;
+  message: string | null;
+  tripId: string;
+  passengerId: string;
+  pickupType: string | null;
+  dropoffType: string | null;
+  pickupAddress: Adress & {
+    coordinates: Coordinates;
+  };
+  dropoffAddress: Adress & {
+    coordinates: Coordinates;
+  };
+  passenger: MobileUser;
+}
+
 export type GetDriverTripsResponse = {
   id: string;
-  SeatAssignments: {
-    User: MobileUser;
-    coords: Coordinates;
-    id: string;
-    pickupAdressId: string;
-    dropoffAdressId: string;
-    status: string;
-    qrCode: string;
-    userRating: number | null;
-    message: string | null;
-    tripId: string;
-    passengerId: string;
-    pickupType: string | null;
-    dropoffType: string | null;
-    pickupAddress: Adress & {
-      coordinates: Coordinates;
-    };
-    dropoffAddress: Adress & {
-      coordinates: Coordinates;
-    };
-    passenger: MobileUser;
-  }[];
+  SeatAssignments: GetTripsResponseSeats[];
   maxPassengers: number;
   startAddress: {
     address: string;
@@ -193,3 +195,34 @@ export type ActiveTrip = {
   };
   hasBeenRequested: boolean;
 };
+
+
+export type GetSeatBookingResponse = {
+  User: MobileUser;
+  dropoffAddress: {
+    coords: Coordinates;
+    id: string;
+    name: string;
+    coordinatesId: number;
+    coordinates: Coordinates;
+  };
+  pickupAddress: {
+    coords: Coordinates;
+    id: string;
+    name: string;
+    coordinatesId: number;
+    coordinates: Coordinates;
+  };
+  id: string;
+  pickupAdressId: string;
+  dropoffAdressId: string;
+  status: string;
+  qrCode: string;
+  userRating: number | null;
+  message: string | null;
+  tripId: string;
+  passengerId: string;
+  pickupType: string | null;
+  dropoffType: string | null;
+  passenger: MobileUser;
+}

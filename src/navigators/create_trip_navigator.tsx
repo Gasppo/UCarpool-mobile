@@ -11,9 +11,9 @@ export default function CreateTripNavigator() {
 
   return (
     <Stack.Navigator initialRouteName="create_trip_location">
-      <Stack.Screen name="create_trip_location" component={CreateTripConfirmationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="create_trip_location" component={CreateTripLocationScreen} options={{ headerShown: false }} />
       <Stack.Screen name="create_trip_details" component={CreateTripDetailsScreen} options={{ headerShown: false, animation: 'slide_from_right' }} />
-      <Stack.Screen name="create_trip_confirmation" component={CreateTripLocationScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="create_trip_confirmation" component={CreateTripConfirmationScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
   )
 }

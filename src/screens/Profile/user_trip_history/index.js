@@ -11,15 +11,13 @@ import { getDriverTrips, getPassengerTrips, groupTripsByStatus } from './callbac
 
 
 
-export default function PassengerActiveTrips(props) {
+export default function PassengerActiveTrips() {
 
     const { userType, user } = useAppActions()
 
     const [activeTripList, setActiveTripList] = React.useState(groupTripsByStatus(userType, []));
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
-
-    console.log('IM BREAKING HERE')
 
 
     const handleGetDriverTrips = useCallback(async () => {

@@ -2,14 +2,14 @@ import React, { useContext } from 'react';
 import { Alert, View } from 'react-native';
 import { ActivityIndicator, IconButton } from 'react-native-paper';
 import WebView from 'react-native-webview';
-import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
+import { AuthStackProps } from '../../../navigators/paramList/AuthList';
 import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 import Text from '../../../components/default_text';
 import { FORM_URI, UCA_BLUE } from '../../../utils/constants';
 import { setSurveyCompleted } from './callbacks';
 
 
-export default function LandingPoll({ navigation }: AuthStackNavProps<'landing_survey'>) {
+export default function LandingPoll({ navigation }: AuthStackProps<'landing_survey'>) {
 
     const { fetchUser, user, logOutUser } = useContext(AppActionsContext)
 

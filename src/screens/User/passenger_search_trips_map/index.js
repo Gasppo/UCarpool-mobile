@@ -19,7 +19,7 @@ import { useAppActions } from '../../../utils/ReduxReplacerTest';
 
 
 
-export default function PassengerSearchTripsMap(props) {
+export default function PassengerSearchTripsMap() {
     const USABLE_HEIGHT = useSafeAreaFrame().height;
     const { height } = Dimensions.get('screen');
     const mapRef = React.useRef(null);

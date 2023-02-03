@@ -4,11 +4,11 @@ import { Button as PaperButton, IconButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
-import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
+import { AuthStackProps } from '../../../navigators/paramList/AuthList';
 import { UCA_BLUE, UCA_GREEN } from '../../../utils/constants';
 import { getRequestCode } from './callbacks';
 
-export default function RegisterEmail({ navigation }: AuthStackNavProps<'register_email'>) {
+export default function RegisterEmail({ navigation }: AuthStackProps<'register_email'>) {
     const [inputEmail, setInputEmail] = React.useState('');
     const [buttonEnabled, setButtonEnabled] = React.useState(false);
     const inputRef = React.useRef<TextInput>(null);

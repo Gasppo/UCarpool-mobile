@@ -21,7 +21,7 @@ export default function PassengerTripRequestLocation(props) {
 
     const handleUploadNewRequest = useCallback(async () => {
         uploadNewRequest(createRequestData)
-            .then(r => {
+            .then(() => {
                 props.navigation.navigate('passenger_trip_request_confirmation')
             })
             .catch(e => {

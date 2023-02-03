@@ -5,13 +5,13 @@ import { openSettings, PERMISSIONS, requestMultiple } from 'react-native-permiss
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
-import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
+import { AuthStackProps } from '../../../navigators/paramList/AuthList';
 import { UCA_BLUE, UCA_GREEN } from '../../../utils/constants';
 import { AppActionsContext } from '../../../utils/ReduxReplacerTest';
 
 
 
-export default function PermissionCheck(props: AuthStackNavProps<'permission_check'>) {
+export default function PermissionCheck(props: AuthStackProps<'permission_check'>) {
 
     const { logOutUser } = useContext(AppActionsContext)
 
@@ -64,7 +64,7 @@ export default function PermissionCheck(props: AuthStackNavProps<'permission_che
             }
         }
         if (allPermitted) {
-            props.navigation.replace('user_navigator')
+            props.navigation.replace('user_navigator', { screen: 'passenger_active_trips' })
         }
 
     }, [props.navigation, statuses])

@@ -3,25 +3,26 @@ import { ActivityIndicator, Alert, FlatList, Image, RefreshControl, StyleSheet, 
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
-import NotificationItem from '../../../components/notification_item';
 import TripItem from '../../../components/trip_item';
 import { UCA_LOGO } from '../../../images';
 import { driverNotificationList, passengerNotificationList, UCA_BLUE } from '../../../utils/constants';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { deleteAllNotifications, getNotifications, getTrip } from './callbacks';
+import type { Notification } from './callbacks';
+import { GetDriverTripsResponse } from '../../../types/fetchTypes';
+import NotificationItem from './components/notification_item';
 
 
-
-export default function PassengerNotifications(props) {
+export default function PassengerNotifications() {
 
     const { user, userType } = useAppActions()
-    const [notificationList, setNotificationList] = React.useState([]);
+    const [notificationList, setNotificationList] = React.useState<Notification[]>([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const [tripLoading, setTripLoading] = React.useState(false);
-    const [currentTrip, setCurrentTrip] = React.useState(null);
+    const [currentTrip, setCurrentTrip] = React.useState<(GetDriverTripsResponse & { hasBeenRequested: boolean }) | null>(null);
 
 
-    const handleGetTrip = async (tripId) => {
+    const handleGetTrip = async (tripId: string) => {
         if (!user?.id) return
 
         setTripLoading(true)
@@ -39,7 +40,7 @@ export default function PassengerNotifications(props) {
             .catch(e => { console.log(e.response.data.errors); setTripLoading(false) })
     }
 
-    const handleDeleteAllNotifs = async (tripId) => {
+    const handleDeleteAllNotifs = async () => {
         if (!user?.id) return
         Alert.alert(
             'Aviso',
@@ -60,7 +61,7 @@ export default function PassengerNotifications(props) {
         if (!user?.id) return
         setRefreshing(true);
         getNotifications(user.id).then((notifs) => {
-            let notifications = []
+            const notifications: Notification[] = []
             notifs.forEach(notif => {
                 if (userType === 'driver' && driverNotificationList.indexOf(notif.notificationTypeId) !== -1) {
                     notifications.push(notif)
@@ -78,11 +79,11 @@ export default function PassengerNotifications(props) {
                 setRefreshing(false)
             });
 
-    }, [user.id, userType])
+    }, [user?.id, userType])
 
 
     const setCurrentTripFalse = () => {
-        setCurrentTrip(false)
+        setCurrentTrip(null)
     }
 
     React.useEffect(() => {
@@ -121,7 +122,7 @@ export default function PassengerNotifications(props) {
                 <FlatList
                     style={styles.flatlist}
                     data={notificationList}
-                    keyExtractor={(item, index) => index + Math.random()}
+                    keyExtractor={(item, index) => (index + Math.random()).toString()}
                     refreshControl={
                         <RefreshControl refreshing={refreshing} onRefresh={handleGetNotifs} />
                     }

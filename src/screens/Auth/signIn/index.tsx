@@ -4,13 +4,13 @@ import { Button as PaperButton } from 'react-native-paper';
 import { useAuthContext } from '../../../components/AuthProvider';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { MAINLOGO } from '../../../images';
-import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
+import { AuthStackProps } from '../../../navigators/paramList/AuthList';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { styles } from './styles';
 
 
 
-export default function SignInScreen(props: AuthStackNavProps<'signIn'>) {
+export default function SignInScreen(props: AuthStackProps<'signIn'>) {
     const { authState, login, loading } = useAuthContext()
     const { clearUser, fetchUser, isFetching, isLoggedIn, user } = useAppActions()
     const { navigation } = props

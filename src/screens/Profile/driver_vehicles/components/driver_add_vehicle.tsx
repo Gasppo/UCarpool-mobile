@@ -1,108 +1,23 @@
-import React from 'react';
-import { View, StyleSheet, Modal, Alert, Platform } from 'react-native';
-import Text from '../components/default_text';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import { Button, TextInput } from 'react-native-paper';
 import { Picker } from '@react-native-picker/picker';
-import { API_URL, UCA_BLUE } from '../utils/constants';
+import React from 'react';
+import { Alert, Modal, Platform, StyleSheet, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import CapacityButton from './capacity_button';
-import axios from 'axios';
+import { Button, TextInput } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import CapacityButton from '../../../../components/capacity_button';
+import Text from '../../../../components/default_text';
+import { UCA_BLUE } from '../../../../utils/constants';
+import { getVehicleMakes, getVehicleModels, getVehicleTypes, isValidLicensePlate, postNewVehicle, PostVehicleBody } from '../callbacks';
 
 
-async function getVehicleModels(selectedVehicleMake, selectedVehicleType) {
-    let vehicleModels = await axios.get(`${API_URL}/vehicles/models?makeId=${selectedVehicleMake}&typeId=${selectedVehicleType}`);
-    if (vehicleModels.status === 200) {
-        return vehicleModels.data
-    }
-    else {
-        throw new Error(vehicleModels.status)
-    }
+
+type DriverAddVehicleProps = {
+    visible: boolean,
+    driverId: string,
+    visibilitySetter: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-async function getVehicleTypes() {
-    let vehicleTypes = await axios.get(`${API_URL}/vehicles/types`);
-    if (vehicleTypes.status === 200) {
-        return vehicleTypes.data
-    }
-    else {
-        throw new Error(vehicleTypes.status)
-    }
-}
-async function getVehicleMakes() {
-
-    let vehicleMakes = await axios.get(`${API_URL}/vehicles/makes`);
-    if (vehicleMakes.status === 200) {
-        return vehicleMakes.data
-    }
-    else {
-        throw new Error(vehicleMakes.status)
-    }
-}
-
-
-async function postNewVehicle(vehicleData) {
-    const response = await axios.post(`${API_URL}/vehicles`, vehicleData);
-    console.log(response)
-    if (response.status === 201) {
-        return response.data
-    }
-    else {
-        throw new Error('Error posteando vehiculo a servidor')
-    }
-}
-
-
-function isAlpha(c) {
-    var alphas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    return (alphas.indexOf(c) !== -1);
-}
-
-function isDigit(c) {
-    var digits = '0123456789';
-    return (digits.indexOf(c) !== -1);
-}
-function isValidLicensePlate(value) {
-    let licenseType;
-    if (value.length === 6) {
-        licenseType = 'old'
-    }
-    else if (value.length === 7) {
-        licenseType = 'new'
-    }
-    else {
-        return false;
-    }
-    switch (licenseType) {
-        case 'old':
-            for (let i = 0; i < value.length; i++) {
-                if (i < 3 && !isAlpha(value[i])) {
-                    return false
-                }
-                if (i > 2 && !isDigit(value[i])) {
-                    return false
-                }
-            }
-            return true;
-        case 'new':
-
-            for (let i = 0; i < value.length; i++) {
-                if (i < 2 && !isAlpha(value[i])) {
-                    return false
-                }
-                if (i > 2 && i < 5 && !isDigit(value[i])) {
-                    return false
-                }
-                if (i > 4 && !isAlpha(value[i])) {
-                    return false
-                }
-            }
-            return true;
-    }
-}
-
-
-export default function DriverAddVehicle(props) {
+export default function DriverAddVehicle(props: DriverAddVehicleProps) {
 
     const [vehicleTypeList, setVehicleTypeList] = React.useState([{ id: 0, type: '' }]);
     const [selectedVehicleType, setSelectedVehicleType] = React.useState(0);
@@ -112,69 +27,66 @@ export default function DriverAddVehicle(props) {
     const [selectedVehicleModel, setSelectedVehicleModel] = React.useState(0);
     const [selectedMaxPassengers, setSelectedMaxPassengers] = React.useState(0);
     const [submitAvailable, setSubmitAvailable] = React.useState(false);
+    const [newVehicleData, setNewVehicleData] = React.useState<PostVehicleBody>({
+        licensePlate: '',
+        modelId: 0,
+        maxPassengers: 0,
+        driverId: props.driverId, // Check driverId from props
+    })
 
-    function handleVehicleMakeChange(value) {
+    function handleVehicleMakeChange(value: number) {
         setSelectedVehicleMake(value);
         setSelectedVehicleModel(0);
         setVehicleModelList([{ id: 0, model: '' }])
         setNewVehicleData({ ...newVehicleData, modelId: 0 })
     }
 
-    function handleVehicleTypeChange(value) {
+    function handleVehicleTypeChange(value: number) {
         setSelectedVehicleType(value);
         setSelectedVehicleModel(0);
         setVehicleModelList([{ id: 0, model: '' }])
         setNewVehicleData({ ...newVehicleData, modelId: 0 })
     }
 
-    async function handleGetVehicleModels(selectedMake, selectedType) {
+    async function handleGetVehicleModels(selectedMake: number, selectedType: number) {
         getVehicleModels(selectedMake, selectedType)
-            .then((models) => setVehicleModelList(models))
+            .then(models => setVehicleModelList(models))
             .catch(e => {
                 console.log(e);
-                Alert.alert('Error',
-                    'Ocurrió un error de servidor')
-            })
+                Alert.alert('Error', 'Ocurrió un error de servidor');
+            });
     }
+
     async function handleGetVehicleTypes() {
         getVehicleTypes()
             .then(types => setVehicleTypeList(types))
             .catch(e => {
                 console.log(e);
-                Alert.alert('Error',
-                    'Ocurrió un error de servidor')
-            })
+                Alert.alert('Error', 'Ocurrió un error de servidor');
+            });
     }
+
     async function handleGetVehicleMakes() {
         getVehicleMakes()
             .then(makes => setVehicleMakeList(makes))
             .catch(e => {
                 console.log(e);
-                Alert.alert('Error',
-                    'Ocurrió un error de servidor')
-            })
+                Alert.alert('Error', 'Ocurrió un error de servidor');
+            });
     }
-    async function handlePostNewVehicle() {
-        postNewVehicle(newVehicleData)
+
+    async function handlePostNewVehicle(data: PostVehicleBody) {
+        postNewVehicle(data)
             .then(() => {
-                props.visibilitySetter(false)
+                props.visibilitySetter(false);
             })
             .catch(e => {
-                console.log(e)
-                Alert.alert('Error', 'Error enviando el vehículo a servidor')
-            })
+                console.log(e);
+                Alert.alert('Error', 'Error enviando el vehículo a servidor');
+            });
     }
 
 
-
-    const [newVehicleData, setNewVehicleData] = React.useState(
-        {
-            licensePlate: '',
-            modelId: 0,
-            maxPassengers: 0,
-            driverId: props.driverId, // Check driverId from props
-        }
-    )
 
     React.useEffect(() => {
         setNewVehicleData(prev => ({ ...prev, maxPassengers: selectedMaxPassengers }));

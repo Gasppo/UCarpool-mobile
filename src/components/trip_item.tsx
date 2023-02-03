@@ -2,18 +2,21 @@ import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
 import React from 'react';
 import { ActivityIndicator, Alert, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView from 'react-native-maps';
+import MapView, { Region } from 'react-native-maps';
 import { Button as PaperButton, Card } from 'react-native-paper';
 import QRCode from 'react-native-qrcode-svg';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Text from '../components/default_text';
 import { API_URL, UCA_BLUE, UCA_GREEN } from '../utils/constants';
+import Text from './default_text';
 import RequestDetail from './request_detail';
 
+import { AuthStackNavProps } from '../navigators/paramList/AuthList';
+import { TripData } from '../screens/CreateTrip/create_trip_details/callbacks';
+import { GetDriverTripsResponse, GetTripsResponseSeats } from '../types/fetchTypes';
 import { getMarkerForAddress } from '../utils/auxiliaryFunctions';
 import { useAppActions } from '../utils/ReduxReplacerTest';
 
-const handleRequestStatusText = (status) => {
+const handleRequestStatusText = (status: string) => {
     switch (status) {
         case 'accepted':
             return 'El conductor aceptó tu pedido'
@@ -30,24 +33,24 @@ const handleRequestStatusText = (status) => {
     }
 }
 
-const handleRequestDetailsText = (item) => {
+const handleRequestDetailsText = (data: { pickupType: string, dropoffType: string, pickupAddressName: string, dropoffAddressName: string }) => {
     let texts = ''
-    if (item.userSeatAssignment.pickupType === 'goToDrivers') {
+    if (data.pickupType === 'goToDrivers') {
         texts = texts + 'Solicitaste ir a la dirección indicada en el origen del recorrido\n'
     }
-    if (item.userSeatAssignment.pickupType === 'driverPicksMe') {
-        texts = texts + `Pediste al conductor que te busque en ${item.userSeatAssignment.pickupAddress.address}\n`
+    if (data.pickupType === 'driverPicksMe') {
+        texts = texts + `Pediste al conductor que te busque en ${data.pickupAddressName}\n`
     }
-    if (item.userSeatAssignment.dropoffType === 'goToDrivers') {
+    if (data.dropoffType === 'goToDrivers') {
         texts = texts + 'El conductor te dejará en la dirección de destino del recorrido\n'
     }
-    if (item.userSeatAssignment.pickupType === 'myOwn') {
-        texts = texts + `Pediste al conductor que te deje en ${item.userSeatAssignment.dropoffAddress.address}\n`
+    if (data.dropoffType === 'myOwn') {
+        texts = texts + `Pediste al conductor que te deje en ${data.dropoffAddressName}\n`
     }
     return texts.slice(0, -1)
 }
 
-function handleBackgroundColor(status) {
+function handleBackgroundColor(status: string) {
     switch (status) {
         //conductor
         case 'available':
@@ -63,16 +66,25 @@ function handleBackgroundColor(status) {
     }
 }
 
-function getRegionForCoordinates(points) {
+function getRegionForCoordinates(points: { lat: number, lng: number }[]) {
     // points should be an array of { latitude: X, longitude: Y }
-    let minX, maxX, minY, maxY;
+
+    const defaultRegion: Region = {
+        latitude: -34.603684,
+        longitude: -58.381559,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+    }
+
+    if (points.length === 0 && !points) return defaultRegion;
+    let minX: number, maxX: number, minY: number, maxY: number;
 
     // init first point
     ((point) => {
-        minX = point.lat;
-        maxX = point.lat;
-        minY = point.lng;
-        maxY = point.lng;
+        minX = point?.lat || 0;
+        maxX = point?.lat || 0;
+        minY = point?.lng || 0;
+        maxY = point?.lng || 0;
     })(points[0]);
 
     // calculate rect
@@ -88,23 +100,35 @@ function getRegionForCoordinates(points) {
     const deltaX = (maxX - minX) + (maxX - minX) / 2;
     const deltaY = (maxY - minY) + (maxY - minY) / 2;
 
-    return {
+    const region: Region = {
         latitude: midX,
         longitude: midY,
         latitudeDelta: deltaX,
         longitudeDelta: deltaY,
     };
+
+    return region
 }
 
-function TripItem(props) {
+type TripItemProps = {
+    item: GetDriverTripsResponse & {
+        hasBeenRequested: boolean;
+    };
+    hiddenCard?: boolean;
+    refreshFn?: () => void;
+};
+
+function TripItem(props: TripItemProps) {
     const { userType, user, startTrip } = useAppActions()
     const item = props.item
     const [modalVisible, setModalVisibility] = React.useState(props.hiddenCard ? true : false);
-    const [seatAssignments, setSeatAssignments] = React.useState([]);
+    const [seatAssignments, setSeatAssignments] = React.useState<GetTripsResponseSeats[]>([]);
     const refreshing = false;
     const mapRegion = getRegionForCoordinates([props.item.startAddress.coords, props.item.endAddress.coords])
-    const navigation = useNavigation();
+    const navigation = useNavigation<AuthStackNavProps>();
     const mapRef = React.useRef(null);
+
+    const userSeatAssignment = user ? item.SeatAssignments.find(seat => seat.passengerId === user.id) : undefined;
 
     const handleCloseModal = () => {
         setModalVisibility(false)
@@ -112,10 +136,10 @@ function TripItem(props) {
             props.refreshFn()
         }
     }
-    const getUserIcons = (seats, maxPassengers) => {
+    const getUserIcons = (seats: GetTripsResponseSeats[], maxPassengers: number) => {
         let acceptedUserCount = 0;
         if (seats?.length) {
-            seats.forEach(assignment => {
+            seats.forEach((assignment: { status: string; }) => {
                 if (assignment.status === 'accepted') {
                     acceptedUserCount++;
                 }
@@ -129,7 +153,7 @@ function TripItem(props) {
         return icons
     }
 
-    const handleDeleteSeatAssignment = (seatAssignmentId) => {
+    const handleDeleteSeatAssignment = (seatAssignmentId: string) => {
         Alert.alert(
             'Aviso',
             'Está seguro de cancelar su solicitud de viaje?',
@@ -143,7 +167,7 @@ function TripItem(props) {
         );
     }
 
-    const deleteSeatAssignment = async (seatAssignmentId) => {
+    const deleteSeatAssignment = async (seatAssignmentId: string) => {
         try {
             const response = await axios.delete(API_URL + `/seatBookings?id=${seatAssignmentId}`);
 
@@ -157,12 +181,11 @@ function TripItem(props) {
             }
         }
         catch (e) {
-
-            Alert.alert('Error', e.message)
+            if (e instanceof Error) Alert.alert('Error', e.message)
+            else Alert.alert('Error', 'No se pudo eliminar el pedido de viaje')
         }
     }
-
-    const handleDeleteTrip = (tripId) => {
+    const handleDeleteTrip = (tripId: string) => {
         Alert.alert(
             'Aviso',
             'Está seguro de eliminar el viaje?',
@@ -188,7 +211,7 @@ function TripItem(props) {
             ]
         );
     }
-    const handleStartTrip = (tripId) => {
+    const handleStartTrip = (tripId: string) => {
         Alert.alert(
             'Aviso',
             'Está seguro de comenzar el viaje? Se le avisará a todos los usuarios anotados.',
@@ -205,7 +228,7 @@ function TripItem(props) {
             ]
         );
     }
-    const updateTripStatus = async (tripId, status) => {
+    const updateTripStatus = async (tripId: string, status: string) => {
         const response = await axios.get(API_URL + `/trips/updateStatus?id=${tripId}&status=${status}`);
 
         if (response.status === 200) {
@@ -215,7 +238,7 @@ function TripItem(props) {
             throw new Error('Error actualizando estado de viaje')
         }
     }
-    const getSeatAssignmentsForTrip = async (tripId) => {
+    const getSeatAssignmentsForTrip = async (tripId: string) => {
         try {
             const response = await axios.get(API_URL + `/seatBookings?tripId=${tripId}`);
             if (response.status === 200) {
@@ -227,9 +250,10 @@ function TripItem(props) {
             }
         }
         catch (e) {
-            console.log(e)
             setSeatAssignments([])
-            Alert.alert('Error', e.message)
+            if (e instanceof Error) Alert.alert('Error', e.message)
+            else Alert.alert('Error', 'No se pudo obtener las solicitudes de viaje')
+
         }
     }
 
@@ -243,10 +267,10 @@ function TripItem(props) {
         }
     }, [item.SeatAssignments, item.id, modalVisible, userType]);
 
-    const getAvailableSeats = (seats) => {
+    const getAvailableSeats = (seats: GetTripsResponseSeats[]) => {
         let count = 0;
         if (seats?.length) {
-            seats.forEach(assignment => {
+            seats.forEach((assignment: { status: string; }) => {
                 if (assignment.status === 'accepted') {
                     count++;
                 }
@@ -255,18 +279,18 @@ function TripItem(props) {
         return count;
 
     }
-    const createTripData = { // Usado para feditar el viaje de ser necesario
+    const createTripData: TripData = { // Usado para feditar el viaje de ser necesario
         id: item.id,
-        driverId: user.id || 'none',
+        driverId: user?.id || 'none',
         startAddress: item.startAddress,
         endAddress: item.endAddress,
-        estimatedStartTime: item.estimatedStartTime,
+        estimatedStartTime: item.estimatedStartTime.toLocaleString(),
         vehicleId: item.vehicleId,
         maxPassengers: item.maxPassengers,
-        description: item.description,
+        description: item?.description || '',
     }
 
-    const handlePassengerRequestStatusTextShown = (statusText) => {
+    const handlePassengerRequestStatusTextShown = (statusText: string) => {
 
         switch (statusText) {
             case 'accepted':
@@ -293,6 +317,8 @@ function TripItem(props) {
         setModalVisibility(false)
         navigation.navigate('passenger_trip_request_navigator', { screen: 'passenger_trip_request_details', params: { tripData: item, isEdit: true } })
     }
+
+
     return (
         <>
             {!props.hiddenCard ?
@@ -314,8 +340,8 @@ function TripItem(props) {
                                 <View style={[styles.cardTripStatus, { backgroundColor: handleBackgroundColor(item.status) }]}>
                                     <Text style={styles.cardTripDateText}>{(new Date(item.estimatedStartTime).getDate() < 10 ? '0' : '') + new Date(item.estimatedStartTime).getDate() + '/' + (new Date(item.estimatedStartTime).getMonth() + 1 < 10 ? '0' : '') + (new Date(item.estimatedStartTime).getMonth() + 1)}</Text>
                                     <Text style={styles.cardTripStatusText}>
-                                        {userType === 'passenger' && item.hasBeenRequested ?
-                                            handlePassengerRequestStatusTextShown(item.userSeatAssignment.status)
+                                        {userType === 'passenger' && item.hasBeenRequested && userSeatAssignment ?
+                                            handlePassengerRequestStatusTextShown(userSeatAssignment.status)
                                             :
                                             getAvailableSeats(item.SeatAssignments) + '/' + item.maxPassengers
                                         }
@@ -363,13 +389,13 @@ function TripItem(props) {
                                     {getMarkerForAddress(item.startAddress, 'start')}
                                     {getMarkerForAddress(item.endAddress, 'end')}
                                 </MapView>
-                                {item.hasBeenRequested ?
+                                {item.hasBeenRequested && userSeatAssignment ?
                                     <>
                                         <View style={styles.row}>
                                             <View style={styles.stateContainer}>
                                                 <Text style={styles.boxLabel}>Estado:</Text>
                                                 <View style={styles.descriptionBox}>
-                                                    <Text style={styles.descriptionText}>{handleRequestStatusText(item.userSeatAssignment.status)}</Text>
+                                                    <Text style={styles.descriptionText}>{handleRequestStatusText(userSeatAssignment.status)}</Text>
                                                 </View>
                                             </View>
                                         </View>
@@ -377,7 +403,12 @@ function TripItem(props) {
                                             <Text style={styles.boxLabel}>Datos de la solicitud:</Text>
                                             <View style={styles.descriptionBox}>
                                                 <Text style={styles.descriptionText}>
-                                                    {handleRequestDetailsText(item)}
+                                                    {handleRequestDetailsText({
+                                                        dropoffAddressName: userSeatAssignment.dropoffAddress.name,
+                                                        pickupAddressName: userSeatAssignment.dropoffAddress.name,
+                                                        dropoffType: userSeatAssignment.dropoffType || 'goToDrivers',
+                                                        pickupType: userSeatAssignment.pickupType || 'goToDrivers',
+                                                    })}
                                                 </Text>
                                             </View>
                                         </View>
@@ -449,7 +480,7 @@ function TripItem(props) {
                                         <Text style={styles.boxLabel}>{userType === 'driver' ? 'Vehículo:' : 'Vas en:'}</Text>
                                         <View style={styles.vehicleBox}>
                                             <Icon name={'car'} size={40} color={UCA_GREEN} style={styles.carIcon} />
-                                            <Text style={styles.carLabel}>{item.Vehicle?.VehicleModel?.VehicleMake?.make} {item.Vehicle?.VehicleModel?.model}</Text>
+                                            <Text style={styles.carLabel}>{item.Vehicle?.VehicleMake.make} {item.Vehicle.VehicleModel.model}</Text>
                                         </View>
                                     </View>
                                     {userType === 'driver' ?
@@ -475,13 +506,13 @@ function TripItem(props) {
                                 {
                                     ['completed', 'canceled'].indexOf(item.status) === -1 ?
                                         <>
-                                            {userType === 'passenger' && item.userSeatAssignment && item.userSeatAssignment && item.userSeatAssignment.status === 'accepted' && item.userSeatAssignment.qrCode !== -1 ?
+                                            {userType === 'passenger' && userSeatAssignment && userSeatAssignment.status === 'accepted' && userSeatAssignment.qrCode !== '-1' ?
                                                 <View style={styles.row}>
                                                     <View style={styles.qrContainer}>
                                                         <Text style={styles.boxLabel}>Código QR:</Text>
-                                                        <View style={styles.qrCodeContainer} onLayout={() => console.log(item.userSeatAssignment)}>
+                                                        <View style={styles.qrCodeContainer} onLayout={() => console.log(userSeatAssignment)}>
                                                             <QRCode
-                                                                value={item.userSeatAssignment.qrCode}
+                                                                value={userSeatAssignment.qrCode}
                                                                 size={120}
                                                             />
                                                         </View>
@@ -491,9 +522,9 @@ function TripItem(props) {
                                                 <></>
                                             }
                                             {userType === 'passenger' ?
-                                                item.hasBeenRequested ?
+                                                item.hasBeenRequested && userSeatAssignment ?
                                                     (item.status !== 'started' &&
-                                                        <PaperButton mode="contained" icon="close" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(item.userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
+                                                        <PaperButton mode="contained" icon="close" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
                                                     :
                                                     <PaperButton mode="contained" icon="human-greeting-variant" color={UCA_BLUE} style={styles.actionButton} onPress={() => { handleNewRequest() }}>Solicitar asiento</PaperButton>
                                                 :
@@ -526,7 +557,6 @@ function TripItem(props) {
 
     );
 }
-
 const styles = StyleSheet.create({
     notificationButtons: {
         width: 120,
@@ -593,7 +623,6 @@ const styles = StyleSheet.create({
     },
     dateText: { fontSize: 30, color: 'rgb(0,53,108)' },
 });
-
 
 export default TripItem
 

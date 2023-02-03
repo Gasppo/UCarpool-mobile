@@ -3,13 +3,13 @@ import { useCallback } from 'react';
 import { Alert, FlatList, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Text from '../../../components/default_text';
-import DriverAddVehicle from '../../../components/driver_add_vehicle';
-import DriverProfileVehicle from '../../../components/driver_profile_vehicle';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
 import { UCA_BLUE } from '../../../utils/constants';
 import { getVehiclesFromApi, VehicleResponseType } from '../../../fetchers';
 import { ProfileStackNavProps } from '../../../navigators/paramList/ProfileList';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
+import DriverAddVehicle from './components/driver_add_vehicle';
+import DriverProfileVehicle from './components/driver_profile_vehicle';
 
 
 export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehicles'>) {
@@ -32,17 +32,16 @@ export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehic
                 })
         }
     }, [user?.id])
-    
-    
-    
+
+
+
     React.useEffect(() => {
         const controller = new AbortController();
         const signal = controller.signal;
         loadVehicles(signal)
         return () => { controller.abort() }
     }, [loadVehicles]);
-    
-    console.log('IM BREAKING HERE')
+
 
     React.useEffect(() => {
         if (!addVehicleModalVisible) { // Add vehicle modal was closed
@@ -53,6 +52,7 @@ export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehic
         }
     }, [addVehicleModalVisible, loadVehicles]);
 
+    if (!user?.id) return <View><Text>No deberías ver esto</Text></View>
 
     return (
         <>
@@ -86,7 +86,7 @@ export default function DriverVehicles(props: ProfileStackNavProps<'driver_vehic
                                 <DriverProfileVehicle carData={item} key={item.id} reloadFn={loadVehicles} />
                         }
                     />
-                    <DriverAddVehicle driverId={user?.id} visible={addVehicleModalVisible} visibilitySetter={setAddVehicleModalVisible} />
+                    <DriverAddVehicle driverId={user.id} visible={addVehicleModalVisible} visibilitySetter={setAddVehicleModalVisible} />
                 </SafeAreaView>
 
             </View>
