@@ -6,7 +6,7 @@ import inside from 'point-in-polygon-hao';
 import React, { useCallback } from 'react';
 import {
     ActivityIndicator, Alert, Modal,
-    ScrollView, SectionList, TouchableOpacity, View
+    ScrollView, SectionList, TouchableOpacity, View,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import MapView, { Marker, Polygon, Polyline } from 'react-native-maps';
@@ -42,7 +42,7 @@ export default function TripInProgress() {
 
     const tripId = currentTrip;
 
-
+    console.log('passengersList', passengersList)
 
     const [detailsModalVisible, setDetailsModalVisible] = React.useState(false);
 

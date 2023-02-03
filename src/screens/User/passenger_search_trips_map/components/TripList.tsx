@@ -5,25 +5,44 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import { Button as PaperButton, IconButton } from 'react-native-paper';
 import { UCA_BLUE } from '../../../../utils/constants';
 import Text from '../../../../components/default_text';
-import TripItem from '../../../../components/trip_item';
+import TripItem, { TripItemType } from '../../../../components/trip_item';
 import { styles } from '../styles';
 
+type TripListProps = {
+    //Styles typed for a style prop
+    style: { [key: string]: number | string | Animated.Value },
+    availableTripList: TripItemType[],
+    height: number,
+    topBarHeight: number,
+    bottomTabHeight: number,
+    arrowSpinValue: Animated.Value,
+    showBottomBox: boolean,
+    setShowBottomBox: (showBottomBox: boolean) => void,
+    selectedStartRadius: number,
+    setSelectedStartRadius: (selectedStartRadius: number) => void,
+    selectedStartTime: string,
+    setSelectedStartTime: (selectedStartTime: string) => void,
+    refreshing: boolean,
+    handleGetSearchResults: () => void,
+}
 
-const TripList = ({
-    style,
-    availableTripList,
-    height, topBarHeight,
-    bottomTabHeight,
-    arrowSpinValue,
-    showBottomBox,
-    setShowBottomBox,
-    selectedStartRadius,
-    setSelectedStartRadius,
-    selectedStartTime,
-    setSelectedStartTime,
-    refreshing,
-    handleGetSearchResults,
-}) => {
+const TripList = (props: TripListProps) => {
+    const {
+        style,
+        availableTripList,
+        height, topBarHeight,
+        bottomTabHeight,
+        arrowSpinValue,
+        showBottomBox,
+        setShowBottomBox,
+        selectedStartRadius,
+        setSelectedStartRadius,
+        selectedStartTime,
+        setSelectedStartTime,
+        refreshing,
+        handleGetSearchResults,
+    } = props
+
     const [showFilters, setShowFilters] = React.useState(false);
     const [dateModalOpen, setDateModalOpen] = React.useState(false);
     const myLocale = NativeModules.I18nManager.localeIdentifier;
@@ -32,7 +51,7 @@ const TripList = ({
         outputRange: ['0 deg', '180 deg'],
     })
 
-    function handleDateShown(yourDate) {
+    function handleDateShown(yourDate: string) {
         return new Date(yourDate).toLocaleDateString(myLocale.replace('_', '-'), { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' });
     }
 
@@ -46,7 +65,7 @@ const TripList = ({
                     <IconButton icon={'arrow-down'} disabled={showFilters && !availableTripList} size={22} color="rgb(0,53,108)" onPress={() => { setShowBottomBox(!showBottomBox) }} />
                 </Animated.View>
                 <View style={{ margin: 5 }}>
-                    <IconButton icon={'filter'} size={22} color={UCA_BLUE} mode="contained" onPress={() => { setShowFilters(!showFilters); if (!showBottomBox) { setShowBottomBox(true) } }} />
+                    <IconButton icon={'filter'} size={22} color={UCA_BLUE} onPress={() => { setShowFilters(!showFilters); if (!showBottomBox) { setShowBottomBox(true) } }} />
                 </View>
             </View>
             <View>

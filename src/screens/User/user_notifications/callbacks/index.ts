@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GetDriverTripsResponse } from '../../../../types/fetchTypes';
+import { GetTripsResponse } from '../../../../types/fetchTypes';
 import { API_URL } from '../../../../utils/constants';
 
 export type Notification = { notificationTypeId: string, id: string, tripId: string, createdAt: string, issuer: { name: string } }
@@ -28,7 +28,7 @@ export const deleteAllNotifications = async (userId: string) => {
 
 export const getTrip = async (userId: string, tripId: string) => {
     if (!tripId) throw new Error('Not a valid tripId')
-    const response = await axios.get<GetDriverTripsResponse[]>(API_URL + '/trips?id=' + tripId);
+    const response = await axios.get<GetTripsResponse[]>(API_URL + '/trips?id=' + tripId);
     if (response.status !== 200) throw new Error('Trip not found')
     if (!response.data[0]) throw new Error('Trip not found')
     const trip = response.data[0]

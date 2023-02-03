@@ -157,6 +157,7 @@ const AppActionsProvider = (props: ReduxReplacerTestProps) => {
         if (response.status !== 200) return Alert.alert('Error', response?.data?.message || 'Error fetching user');
         if (!response?.data?.id) return Alert.alert('Error', response?.data?.message || 'Error fetching user');
 
+        setUserType(response.data.isDriver ? 'driver' : 'passenger');
         setIsLoggedIn(true);
         return setUser(response.data);
     }, [])

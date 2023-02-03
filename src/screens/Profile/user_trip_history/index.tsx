@@ -4,18 +4,18 @@ import { Alert, SafeAreaView, SectionList, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
-import TripItem from '../../../components/trip_item';
+import TripItem, { TripItemType } from '../../../components/trip_item';
 import { UCA_BLUE } from '../../../utils/constants';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { getDriverTrips, getPassengerTrips, groupTripsByStatus } from './callbacks';
 
-
+export type ActiveTrip = { title: string; data: TripItemType[] }
 
 export default function PassengerActiveTrips() {
 
     const { userType, user } = useAppActions()
 
-    const [activeTripList, setActiveTripList] = React.useState(groupTripsByStatus(userType, []));
+    const [activeTripList, setActiveTripList] = React.useState<ActiveTrip[]>(groupTripsByStatus(userType, []));
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
 
@@ -38,17 +38,12 @@ export default function PassengerActiveTrips() {
     const handleGetPassengerTrips = useCallback(async () => {
         if (!user) return
         setRefreshing(true)
-        getPassengerTrips(user.id, 'canceled')
+        getPassengerTrips(user.id)
             .then(r => {
                 console.log(r)
-                const activeTrips = []
+                const activeTrips: TripItemType[] = []
                 r.forEach(seatAssignment => {
-                    // ponemos los Trip primero
-                    const trip = seatAssignment.Trip;
-                    delete seatAssignment.Trip;
-                    trip.userSeatAssignment = seatAssignment;
-                    trip.hasBeenRequested = true;
-                    activeTrips.push(trip);
+                    activeTrips.push({ ...seatAssignment, hasBeenRequested: true });
                 })
                 setActiveTripList(groupTripsByStatus(userType, activeTrips))
             }
@@ -65,12 +60,6 @@ export default function PassengerActiveTrips() {
             userType === 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips()
         }
     }, [handleGetDriverTrips, handleGetPassengerTrips, isFocused, userType])
-
-
-
-    const EmptyListComponent = () => <Text> No hay registros de viajes </Text>
-    const HeaderComponent = ({ section }) => <Text style={{ fontSize: 20, color: 'rgb(0,53,108)', marginTop: 10, marginBottom: 5 }}>{section.title}</Text>
-    const ListComponent = ({ item, index }) => <TripItem item={item} refreshFn={userType === 'driver' ? handleGetDriverTrips : handleGetPassengerTrips} key={index + '_'} />
 
     return (
         <SafeAreaView style={{ width: '100%', height: '100%' }}>
@@ -89,10 +78,10 @@ export default function PassengerActiveTrips() {
                 contentContainerStyle={{ borderRadius: 15, padding: 5 }}
                 bounces={false}
                 overScrollMode={'never'}
-                keyExtractor={(item, index) => index}
-                ListEmptyComponent={EmptyListComponent}
-                renderSectionHeader={HeaderComponent}
-                renderItem={ListComponent}
+                keyExtractor={(item, index) => index.toString()}
+                ListEmptyComponent={() => <Text> No hay registros de viajes </Text>}
+                renderSectionHeader={({ section }) => <Text style={{ fontSize: 20, color: 'rgb(0,53,108)', marginTop: 10, marginBottom: 5 }}>{section.title}</Text>}
+                renderItem={({ item, index }) => <TripItem item={item} refreshFn={userType === 'driver' ? handleGetDriverTrips : handleGetPassengerTrips} key={index + '_'} />}
             />
             {refreshing &&
                 <View style={{ position: 'absolute', width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>

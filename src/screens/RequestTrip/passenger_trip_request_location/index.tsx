@@ -3,24 +3,25 @@ import { Alert, Animated, KeyboardAvoidingView, SafeAreaView, TouchableOpacity, 
 import MapView from 'react-native-maps';
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import AMBACompleter from '../../../components/autocompleter';
+import AMBACompleter, { Address } from '../../../components/autocompleter';
 import Text from '../../../components/default_text';
+import { PassengerTripStackNavProps } from '../../../navigators/paramList/PassengerTripRequestList';
 import { getMarkerForAddress } from '../../../utils/auxiliaryFunctions';
 import { DEFAULT_COORDINATE } from '../../../utils/constants';
-import { uploadNewRequest } from './callbacks';
+import { PostSeatBookingBody, uploadNewRequest } from './callbacks';
 
 
 
 
-export default function PassengerTripRequestLocation(props) {
-    const mapRef = React.useRef(null);
+export default function PassengerTripRequestLocation(props: PassengerTripStackNavProps<'passenger_trip_request_location'>) {
+    const mapRef = React.useRef<MapView>(null);
     const nextButton = new Animated.Value(30)
-    const [mapMarkers, setMapMarkers] = React.useState([]);
+    const [mapMarkers, setMapMarkers] = React.useState<JSX.Element[]>([]);
     const [nextButtonAvailable, setNextButtonAvailable] = React.useState(false);
-    const [createRequestData, setCreateRequestData] = React.useState(props.route.params.createRequestData);
+    const [createRequestData, setCreateRequestData] = React.useState<PostSeatBookingBody>(props.route.params.createRequestData);
 
-    const handleUploadNewRequest = useCallback(async () => {
-        uploadNewRequest(createRequestData)
+    const handleUploadNewRequest = useCallback(async (requestDetails: PostSeatBookingBody) => {
+        uploadNewRequest(requestDetails)
             .then(() => {
                 props.navigation.navigate('passenger_trip_request_confirmation')
             })
@@ -28,7 +29,21 @@ export default function PassengerTripRequestLocation(props) {
                 console.log(e);
                 Alert.alert('Error', 'Error cargando solicitud de viaje')
             })
-    }, [createRequestData, props.navigation])
+    }, [props.navigation])
+
+
+    const validateAddresses = useCallback(() => {
+
+        const driverPicksMe = createRequestData?.pickupType === 'driverPicksMe'
+        const myOwnDropOff = createRequestData?.dropoffType === 'myOwn'
+        const hasPickupAddress = !!createRequestData?.pickupAddress?.address
+        const hasDropoffAddress = !!createRequestData?.dropoffAddress?.address
+
+        if (driverPicksMe && myOwnDropOff) { return hasPickupAddress && hasDropoffAddress }
+        if (driverPicksMe) { return hasPickupAddress }
+        if (myOwnDropOff) { return hasDropoffAddress }
+
+    }, [createRequestData.dropoffAddress.address, createRequestData.dropoffType, createRequestData.pickupAddress.address, createRequestData.pickupType])
 
     React.useEffect(() => {
         // Si no se necesita elegir ubicaciones, publico directamente...
@@ -49,11 +64,11 @@ export default function PassengerTripRequestLocation(props) {
 
         }
         if (auxMarkers.length === 2) {
-            const coordinates = [{ latitude: auxMarkers[0].props.coordinate.latitude, longitude: auxMarkers[0].props.coordinate.longitude }, { latitude: auxMarkers[1].props.coordinate.latitude, longitude: auxMarkers[1].props.coordinate.longitude }]
-            mapRef.current.fitToCoordinates(coordinates, { edgePadding: { top: 50, bottom: 50, left: 50, right: 50 } })
+            const coordinates = [{ latitude: auxMarkers?.[0]?.props.coordinate.latitude, longitude: auxMarkers?.[0]?.props.coordinate.longitude }, { latitude: auxMarkers?.[1]?.props.coordinate.latitude, longitude: auxMarkers?.[1]?.props.coordinate.longitude }]
+            mapRef?.current?.fitToCoordinates(coordinates, { edgePadding: { top: 50, bottom: 50, left: 50, right: 50 } })
         }
         if (auxMarkers.length === 1) {
-            mapRef.current.animateToRegion({ ...auxMarkers[0].props.coordinate, ...{ latitudeDelta: 500 / 11104.5, longitudeDelta: 500 / 11104.5 } }, 500)
+            mapRef?.current?.animateToRegion({ ...auxMarkers?.[0]?.props.coordinate, ...{ latitudeDelta: 500 / 11104.5, longitudeDelta: 500 / 11104.5 } }, 500)
         }
         setMapMarkers(auxMarkers);
         //Validate
@@ -67,27 +82,15 @@ export default function PassengerTripRequestLocation(props) {
     }, [createRequestData.pickupAddress, createRequestData.dropoffAddress, validateAddresses]);
 
 
-    const validateAddresses = useCallback(() => {
 
-        const driverPicksMe = createRequestData?.pickupType === 'driverPicksMe'
-        const myOwnDropOff = createRequestData?.dropoffType === 'myOwn'
-        const hasPickupAddress = !!createRequestData?.pickupAddress?.address
-        const hasDropoffAddress = !!createRequestData?.dropoffAddress?.address
-
-        if (driverPicksMe && myOwnDropOff) { return hasPickupAddress && hasDropoffAddress }
-        if (driverPicksMe) { return hasPickupAddress }
-        if (myOwnDropOff) { return hasDropoffAddress }
-
-    }, [createRequestData.dropoffAddress.address, createRequestData.dropoffType, createRequestData.pickupAddress.address, createRequestData.pickupType])
-
-    function handleChangeOfPickupAddress(newAddress) {
+    function handleChangeOfPickupAddress(newAddress: Address) {
         setCreateRequestData(tripForm => ({
             ...tripForm,
             pickupAddress: newAddress,
         }))
     }
 
-    function handleChangeOfDropoffAddress(newAddress) {
+    function handleChangeOfDropoffAddress(newAddress: Address) {
         //setSelectedDropoffAddress(newAddress)
         setCreateRequestData(tripForm => ({
             ...tripForm,

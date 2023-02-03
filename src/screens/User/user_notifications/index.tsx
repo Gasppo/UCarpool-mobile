@@ -9,7 +9,7 @@ import { driverNotificationList, passengerNotificationList, UCA_BLUE } from '../
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { deleteAllNotifications, getNotifications, getTrip } from './callbacks';
 import type { Notification } from './callbacks';
-import { GetDriverTripsResponse } from '../../../types/fetchTypes';
+import { GetTripsResponse } from '../../../types/fetchTypes';
 import NotificationItem from './components/notification_item';
 
 
@@ -19,7 +19,7 @@ export default function PassengerNotifications() {
     const [notificationList, setNotificationList] = React.useState<Notification[]>([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const [tripLoading, setTripLoading] = React.useState(false);
-    const [currentTrip, setCurrentTrip] = React.useState<(GetDriverTripsResponse & { hasBeenRequested: boolean }) | null>(null);
+    const [currentTrip, setCurrentTrip] = React.useState<(GetTripsResponse & { hasBeenRequested: boolean }) | null>(null);
 
 
     const handleGetTrip = async (tripId: string) => {

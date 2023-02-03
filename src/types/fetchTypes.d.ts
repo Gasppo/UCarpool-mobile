@@ -13,7 +13,6 @@ import {
 } from './prisma';
 
 export type GetTripsResponseSeats = {
-  User: MobileUser;
   coords: Coordinates;
   id: string;
   pickupAdressId: string;
@@ -35,7 +34,7 @@ export type GetTripsResponseSeats = {
   passenger: MobileUser;
 }
 
-export type GetDriverTripsResponse = {
+export type GetTripsResponse = {
   id: string;
   SeatAssignments: GetTripsResponseSeats[];
   maxPassengers: number;
@@ -76,27 +75,7 @@ export type GetDriverTripsResponse = {
 };
 
 export type GetPassengerTripsResponse = SeatAssignement & {
-  trip: Trip & {
-    realtimeTripData: (RealtimeTripData & {
-      coordinates: RealtimeCoordinates;
-    })[];
-    Vehicle: Vehicle & {
-      model: VehicleModel & {
-        type: VehicleType;
-        make: VehicleMake;
-      };
-    };
-    driver: MobileUser;
-    startAddress: Adress & {
-      coordinates: Coordinates;
-    };
-    endAddress: Adress & {
-      coordinates: Coordinates;
-    };
-  };
-  pickupAddress: Adress;
-  dropoffAddress: Adress;
-  passenger: MobileUser;
+  trip: GetTripsResponse;
   Trip: {
     id: string;
     maxPassengers: number;

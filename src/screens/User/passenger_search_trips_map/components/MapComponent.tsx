@@ -1,11 +1,20 @@
 import React from 'react';
 import MapView, { Circle } from 'react-native-maps';
+import { Address } from '../../../../components/autocompleter';
 import { DEFAULT_COORDINATE } from '../../../../utils/constants';
 import { styles } from '../styles';
 
 
-const MapComponent = ({ mapRef, mapMarkers, selectedStartAddress, selectedEndAddress, radius }) => {
+type MapComponentProps = {
+    mapRef: React.MutableRefObject<MapView | null>,
+    mapMarkers: JSX.Element[],
+    selectedStartAddress: Address,
+    selectedEndAddress: Address,
+    radius: number
+}
 
+const MapComponent = (props: MapComponentProps) => {
+    const { mapRef, mapMarkers, selectedStartAddress, selectedEndAddress, radius } = props
     const [forceRefresh] = React.useState(Math.floor(Math.random() * 100))
 
 

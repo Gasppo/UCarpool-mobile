@@ -1,15 +1,32 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { GetDriverTripsResponse } from '../../types/fetchTypes';
+import { GetTripsResponse } from '../../types/fetchTypes';
+import { Coordinates } from '../../types/prisma';
 
 //Undefined significa que la pantalla no tiene ningún parámetro en initialParams
 export type PassengerTripParamList = {
     passenger_trip_request_details: {
-        tripData: GetDriverTripsResponse & {
-            hasBeenRequested: boolean;
+        tripData: GetTripsResponse & {
+            hasBeenRequested?: boolean;
         }
         isEdit: boolean
     }
-    passenger_trip_request_location: undefined;
+    passenger_trip_request_location: {
+        createRequestData: {
+            message: string;
+            tripId: string;
+            passengerId: string;
+            pickupType: string;
+            dropoffType: string;
+            pickupAddress: {
+                address: string;
+                coords: Coordinates;
+            };
+            dropoffAddress: {
+                address: string;
+                coords: Coordinates;
+            };
+        }
+    };
     passenger_trip_request_confirmation: undefined
 };
 

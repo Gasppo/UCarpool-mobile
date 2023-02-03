@@ -1,11 +1,12 @@
-import { useIsFocused } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import React, { useCallback } from 'react';
 import { Alert, FlatList, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import Text from '../../../components/default_text';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
-import TripItem from '../../../components/trip_item';
+import TripItem, { TripItemType } from '../../../components/trip_item';
 import { UCA_LOGO } from '../../../images';
+import { AuthStackNavProps } from '../../../navigators/paramList/AuthList';
 import { UCA_BLUE } from '../../../utils/constants';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
 import { getDriverTrips, getPassengerTrips } from './callbacks';
@@ -13,11 +14,12 @@ import { styles } from './styles';
 
 
 
-export default function PassengerActiveTrips(props) {
+export default function PassengerActiveTrips() {
     const { user, userType } = useAppActions()
-    const [activeTripList, setActiveTripList] = React.useState([]);
+    const [activeTripList, setActiveTripList] = React.useState<TripItemType[]>([]);
     const [refreshing, setRefreshing] = React.useState(false);
     const isFocused = useIsFocused();
+    const rootNavigation = useNavigation<AuthStackNavProps>()
 
     React.useEffect(() => {
         console.log('Active Trips', activeTripList)
@@ -43,18 +45,17 @@ export default function PassengerActiveTrips(props) {
     const handleGetPassengerTrips = useCallback(async () => {
         if (!user?.id) return
         setRefreshing(true)
-        getPassengerTrips(user.id, 'available')
+        getPassengerTrips(user.id)
             .then(r => {
-                r = r.filter(seatAssignment => (['canceled', 'completed'].indexOf(seatAssignment.Trip.status) === -1) && (['declined', 'arrived'].indexOf(seatAssignment.status) === -1) && new Date(seatAssignment.Trip.estimatedStartTime) > new Date(new Date().setHours(0, 0, 0, 0))) // No mostrar avisos del usuario ni viejos
-                const activeTrips = []
-                r.forEach(seatAssignment => {
-                    // ponemos los Trip primero
-                    const trip = seatAssignment.Trip;
-                    delete seatAssignment.Trip;
-                    trip.userSeatAssignment = seatAssignment;
-                    trip.hasBeenRequested = true;
-                    activeTrips.push(trip);
+                r = r.filter(seatAssignment => {
+                    const userSeat = seatAssignment.SeatAssignments.find(seat => seat.passengerId === user?.id)
+                    const tripIsValid = ['canceled', 'completed'].indexOf(seatAssignment.status) === -1
+                    const seatIsValid = userSeat ? ['declined', 'arrived'].indexOf(userSeat.status) === -1 : false
+                    const dateIsValid = new Date(seatAssignment.estimatedStartTime) > new Date(new Date().setHours(0, 0, 0, 0))
+                    return tripIsValid && seatIsValid && dateIsValid
                 })
+                const activeTrips: TripItemType[] = []
+                r.forEach(seatAssignment => { activeTrips.push({ ...seatAssignment, hasBeenRequested: true }); })
                 setActiveTripList(activeTrips)
             }
             )
@@ -84,7 +85,7 @@ export default function PassengerActiveTrips(props) {
             <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: UCA_BLUE, borderBottomLeftRadius: 15, borderBottomRightRadius: 15 }}>
                 <Text style={{ fontSize: 24, margin: 15, color: 'white' }}>Viajes Programados</Text>
                 {userType === 'driver' ?
-                    <TouchableOpacity activeOpacity={0.5} hitSlop={{ top: 40, left: 40, bottom: 40, right: 40 }} style={{ position: 'absolute', right: 20 }} onPress={() => props.navigation.navigate('create_trip_navigator')}>
+                    <TouchableOpacity activeOpacity={0.5} hitSlop={{ top: 40, left: 40, bottom: 40, right: 40 }} style={{ position: 'absolute', right: 20 }} onPress={() => rootNavigation.navigate('create_trip_navigator', { screen: 'create_trip_location' })}>
                         <Icon name="plus" color={'white'} size={20} />
                     </TouchableOpacity>
                     :
@@ -96,12 +97,8 @@ export default function PassengerActiveTrips(props) {
                 style={styles.flatlist}
                 data={activeTripList}
                 keyExtractor={(item, index) => index + '_' + Math.random()}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={() => { userType === 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips() }} />
-                }
-                ListEmptyComponent={
-                    <View style={{ flex: 1, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingTop: 30 }}><Text>{userType === 'driver' ? 'No programaste ningún viaje' : 'No estás anotado para ningún viaje próximo'}</Text></View>
-                }
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { userType === 'driver' ? handleGetDriverTrips() : handleGetPassengerTrips() }} />}
+                ListEmptyComponent={<View style={{ flex: 1, width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center', paddingTop: 30 }}><Text>{userType === 'driver' ? 'No programaste ningún viaje' : 'No estás anotado para ningún viaje próximo'}</Text></View>}
                 renderItem={
                     ({ item, index }) =>
                         <>

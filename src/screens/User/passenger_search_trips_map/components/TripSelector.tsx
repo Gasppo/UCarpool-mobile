@@ -1,10 +1,21 @@
 import React from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, LayoutChangeEvent, View } from 'react-native';
 import { IconButton } from 'react-native-paper';
-import AMBACompleter from '../../../../components/autocompleter';
+import AMBACompleter, { Address } from '../../../../components/autocompleter';
 import { styles } from '../styles';
 
-const TripSelector = ({ borderRadii, onLayout, setSelectedStartAddress, setSelectedEndAddress, selectedStartAddress, selectedEndAddress }) => {
+type TripSelectorProps = {
+    borderRadii: Animated.Value,
+    onLayout: (event: LayoutChangeEvent, id: string) => void,
+    setSelectedStartAddress: (address: Address) => void,
+    setSelectedEndAddress: (address: Address) => void,
+    selectedStartAddress: Address,
+    selectedEndAddress: Address
+}
+
+const TripSelector = (props: TripSelectorProps) => {
+
+    const { borderRadii, onLayout, setSelectedStartAddress, setSelectedEndAddress, selectedStartAddress, selectedEndAddress } = props
 
     function flipAddresses() {
         const aux = selectedEndAddress
@@ -12,12 +23,12 @@ const TripSelector = ({ borderRadii, onLayout, setSelectedStartAddress, setSelec
         setSelectedStartAddress(aux)
     }
 
-    function handleChangeOfStartAddress(newAddress) {
+    function handleChangeOfStartAddress(newAddress: Address) {
         console.log('NEW ADDRESS', newAddress)
         setSelectedStartAddress(newAddress)
     }
 
-    function handleChangeOfEndAddress(newAddress) {
+    function handleChangeOfEndAddress(newAddress: Address) {
         setSelectedEndAddress(newAddress)
     }
 
@@ -34,7 +45,7 @@ const TripSelector = ({ borderRadii, onLayout, setSelectedStartAddress, setSelec
                     </View>
                 </View>
                 <View style={styles.addressFlipper}>
-                    <IconButton icon="arrow-up-down" mode="contained" color={'white'} onPress={flipAddresses} />
+                    <IconButton icon="arrow-up-down" color={'white'} onPress={flipAddresses} />
                 </View>
             </View>
         </Animated.View>

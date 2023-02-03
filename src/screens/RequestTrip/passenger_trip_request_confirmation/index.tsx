@@ -1,11 +1,12 @@
 import React from 'react';
-import {SafeAreaView, View} from 'react-native';
-import {Button as PaperButton} from 'react-native-paper';
+import { SafeAreaView, View } from 'react-native';
+import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Text from '../../../components/default_text';
-import {styles} from './styles';
+import { PassengerTripStackNavProps } from '../../../navigators/paramList/PassengerTripRequestList';
+import { styles } from './styles';
 
-export default function PassengerTripRequestConfirmation(props) {
+export default function PassengerTripRequestConfirmation(props: PassengerTripStackNavProps<'passenger_trip_request_confirmation'>) {
   return (
     <SafeAreaView style={styles.lgStyle}>
       <View style={styles.titleView}>

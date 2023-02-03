@@ -107,7 +107,7 @@ export default function RequestDetail(props: RequestDetailProps) {
                     <View id="iconContainer" style={styles.iconContainer}>
                         <Icon name={props.details.pickupType === 'driverPicksMe' ? 'car' : 'user'} size={26} color={UCA_BLUE} style={styles.optionIcon} />
                     </View>
-                    <Text style={{ paddingHorizontal: 10, color: 'black', flexShrink: 1 }} numberOfLines={1}>{props.details.User.name} {props.details.User.surname}</Text>
+                    <Text style={{ paddingHorizontal: 10, color: 'black', flexShrink: 1 }} numberOfLines={1}>{props.details.passenger.name} {props.details.passenger.surname}</Text>
                 </TouchableOpacity>
                 {props.details.status === 'pickedUp' ?
                     <IconButton
@@ -149,10 +149,10 @@ export default function RequestDetail(props: RequestDetailProps) {
                                     <View id="passengerProfileContainer" style={{ width: '50%', paddingTop: 5, paddingHorizontal: 5 }}>
                                         <View id="profileBox" style={{ width: '100%', backgroundColor: 'white', borderRadius: 15, alignSelf: 'flex-start', elevation: 5, padding: 15, alignItems: 'center', flexDirection: 'column' }}>
                                             <Icon name={'user'} size={64} color={UCA_BLUE} style={{ margin: 2 }} />
-                                            <Text style={{ textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE }}>{props.details.User.name} {props.details.User.surname}</Text>
+                                            <Text style={{ textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE }}>{props.details.passenger.name} {props.details.passenger.surname}</Text>
                                         </View>
                                     </View>
-                                    <Text style={{ textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE, paddingTop: 5 }}>{props.details.User.email}</Text>
+                                    <Text style={{ textAlign: 'center', alignSelf: 'center', flex: 1, color: UCA_BLUE, paddingTop: 5 }}>{props.details.passenger.email}</Text>
                                     <View id="carContainer" style={{ width: '100%', paddingHorizontal: 5, paddingBottom: 10 }}>
                                         <Text style={styles.boxLabel}>Mensaje:</Text>
                                         <View id="descriptionBox" style={{ flex: 1, backgroundColor: 'white', borderRadius: 15, elevation: 5, alignSelf: 'flex-start', justifyContent: 'center' }}>

@@ -22,6 +22,7 @@ export function UserProfile(props: ProfileStackNavProps<'user_profile'>) {
     const surnameInitial = userData.surname.charAt(0)
     const userLabel = nameInitial + surnameInitial
 
+    console.log('User Type', user?.isDriver)
 
     return (
         <>
@@ -46,11 +47,11 @@ export function UserProfile(props: ProfileStackNavProps<'user_profile'>) {
                         <Text style={{ ...styles.defaultText, color: 'white' }}>Modos habilitados</Text>
                         <View style={styles.innerUserModesContainer}>
                             <View style={[styles.userModeRectangles, { backgroundColor: userType === 'passenger' ? UCA_BLUE : 'white' }]}>
-                                <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'passenger' ? 'white' : UCA_BLUE }}>Conductor</Text>
+                                <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'passenger' ? 'white' : UCA_BLUE }}>Pasajero</Text>
                             </View>
                             {userData.isDriver ?
                                 <View style={[styles.userModeRectangles, { backgroundColor: userType === 'driver' ? UCA_BLUE : 'white' }]}>
-                                    <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'driver' ? 'white' : UCA_BLUE }}>Pasajero</Text>
+                                    <Text style={{ fontSize: 20, textAlign: 'center', color: userType === 'driver' ? 'white' : UCA_BLUE }}>Conductor</Text>
                                 </View>
                                 : <></>
                             }

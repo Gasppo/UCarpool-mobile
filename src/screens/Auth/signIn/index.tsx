@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, Alert, Image, View } from 'react-native';
+import { ActivityIndicator, Image, View } from 'react-native';
 import { Button as PaperButton } from 'react-native-paper';
 import { useAuthContext } from '../../../components/AuthProvider';
 import FocusAwareStatusBar from '../../../components/FocusAwareStatusBar';
@@ -20,8 +20,7 @@ export default function SignInScreen(props: AuthStackProps<'signIn'>) {
     React.useEffect(() => {
         console.log('isLoggedIn', isLoggedIn)
         if (isLoggedIn) {
-            if (!user) return Alert.alert('Hubo un problema al iniciar sesión.')
-            if (user.legajoUCA) {
+            if (user?.legajoUCA) {
                 navigation.navigate('signIn');
             }
         }

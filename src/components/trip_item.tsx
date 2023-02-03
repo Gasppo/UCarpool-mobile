@@ -12,7 +12,7 @@ import RequestDetail from './request_detail';
 
 import { AuthStackNavProps } from '../navigators/paramList/AuthList';
 import { TripData } from '../screens/CreateTrip/create_trip_details/callbacks';
-import { GetDriverTripsResponse, GetTripsResponseSeats } from '../types/fetchTypes';
+import { GetTripsResponse, GetTripsResponseSeats } from '../types/fetchTypes';
 import { getMarkerForAddress } from '../utils/auxiliaryFunctions';
 import { useAppActions } from '../utils/ReduxReplacerTest';
 
@@ -110,10 +110,12 @@ function getRegionForCoordinates(points: { lat: number, lng: number }[]) {
     return region
 }
 
+export type TripItemType = GetTripsResponse & {
+    hasBeenRequested?: boolean;
+};
+
 type TripItemProps = {
-    item: GetDriverTripsResponse & {
-        hasBeenRequested: boolean;
-    };
+    item: TripItemType
     hiddenCard?: boolean;
     refreshFn?: () => void;
 };
@@ -127,6 +129,7 @@ function TripItem(props: TripItemProps) {
     const mapRegion = getRegionForCoordinates([props.item.startAddress.coords, props.item.endAddress.coords])
     const navigation = useNavigation<AuthStackNavProps>();
     const mapRef = React.useRef(null);
+
 
     const userSeatAssignment = user ? item.SeatAssignments.find(seat => seat.passengerId === user.id) : undefined;
 
@@ -340,7 +343,7 @@ function TripItem(props: TripItemProps) {
                                 <View style={[styles.cardTripStatus, { backgroundColor: handleBackgroundColor(item.status) }]}>
                                     <Text style={styles.cardTripDateText}>{(new Date(item.estimatedStartTime).getDate() < 10 ? '0' : '') + new Date(item.estimatedStartTime).getDate() + '/' + (new Date(item.estimatedStartTime).getMonth() + 1 < 10 ? '0' : '') + (new Date(item.estimatedStartTime).getMonth() + 1)}</Text>
                                     <Text style={styles.cardTripStatusText}>
-                                        {userType === 'passenger' && item.hasBeenRequested && userSeatAssignment ?
+                                        {userType === 'passenger' && item?.hasBeenRequested && userSeatAssignment ?
                                             handlePassengerRequestStatusTextShown(userSeatAssignment.status)
                                             :
                                             getAvailableSeats(item.SeatAssignments) + '/' + item.maxPassengers
@@ -389,7 +392,7 @@ function TripItem(props: TripItemProps) {
                                     {getMarkerForAddress(item.startAddress, 'start')}
                                     {getMarkerForAddress(item.endAddress, 'end')}
                                 </MapView>
-                                {item.hasBeenRequested && userSeatAssignment ?
+                                {item?.hasBeenRequested && userSeatAssignment ?
                                     <>
                                         <View style={styles.row}>
                                             <View style={styles.stateContainer}>
@@ -522,7 +525,7 @@ function TripItem(props: TripItemProps) {
                                                 <></>
                                             }
                                             {userType === 'passenger' ?
-                                                item.hasBeenRequested && userSeatAssignment ?
+                                                item?.hasBeenRequested && userSeatAssignment ?
                                                     (item.status !== 'started' &&
                                                         <PaperButton mode="contained" icon="close" color={UCA_BLUE} style={styles.actionButton} onPress={() => handleDeleteSeatAssignment(userSeatAssignment.id)}>Quitar solicitud</PaperButton>)
                                                     :

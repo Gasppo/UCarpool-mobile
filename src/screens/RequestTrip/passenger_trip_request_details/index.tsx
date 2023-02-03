@@ -4,10 +4,10 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { Button as PaperButton } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Text from '../../../components/default_text';
+import { PassengerTripStackNavProps } from '../../../navigators/paramList/PassengerTripRequestList';
 import { useAppActions } from '../../../utils/ReduxReplacerTest';
-import { styles } from './styles';
 
-export default function PassengerTripRequestDetails(props) {
+export default function PassengerTripRequestDetails(props: PassengerTripStackNavProps<'passenger_trip_request_details'>) {
 
     const { user } = useAppActions()
 
@@ -16,7 +16,7 @@ export default function PassengerTripRequestDetails(props) {
         {
             message: '',
             tripId: props.route.params.tripData.id,
-            passengerId: user.id || 'none',
+            passengerId: user?.id || 'none',
             pickupType: 'goToDrivers',
             dropoffType: 'goToDrivers',
             pickupAddress: props.route.params.tripData.startAddress,
@@ -33,10 +33,10 @@ export default function PassengerTripRequestDetails(props) {
                 </TouchableOpacity>
             </View>
             <KeyboardAwareScrollView style={{ width: '95%', alignSelf: 'center', flex: 1 }}>
-                <View style={styles.itemContainer}>
+                <View >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                        <Text style={styles.headings}>Mensaje al conductor (opcional) </Text>
-                        <Text style={styles.headings}>{createRequestData.message.length}/200</Text>
+                        <Text >Mensaje al conductor (opcional) </Text>
+                        <Text >{createRequestData.message.length}/200</Text>
                     </View>
                     <TextInput
                         placeholder={'Ingrese una descripción...'}

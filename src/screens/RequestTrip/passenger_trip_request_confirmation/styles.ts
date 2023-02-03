@@ -1,5 +1,5 @@
-import {StyleSheet} from 'react-native';
-import {UCA_BLUE} from '../../../utils/constants';
+import { StyleSheet } from 'react-native';
+import { UCA_BLUE } from '../../../utils/constants';
 
 export const styles = StyleSheet.create({
   lgStyle: {
@@ -17,7 +17,7 @@ export const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     textShadowRadius: 20,
-    textShadowOffset: {width: 0, height: 2},
+    textShadowOffset: { width: 0, height: 2 },
   },
   main: {
     height: '80%',
